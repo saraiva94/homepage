@@ -140,7 +140,7 @@
   position: fixed;
   left: 0;
   top: 0;
-  width: 22px; height: 22px;
+  width: 32px; height: 32px;
   border-radius: 9999px;
   background: transparent;
   opacity: .75;                /* cauda vai ficando mais translúcida via JS */
@@ -156,7 +156,7 @@
   position: relative;
   display: inline-block;
   /* duração padrão do ciclo (glitch rápido + ~pausa) */
-  --glitch-cycle: 3s;
+  --glitch-cycle: 1s;
   animation: glitch-main var(--glitch-cycle) steps(1, end) infinite;
 }
 .glitch::before,

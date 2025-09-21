@@ -1,18 +1,8 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import CursorTrail from "../app/_components/cursortrail";
-import { JetBrains_Mono } from "next/font/google";
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400","600","700"],          // opcional
-  variable: "--font-jetbrains-mono",    // vira uma CSS var
-  display: "swap",
-});
-
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+import Image from "next/image";
+import bgMonterey from "../../assets/macos-monterey.jpg"; // ajuste o caminho se sua pasta for diferente
 
 export const metadata: Metadata = {
   title: "Landing Page",
@@ -21,13 +11,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${jetbrains.variable} antialiased`}>
-        <CursorTrail/>
+    <html lang="pt-BR">
+      <body className="relative min-h-screen bg-black text-white">
+        {/* Fundo global fixo atrás de TUDO */}
+        <div aria-hidden className="fixed inset-0 -z-10 pointer-events-none">
+          <Image
+            src={bgMonterey}
+            alt=""
+            fill
+            priority={false}
+            className="object-cover"
+          />
+          {/* escurece o wallpaper para dar contraste ao conteúdo */}
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+
         {children}
       </body>
     </html>
   );
 }
-
-
