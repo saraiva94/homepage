@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
@@ -44,26 +46,25 @@ export function Hero() {
         <article className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Coluna de texto */}
           <div className="space-y-6">
+
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 [-webkit-text-stroke:1.1px_rgba(0,0,0,.5)] [text-shadow:0_2px_10px_rgba(0,0,0,.55),0_0_2px_rgba(0,0,0,.8)]">
-              Bem vindo ao meu espaço aqui eu materializo todos os meus projetos
+
+              <span className="glitch block whitespace-nowrap py-0.5 font-mono" data-text="Command Lines">Command Lines</span> 
+              <span className="flex items-center">
+                
+                <i aria-hidden className="w-28 sm:w-36 lg:w-40" /> {/* invisível */}
+                <span className="glitch block whitespace-nowrap py-0.5 font-mono [--glitch-cycle:3.2s]" data-text="Timelines">Timelines</span>
+              </span>
             </h1>
-
-            <p className="lg:text-lg font-bold [font-family:'Nexa_Heavy','Nexa Heavy',Nexa,system-ui,sans-serif] [text-shadow:0_1px_6px_rgba(0,0,0,.5)]">
-              Em busca de oferecer os melhores serviços para garantir o progresso dos nossos objetivos
-            </p>
-
-            {/* Linha com botão sempre visível e imagem só no mobile */}
             <div className="mt-3 flex items-center justify-between gap-4">
               <a
                 href="https://wa.me/5521969381944"
-                className="bg-green-500 px-5 py-2 rounded-md font-semibold inline-flex items-center gap-2 w-fit
+                className="bg-green-500 hover:bg-blue-600 px-5 py-2 rounded-md font-semibold inline-flex items-center gap-2 w-fit
                            outline-none focus-visible:outline-2 focus-visible:outline-ring/50 focus-visible:outline-offset-2"
               >
                 <WhatsappLogo className="w-5 h-5" />
                 Contato via Whatsapp
               </a>
-
-              {/* Imagem mobile: alinhada ao botão e diminuindo com clamp; some no desktop */}
               <Image
                 src={stacksImg}
                 alt="Stacks"
@@ -78,8 +79,6 @@ export function Hero() {
               />
             </div>
           </div>
-
-          {/* Coluna da imagem (desktop) — permanece no layout grande */}
           <div className="hidden lg:flex items-center justify-center">
             <Image
               src={stacksImg}
