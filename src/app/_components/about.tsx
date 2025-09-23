@@ -90,13 +90,8 @@ export function About() {
 
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
-            <div className="text-white/90 leading-snug mb-6">
-              <h2 className="text-3xl font-bold mb-3">Informações</h2>
-              <h2 className="text-3xl font-bold mb-3">pessoais</h2>
-            </div>
-
                 <div className="text-white/90 leading-snug mb-6">
-                  <span className="block">Análise e Desenvolvimento de Sistemas (ADS)</span>
+                  <span className="block text-lg font-bold">Análise e Desenvolvimento de Sistemas (ADS)</span>
                   <span className="block">Faculdade Unigranrio</span>
                 </div>
 
@@ -127,25 +122,6 @@ export function About() {
                 </ul>
               </section>
             </div>
-
-            <section className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">Objetivo</h3>
-              <ul className="list-disc pl-5 space-y-1 marker:text-white/60">
-                <li>
-                  Atuar como Analista de Dados ou Desenvolvedor Web Júnior aplicando conhecimentos de
-                  estudos, certificações e projetos práticos.
-                </li>
-              </ul>
-            </section>
-
-            <section className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">Experiência e atuação</h3>
-              <ul className="list-disc pl-5 space-y-1 marker:text-white/60">
-                <li>Atendimento remoto, suporte claro e eficiente.</li>
-                <li>Home office com ferramentas digitais para comunicação e organização.</li>
-                <li>Gestão de tarefas e demandas; foco em entregas.</li>
-              </ul>
-            </section>
           </div>
 
           <div className="clear-both" />
