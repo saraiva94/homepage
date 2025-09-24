@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import binary from "../../../assets/binary.mp4";
 import stacksImg from "../../../assets/stacks.png";
-import { Clapperboard, Code2 } from "lucide-react"; 
+import { Clapperboard, Code2 } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,24 +86,24 @@ export function Hero() {
           <div className="pointer-events-none absolute inset-x-0 bottom-0">
             <div className="relative pointer-events-auto mx-0 px-4 h-[64px] md:h-[72px] pb-[35px] md:pb-[35px]">
               <div className="flex gap-3 items-end">
-                <a
-                  href="#" className="h-13 flex items-center justify-center gap-2
+                <Link
+                  href="/portifolio/edits" className="h-13 flex items-center justify-center gap-2
                              px-4 rounded-md font-semibold
                              bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
                              focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
                 >
                   <Clapperboard className="w-5 h-5" />
                   Portfólio Editor
-                </a>
-                <a
-                  href="#" className="h-13 flex items-center justify-center gap-2
+                </Link>
+                <Link
+                  href="/portifolio/dev" className="h-13 flex items-center justify-center gap-2
                              px-4 rounded-md font-semibold
                              bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
                              focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
                 >
                   <Code2 className="w-5 h-5" />
                   Portfólio Desenvolvedor
-                </a>
+                </Link>
               </div>
             </div>
           </div>
