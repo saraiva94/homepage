@@ -183,7 +183,10 @@ export default function DevPage() {
   }
 
   return (
-    <main className="relative bg-black text-white">
+    <main className="relative bg-black text-white , style={{ 
+    transformStyle: 'preserve-3d',
+    perspective: '1000px' "
+    >
       {/* fundo fixo com canvas */}
       <canvas
         ref={canvasRef}
@@ -207,8 +210,8 @@ export default function DevPage() {
 
       {/* Telas com AOS: 8 vídeos, 1 por tela */}
       {videos.map((name, idx) => (
-      <section key={idx} className="h-screen flex items-center justify-center">
-        <div data-aos="zoom-in-down" className="w-[min(92vw,1000px)] px-6">
+        <section key={idx} className="h-screen flex items-center justify-center">
+          <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
           <h3 className="text-xl font-semibold mb-3">Projeto {idx + 1}</h3>
           <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
             <source src={`/videos/${name}`} type="video/mp4" />
@@ -219,7 +222,7 @@ export default function DevPage() {
 
       {/* Fechamento (1 tela) */}
       <section className="h-screen flex items-center justify-center">
-        <div data-aos="zoom-in-down" className="w-[min(92vw,1000px)] px-6 text-center">
+        <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6 text-center">
           <h3 className="text-xl font-semibold mb-3">Fechamento</h3>
           <p className="opacity-80 mb-4">Obrigado por rolar. Quer ver mais?</p>
           <div className="flex justify-center gap-4">

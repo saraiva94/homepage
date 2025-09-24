@@ -187,7 +187,7 @@ export default function EditsPage() {
   }
 
   return (
-    <main className="relative bg-black text-white">
+    <main className="relative bg-black text-white" >
       {/* fundo fixo com canvas */}
       <canvas
         ref={canvasRef}
@@ -210,16 +210,13 @@ export default function EditsPage() {
       </div>
 
       {/* Telas com AOS: 8 vídeos, 1 por tela */}
-      {videos.map((name, idx) => (
-        <section
-          key={idx}
-          className="h-screen flex items-center justify-center"
-        >
-          <div
-            data-aos="zoom-in-down" // ← efeito de zoom de cima para baixo
-            className="w-[min(92vw,1000px)] px-6"
-          >
-            <h3 className="text-xl font-semibold mb-3">Projeto {idx + 1}</h3>
+      {[...videos].reverse().map((name, idx) => (
+        <section key={idx} className="h-screen flex items-center justify-center">
+          <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
+            {/* Se quiser manter a numeração original: Projeto 8, 7, ..., 1 */}
+            <h3 className="text-xl font-semibold mb-3">
+              Projeto {videos.length - idx}
+            </h3>
             <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
               <source src={`/videos/${name}`} type="video/mp4" />
             </video>
@@ -229,14 +226,11 @@ export default function EditsPage() {
 
       {/* Fechamento (1 tela) */}
       <section className="h-screen flex items-center justify-center">
-        <div data-aos="zoom-in-down" className="w-[min(92vw,1000px)] px-6 text-center">
+        <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6 text-center">
           <h3 className="text-xl font-semibold mb-3">Quer ver mais?</h3>
           <p className="opacity-80 mb-4">Faça contato</p>
           <div className="flex justify-center gap-4">
-            <Link
-              href="/"
-              className="inline-block rounded-md bg-white text-black px-4 py-2 font-semibold hover:bg-gray-100 transition"
-            >
+            <Link href="/" className="inline-block rounded-md bg-white text-black px-4 py-2 font-semibold hover:bg-gray-100 transition">
               Voltar à Home
             </Link>
             <button
