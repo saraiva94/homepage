@@ -13,19 +13,22 @@ gsap.registerPlugin(ScrollTrigger);
 // ---------- CONFIG ----------
 
 // Frames agora servidos de /public  →  /portifolio/background/sunset timeline/Neon sunset timeline000.jpg
-const FRAME_START = 14;     // começa em 001
-const FRAME_END   = 274;   // termina em 300
-const FRAME_PAD   = 5;  
-const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
+const FRAME_START = 14;
+const FRAME_END   = 274;
+const FRAME_PAD = 3;
+const FRAME_EXT   = "jpg";
 
 const FRAMES_DIR = "/background/Ultimate_tubular";
 const FRAME_BASENAME = "Ultimate_tubular_";
-const FRAME_EXT = "jpg"; 
+
+const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
+
 
 const frameURL = (idx0: number) => {
   const n = FRAME_START + idx0;
-  const file = `${FRAME_BASENAME}${String(n).padStart(FRAME_PAD, "0")}.${FRAME_EXT}`;
-  return encodeURI(`${FRAMES_DIR}/${file}`);
+  return encodeURI(
+    `${FRAMES_DIR}/${FRAME_BASENAME}${String(n).padStart(FRAME_PAD, "0")}.${FRAME_EXT}`
+  );
 };
 
 // ajuste aqui os vídeos que você colocou em /public/videos
