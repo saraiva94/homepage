@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className="relative min-h-screen bg-black text-white">
+      <body className="relative min-h-screen text-white">
         {/* Fundo global fixo atrás de TUDO */}
         <div aria-hidden className="fixed inset-0 -z-10 pointer-events-none">
           <Image
