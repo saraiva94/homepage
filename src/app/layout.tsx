@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Image from "next/image";
-import bgMonterey from "../../assets/macos-monterey.jpg"; // ajuste o caminho se sua pasta for diferente
+import bgMonterey from "../../assets/macos-monterey.jpg";
 
 export const metadata: Metadata = {
   title: "Landing Page",
@@ -12,17 +12,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className="relative min-h-screen text-white">
-        {/* Fundo global fixo atrás de TUDO */}
-        <div aria-hidden className="fixed inset-0 -z-10 pointer-events-none">
+      <body className="relative text-white">
+        {/* Fundo global fixo */}
+        <div aria-hidden className="fixed inset-0 -z-10">
           <Image
             src={bgMonterey}
             alt=""
             fill
-            priority={false}
+            priority
             className="object-cover"
+            sizes="100vw"
           />
-          {/* escurece o wallpaper para dar contraste ao conteúdo */}
           <div className="absolute inset-0 bg-black/45" />
         </div>
 

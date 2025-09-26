@@ -9,7 +9,7 @@ export default function CursorTrail() {
     // >>> Seus parâmetros originais (INALTERADOS)
     const COUNT = 40, SIZE = 30, STIFFNESS = 0.20, BLUR = 8;
 
-    const circles: HTMLDivElement[] = [];
+    const circles: HTMLElement[] = [];
     const coords = { x: innerWidth / 2, y: innerHeight / 2 };
     const pos = Array.from({ length: COUNT }, () => ({ x: coords.x, y: coords.y }));
 

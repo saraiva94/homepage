@@ -6,7 +6,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import AOS from "aos";
-import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
