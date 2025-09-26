@@ -46,11 +46,23 @@ export default function EditsPage() {
   // ---- Lenis + sync ----
   useEffect(() => {
     const lenis = new Lenis({ smoothWheel: true, lerp: 0.12 });
-    let rafId: number;
-    const raf = (t: number) => { lenis.raf(t); rafId = requestAnimationFrame(raf); };
+
+    let rafId = 0;
+    const raf = (t: number) => {
+      lenis.raf(t);
+      rafId = requestAnimationFrame(raf);
+    };
     rafId = requestAnimationFrame(raf);
-    lenis.on("scroll", ScrollTrigger.update);
-    return () => { cancelAnimationFrame(rafId); (lenis as any).destroy?.(); };
+
+    // tipagem do handler bate com o que o Lenis espera
+    lenis.on('scroll', () => {
+      ScrollTrigger.update();
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy(); // ✅ sem any, método existe no tipo
+    };
   }, []);
 
   // ---- Canvas DPR + cover ----
