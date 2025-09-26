@@ -5,8 +5,8 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import AOS from "aos"; // ✅ único import
+// ❌ NÃO importe "aos/dist/aos.css" aqui
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,8 +26,8 @@ const frameURL = (idx0: number) => {
 };
 
 const videos = [
-  "adobe.mp4", "adobe.mp4", "adobe.mp4", "adobe.mp4",
-  "adobe.mp4", "adobe.mp4", "adobe.mp4", "adobe.mp4",
+  "adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4",
+  "adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4",
 ];
 
 export default function EditsPage() {
@@ -36,28 +36,21 @@ export default function EditsPage() {
   const headerRef = useRef<HTMLDivElement>(null);
 
   const imagesRef = useRef<HTMLImageElement[]>([]);
-  const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
+  const stateRef  = useRef({ frame: 0, count: TOTAL_FRAMES });
+
+  // ---- AOS ----
+  useEffect(() => {
+    AOS.init({ once: true, duration: 700, easing: "ease-out-cubic", offset: 100 });
+  }, []);
 
   // ---- Lenis + sync ----
   useEffect(() => {
     const lenis = new Lenis({ smoothWheel: true, lerp: 0.12 });
-    const raf = (t: number) => {
-      lenis.raf(t);
-      requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
+    let rafId: number;
+    const raf = (t: number) => { lenis.raf(t); rafId = requestAnimationFrame(raf); };
+    rafId = requestAnimationFrame(raf);
     lenis.on("scroll", ScrollTrigger.update);
-    return () => (lenis as unknown as { destroy?: () => void }).destroy?.();
-  }, []);
-
-  // ---- AOS ----
-  useEffect(() => {
-    AOS.init({
-      once: true,
-      duration: 700,
-      easing: "ease-out-cubic",
-      offset: 100, // começa um pouco antes de entrar na tela
-    });
+    return () => { cancelAnimationFrame(rafId); (lenis as any).destroy?.(); };
   }, []);
 
   // ---- Canvas DPR + cover ----
@@ -80,7 +73,6 @@ export default function EditsPage() {
   const render = () => {
     const ctx = ctxRef.current!;
     const canvas = canvasRef.current!;
-
     if (!ctx || !canvas) return;
 
     const img = imagesRef.current[stateRef.current.frame];
@@ -93,19 +85,11 @@ export default function EditsPage() {
     const canvasAspect = cw / ch;
     const imageAspect = img.naturalWidth / img.naturalHeight;
 
-    let dw = cw,
-      dh = ch,
-      dx = 0,
-      dy = 0;
-
+    let dw = cw, dh = ch, dx = 0, dy = 0;
     if (imageAspect > canvasAspect) {
-      dh = ch;
-      dw = dh * imageAspect;
-      dx = (cw - dw) / 2;
+      dh = ch; dw = dh * imageAspect; dx = (cw - dw) / 2;
     } else {
-      dw = cw;
-      dh = dw / imageAspect;
-      dy = (ch - dh) / 2;
+      dw = cw; dh = dw / imageAspect; dy = (ch - dh) / 2;
     }
     ctx.drawImage(img, dx, dy, dw, dh);
   };
@@ -138,20 +122,14 @@ export default function EditsPage() {
       imagesRef.current[i] = img;
     }
 
-    const onResize = () => {
-      setupCanvas();
-      render();
-      ScrollTrigger.refresh();
-    };
+    const onResize = () => { setupCanvas(); render(); ScrollTrigger.refresh(); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ---- ScrollTrigger (frames + profundidade no header) ----
   function buildScroll() {
-    const durationPx = document.body.scrollHeight - window.innerHeight; // scroll total da página
-
+    const durationPx = document.body.scrollHeight - window.innerHeight;
     ScrollTrigger.create({
       trigger: "body",
       start: "top top",
@@ -160,14 +138,12 @@ export default function EditsPage() {
       onUpdate: (self) => {
         const progress = self.progress;
 
-        // frames (0..1.0 do range)
         const targetFrame = Math.round(progress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
-        // header: 0..25% afasta em Z e fade-out
         if (headerRef.current) {
           if (progress <= 0.25) {
             const zProgress = progress / 0.25;
@@ -187,15 +163,12 @@ export default function EditsPage() {
   }
 
   return (
-    <main className="relative bg-black text-white" >
-      {/* fundo fixo com canvas */}
+    <main className="relative bg-black text-white">
       <canvas
         ref={canvasRef}
         className="fixed inset-0 w-full h-full z-0"
         style={{ pointerEvents: "none" }}
       />
-
-      {/* header 3D */}
       <div
         ref={headerRef}
         className="absolute left-1/2 top-[12vh] -translate-x-1/2 -translate-y-1/2 text-center [transform-style:preserve-3d] z-10"
@@ -206,17 +179,13 @@ export default function EditsPage() {
              hover:bg-transparent hover:text-white transition">
           ← Voltar
         </Link>
-        <h1 className="text-3xl md:text-5xl font-bold  text-black">Edits</h1>
+        <h1 className="text-3xl md:text-5xl font-bold text-black">Edits</h1>
       </div>
 
-      {/* Telas com AOS: 8 vídeos, 1 por tela */}
       {[...videos].reverse().map((name, idx) => (
         <section key={idx} className="h-screen flex items-center justify-center">
           <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
-            {/* Se quiser manter a numeração original: Projeto 8, 7, ..., 1 */}
-            <h3 className="text-xl font-semibold mb-3">
-              Projeto {videos.length - idx}
-            </h3>
+            <h3 className="text-xl font-semibold mb-3">Projeto {videos.length - idx}</h3>
             <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
               <source src={`/videos/${name}`} type="video/mp4" />
             </video>
@@ -224,7 +193,6 @@ export default function EditsPage() {
         </section>
       ))}
 
-      {/* Fechamento (1 tela) */}
       <section className="h-screen flex items-center justify-center">
         <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6 text-center">
           <h3 className="text-xl font-semibold mb-3">Quer ver mais?</h3>
@@ -237,7 +205,7 @@ export default function EditsPage() {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="inline-block rounded-md bg-gray-700 text-white px-4 py-2 font-semibold hover:bg-gray-600 transition"
             >
-              Inicio
+              Início
             </button>
           </div>
         </div>

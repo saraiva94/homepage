@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import 'aos/dist/aos.css';
 import Image from "next/image";
 import bgMonterey from "../../assets/macos-monterey.jpg";
 

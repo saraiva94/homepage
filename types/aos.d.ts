@@ -17,3 +17,4 @@ declare module "aos" {
   };
   export default AOS;
 }
+declare module '*.css';
