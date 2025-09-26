@@ -15,8 +15,8 @@ const FRAME_START = 1;
 const FRAME_END   = 300;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
 
-const FRAMES_DIR = "/background/sunset timeline";
-const FRAME_BASENAME = "Neon sunset timeline";
+const FRAMES_DIR = "/background/sunset_timeline";
+const FRAME_BASENAME = "Neon_sunset_timeline";
 const FRAME_EXT = "jpg";
 
 const frameURL = (idx0: number) => {
