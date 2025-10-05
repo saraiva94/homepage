@@ -201,6 +201,8 @@
   12% { transform:none; }
 }
 
-
+.glitch {
+  will-change: animation;
+}
 
 

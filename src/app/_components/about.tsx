@@ -100,6 +100,8 @@ export function About() {
               <section>
                 <h3 className="text-lg font-semibold mb-2">Hard skills</h3>
                 <ul className="list-disc pl-5 space-y-1 marker:text-white/60">
+                  <li>After effects</li>
+                  <li>Premiere pro</li>
                   <li>HTML5 e CSS3 (Tailwind)</li>
                   <li>JavaScript | TypeScript</li>
                   <li>React | React Native | Next.js</li>
@@ -110,6 +112,7 @@ export function About() {
                   <li>Excel</li>
                 </ul>
               </section>
+
 
               <section>
                 <h3 className="text-lg font-semibold mb-2">Soft skills</h3>
