@@ -107,7 +107,7 @@ export function About() {
                   <li>Python (análise de dados, integração de IA)</li>
                   <li>SQL: MySQL | SQLite</li>
                   <li>Versionamento: Git, GitHub, Git Bash</li>
-                  <li>Excel (básico)</li>
+                  <li>Excel</li>
                 </ul>
               </section>
 
