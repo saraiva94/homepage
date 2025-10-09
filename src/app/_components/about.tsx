@@ -58,11 +58,26 @@ export function About() {
                 className="mt-2 w-[var(--avatar)]
                            inline-flex items-center justify-center gap-2
                            px-4 py-2 rounded-md font-semibold
-                           bg-red-500 hover:bg-red-600 active:bg-red-700
+                           bg-red-500 hover:bg-red-600 active:bg-red-10000
                            text-white shadow-sm
-                           focus-visible:outline-2 focus-visible:outline-red-400 focus-visible:outline-offset-2"
-              >
+                           focus-visible:outline-2 focus-visible:outline-red-400 focus-visible:outline-offset-2 motion-safe:transition motion-safe:duration-300 motion-safe:ease-out
+                            hover:shadow-md hover:-translate-y-0.5 transition-colors duration-300 ease-in-out" 
+                >
                 Currículo
+              </a>
+              <a
+                href="https://github.com/Saraiva94"
+                className="mt-2 w-[var(--avatar)]
+                            inline-flex items-center justify-center gap-2
+                            px-4 py-2 rounded-md font-semibold
+                            bg-black hover:bg-neutral-800 active:bg-neutral-900
+                            text-white shadow-sm
+                            focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2
+
+                            transition-colors duration-300 ease-in-out
+                            hover:shadow-md hover:-translate-y-0.5"
+              >
+                Github
               </a>
 
               <a
@@ -70,22 +85,14 @@ export function About() {
                 className="mt-2 w-[var(--avatar)]
                            inline-flex items-center justify-center gap-2
                            px-4 py-2 rounded-md font-semibold
-                           bg-green-500 hover:bg-green-600 active:bg-green-700
+                           bg-green-500 hover:bg-green-600 active:bg-green-10000
                            text-white shadow-sm
-                           focus-visible:outline-2 focus-visible:outline-green-300 focus-visible:outline-offset-2"
+                           focus-visible:outline-2 focus-visible:outline-green-300 
+                            focus-visible:outline-offset-2 motion-safe:transition motion-safe:duration-300 motion-safe:ease-out
+                            hover:shadow-md hover:-translate-y-0.5 transition-colors duration-300 ease-in-out"
+                           
               >
                 Whatsapp
-              </a>
-                            <a
-                href="https://github.com/Saraiva94"
-                className="mt-2 w-[var(--avatar)]
-                           inline-flex items-center justify-center gap-2
-                           px-4 py-2 rounded-md font-semibold
-                           bg-black hover:bg-white active:bg-white
-                           text-white shadow-sm
-                           focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
-              >
-                Github
               </a>
             </div>
           </div>

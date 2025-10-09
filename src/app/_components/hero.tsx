@@ -87,21 +87,51 @@ export function Hero() {
             <div className="relative pointer-events-auto mx-0 px-4 h-[64px] md:h-[72px] pb-[35px] md:pb-[35px]">
               <div className="flex gap-3 items-end">
                 <Link
-                  href="/portifolio/edits" className="h-13 flex items-center justify-center gap-2
-                             px-4 rounded-md font-semibold
-                             bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
-                             focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
+                  href="/portifolio/edits"
+                  className="
+                    group h-13 flex items-center justify-center gap-2
+                    px-4 rounded-md font-semibold
+                    bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
+                    text-white
+                    focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2
+
+                    /* animação suave */
+                    transition-colors duration-300 ease-in-out
+                    motion-safe:transition-transform motion-safe:duration-300
+                    hover:-translate-y-0.5 hover:shadow-md
+                  "
                 >
-                  <Clapperboard className="w-5 h-5" />
+                  <Clapperboard
+                    className="
+                      w-5 h-5
+                      motion-safe:transition-transform motion-safe:duration-300
+                      group-hover:scale-110 group-hover:-rotate-1
+                    "
+                  />
                   Portfólio Editor
                 </Link>
+
                 <Link
-                  href="/portifolio/dev" className="h-13 flex items-center justify-center gap-2
-                             px-4 rounded-md font-semibold
-                             bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
-                             focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
+                  href="/portifolio/dev"
+                  className="
+                    group h-13 flex items-center justify-center gap-2
+                    px-4 rounded-md font-semibold
+                    bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
+                    text-white
+                    focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2
+
+                    transition-colors duration-300 ease-in-out
+                    motion-safe:transition-transform motion-safe:duration-300
+                    hover:-translate-y-0.5 hover:shadow-md
+                  "
                 >
-                  <Code2 className="w-5 h-5" />
+                  <Code2
+                    className="
+                      w-5 h-5
+                      motion-safe:transition-transform motion-safe:duration-300
+                      group-hover:scale-110 group-hover:-rotate-1
+                    "
+                  />
                   Portfólio Desenvolvedor
                 </Link>
               </div>
