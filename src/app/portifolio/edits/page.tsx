@@ -26,8 +26,7 @@ const frameURL = (idx0: number) => {
 };
 
 const videos = [
-  "adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4",
-  "adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4",
+  "adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4","adobe.mp4","Dieta_animal.mp4","Groppaverso.mp4","Propagandas.mp4"
 ];
 
 export default function EditsPage() {
