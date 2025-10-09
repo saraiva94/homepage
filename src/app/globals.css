@@ -118,6 +118,10 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+* {
+    box-sizing: border-box
+}  
+
 @layer base {
   /* remove outline global (ele ignorava o border-radius) */
   * { @apply border-border; }

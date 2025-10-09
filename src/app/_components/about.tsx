@@ -76,6 +76,17 @@ export function About() {
               >
                 Whatsapp
               </a>
+                            <a
+                href="https://github.com/Saraiva94"
+                className="mt-2 w-[var(--avatar)]
+                           inline-flex items-center justify-center gap-2
+                           px-4 py-2 rounded-md font-semibold
+                           bg-black hover:bg-white active:bg-white
+                           text-white shadow-sm
+                           focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+              >
+                Github
+              </a>
             </div>
           </div>
 
@@ -91,7 +102,7 @@ export function About() {
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
                 <div className="text-white/90 leading-snug mb-6">
-                  <span className="block text-lg font-bold">Análise e Desenvolvimento de Sistemas (ADS)</span>
+                  <span className=" block text-lg font-bold">Análise e Desenvolvimento de Sistemas (ADS)</span>
                   <span className="block">Faculdade Unigranrio</span>
                 </div>
 
