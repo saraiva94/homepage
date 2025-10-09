@@ -51,7 +51,7 @@ export function Hero() {
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 [-webkit-text-stroke:1.1px_rgba(0,0,0,.5)] [text-shadow:0_2px_10px_rgba(0,0,0,.55),0_0_2px_rgba(0,0,0,.8)]">
                 <span
-                  className="glitch block whitespace-nowrap py-0.5 font-mono"
+                  className="glitch block whitespace-nowrap py-0.5 font-mono [--glitch-cycle:1s]"
                   data-text="Command Lines"
                 >
                   Command Lines
