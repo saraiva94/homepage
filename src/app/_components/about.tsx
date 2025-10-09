@@ -102,7 +102,17 @@ export function About() {
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
                 <div className="text-white/90 leading-snug mb-6">
-                  <span className=" block text-lg font-bold">Análise e Desenvolvimento de Sistemas (ADS)</span>
+                  <span className="block text-lg font-bold leading-tight md:hidden">
+                    Análise e<br />
+                    desenvolvimento<br />
+                    de sistemas (ADS)
+                  </span>
+
+                  {/* Desktop/Tablet: uma linha só */}
+                  <span className="hidden md:block text-lg font-bold">
+                    Análise e Desenvolvimento de Sistemas (ADS)
+                  </span>
+
                   <span className="block">Faculdade Unigranrio</span>
                 </div>
 
