@@ -5,10 +5,19 @@ import about1Img from "../../../assets/eu.png";
 import about2Img from "../../../assets/background.jpg";
 
 export function About() {
+  // classes base para padronizar (opcional; pode inline se preferir)
+  const btnBase =
+    "mt-2 w-[var(--avatar)] inline-flex items-center justify-center gap-2 " +
+    "px-4 py-2 rounded-md font-semibold text-white shadow-sm " +
+    "focus-visible:outline-2 focus-visible:outline-offset-2 " +
+    "transition-colors duration-300 ease-in-out " + // cor suave
+    "motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out " + // lift suave
+    "hover:-translate-y-0.5 hover:shadow-md";
+
   return (
     <section className="py-6 bg-transparent mb-6 md:mb-10">
       <div className="container mx-auto px-4">
-        {/* Define a var p/ avatar: de 120px até 240px, escalando com a viewport */}
+        {/* var do avatar: 120..240px */}
         <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)]">
           {/* overlay glass */}
           <div
@@ -35,9 +44,7 @@ export function About() {
               />
             </div>
 
-            {/* avatar + botões ANCORADOS por var:
-               - right: aproxima conforme viewport
-               - bottom: ~29.2% do avatar (≈70px quando avatar=240px) */}
+            {/* avatar + botões */}
             <div
               className="
                 absolute
@@ -46,83 +53,53 @@ export function About() {
                 z-20 flex flex-col items-center pointer-events-auto
               "
             >
-              {/* avatar responsivo 120..240 */}
+              {/* avatar */}
               <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 overflow-hidden rounded-lg">
                 <Image src={about1Img} alt="eu" fill quality={100} priority />
               </div>
 
-              {/* botões com a MESMA largura do avatar */}
+              {/* Currículo (vermelho) */}
               <a
                 href="/Curriculo_Swamiy_Saraiva.pdf"
                 download="Curriculo_Swamiy_Saraiva.pdf"
-                className="mt-2 w-[var(--avatar)]
-                           inline-flex items-center justify-center gap-2
-                           px-4 py-2 rounded-md font-semibold
-                           bg-red-500 hover:bg-red-600 active:bg-red-10000
-                           text-white shadow-sm
-                           focus-visible:outline-2 focus-visible:outline-red-400 focus-visible:outline-offset-2 motion-safe:transition motion-safe:duration-300 motion-safe:ease-out
-                            hover:shadow-md hover:-translate-y-0.5 transition-colors duration-300 ease-in-out" 
-                >
+                className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
+              >
                 Currículo
               </a>
+
+              {/* GitHub (preto) — sem flash / cor consistente */}
               <a
                 href="https://github.com/Saraiva94"
-                className="mt-2 w-[var(--avatar)]
-                            inline-flex items-center justify-center gap-2
-                            px-4 py-2 rounded-md font-semibold
-                            bg-black hover:bg-neutral-800 active:bg-neutral-900
-                            text-white shadow-sm
-                            focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2
-
-                            transition-colors duration-300 ease-in-out
-                            hover:shadow-md hover:-translate-y-0.5"
+                className={`${btnBase} bg-black hover:bg-neutral-800 active:bg-neutral-900 focus-visible:outline-white`}
               >
                 Github
               </a>
 
+              {/* WhatsApp (verde) */}
               <a
                 href="https://wa.me/5521969381944"
-                className="mt-2 w-[var(--avatar)]
-                           inline-flex items-center justify-center gap-2
-                           px-4 py-2 rounded-md font-semibold
-                           bg-green-500 hover:bg-green-600 active:bg-green-10000
-                           text-white shadow-sm
-                           focus-visible:outline-2 focus-visible:outline-green-300 
-                            focus-visible:outline-offset-2 motion-safe:transition motion-safe:duration-300 motion-safe:ease-out
-                            hover:shadow-md hover:-translate-y-0.5 transition-colors duration-300 ease-in-out"
-                           
+                className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
               >
                 Whatsapp
               </a>
             </div>
           </div>
 
-          {/* placeholder ÚNICO que acompanha o avatar (texto desvia sempre) */}
-          <div
-            aria-hidden
-            className="hidden sm:block float-right mr-4
-                       w-[var(--avatar)]
-                       h-[calc(var(--avatar)+6rem)]
-                       [shape-outside:circle(50%)]"
-          />
-
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
-                <div className="text-white/90 leading-snug mb-6">
-                  <span className="block text-lg font-bold leading-tight md:hidden">
-                    Análise e<br />
-                    desenvolvimento<br />
-                    de sistemas (ADS)
-                  </span>
-
-                  {/* Desktop/Tablet: uma linha só */}
-                  <span className="hidden md:block text-lg font-bold">
-                    Análise e Desenvolvimento de Sistemas (ADS)
-                  </span>
-
-                  <span className="block">Faculdade Unigranrio</span>
-                </div>
-
+            <div className="text-white/90 leading-snug mb-6">
+              {/* Mobile: 3 linhas */}
+              <span className="block text-lg font-bold leading-tight md:hidden">
+                Análise e<br />
+                desenvolvimento<br />
+                de sistemas (ADS)
+              </span>
+              {/* Desktop/Tablet: 1 linha */}
+              <span className="hidden md:block text-lg font-bold">
+                Análise e Desenvolvimento de Sistemas (ADS)
+              </span>
+              <span className="block">Faculdade Unigranrio</span>
+            </div>
 
             <div className="grid md:grid-cols-2 gap-8">
               <section>
@@ -140,7 +117,6 @@ export function About() {
                   <li>Excel</li>
                 </ul>
               </section>
-
 
               <section>
                 <h3 className="text-lg font-semibold mb-2">Soft skills</h3>

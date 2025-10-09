@@ -27,7 +27,7 @@ export function Hero() {
 
   return (
     <section className="relative isolate overflow-hidden bg-[#6f00ff] text-white">
-      {/* Vídeo de fundo (sem distorcer) */}
+      {/* Vídeo de fundo */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
           ref={videoRef}
@@ -44,7 +44,6 @@ export function Hero() {
 
       {/* Conteúdo */}
       <div className="relative z-20 container mx-auto px-4 py-12">
-        {/* Wrapper relativo: reserva exatamente a altura da barra */}
         <div className="relative pb-[64px] md:pb-[72px]">
           {/* Linha principal */}
           <div className="grid gap-8 lg:grid-cols-2 items-center mb-8">
@@ -95,7 +94,6 @@ export function Hero() {
                     text-white
                     focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2
 
-                    /* animação suave */
                     transition-colors duration-300 ease-in-out
                     motion-safe:transition-transform motion-safe:duration-300
                     hover:-translate-y-0.5 hover:shadow-md
