@@ -5,8 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import AOS from "aos"; // ✅ único import
-// ❌ NÃO importe "aos/dist/aos.css" aqui
+import AOS from "aos";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -190,13 +189,11 @@ export default function EditsPage() {
              hover:bg-transparent hover:text-white transition">
           ← Voltar
         </Link>
-        <h1 className="text-3xl md:text-5xl font-bold text-black">Edits</h1>
       </div>
 
       {[...videos].reverse().map((name, idx) => (
         <section key={idx} className="h-screen flex items-center justify-center">
           <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
-            <h3 className="text-xl font-semibold mb-3">Projeto {videos.length - idx}</h3>
             <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
               <source src={`/videos/${name}`} type="video/mp4" />
             </video>

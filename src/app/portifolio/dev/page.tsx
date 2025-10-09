@@ -204,14 +204,12 @@ export default function DevPage() {
              hover:bg-transparent hover:text-white transition">
           ← Voltar
         </Link>
-        <h1 className="text-3xl md:text-5xl font-bold">Development</h1>
       </div>
 
       {/* Telas com AOS: 8 vídeos, 1 por tela */}
       {videos.map((name, idx) => (
         <section key={idx} className="h-screen flex items-center justify-center">
           <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
-          <h3 className="text-xl font-semibold mb-3">Projeto {idx + 1}</h3>
           <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
             <source src={`/videos/${name}`} type="video/mp4" />
           </video>
