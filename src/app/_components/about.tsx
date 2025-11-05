@@ -111,8 +111,9 @@ export function About() {
                   <li>JavaScript | TypeScript</li>
                   <li>React | React Native | Next.js</li>
                   <li>Node.js (APIs, SSR)</li>
-                  <li>Python (análise de dados, integração de IA)</li>
+                  <li>Cloud Computing: Microsoft Azure</li>
                   <li>SQL: MySQL | SQLite</li>
+                  <li>Python (análise de dados, integração de IA)</li>
                   <li>Versionamento: Git, GitHub, Git Bash</li>
                   <li>Excel</li>
                 </ul>
