@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clapperboard, Code2, FileText, Github, MessageCircle, Film, Code, FileCode, Atom, Server, Cloud, Database, Binary, GitBranch, FileSpreadsheet } from "lucide-react";
+import { Clapperboard, Code2, FileText, Github, MessageCircle, Film, Code, FileCode, Atom, Server, Cloud, Database, Binary, GitBranch, FileSpreadsheet, MessagesSquare, ListChecks, Users, Zap, Lightbulb } from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 const about1Img = about1ImgRaw as unknown as string;
@@ -135,12 +135,12 @@ export function About() {
 
               <section>
                 <h3 className="text-lg font-semibold mb-2">Soft skills</h3>
-                <ul className="list-disc pl-5 space-y-1 marker:text-white/60">
-                  <li>Boa comunicação</li>
-                  <li>Organização exemplar</li>
-                  <li>Trabalho em equipe</li>
-                  <li>Proatividade</li>
-                  <li>Visão criativa</li>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2"><MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação</li>
+                  <li className="flex items-center gap-2"><ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar</li>
+                  <li className="flex items-center gap-2"><Users className="w-4 h-4 text-purple-400" /> Trabalho em equipe</li>
+                  <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-400" /> Proatividade</li>
+                  <li className="flex items-center gap-2"><Lightbulb className="w-4 h-4 text-orange-400" /> Visão criativa</li>
                 </ul>
               </section>
             </div>
