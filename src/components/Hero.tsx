@@ -30,7 +30,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.35] [transform:translateZ(0)] [filter:hue-rotate(90deg)_saturate(2)]"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.4] [transform:translateZ(0)] grayscale [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
           autoPlay
           muted
           playsInline
@@ -48,9 +48,9 @@ export function Hero() {
           <div className="grid gap-4 lg:grid-cols-2 items-center mb-4">
             {/* Título */}
             <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 [-webkit-text-stroke:1.1px_rgba(0,255,0,.3)] [text-shadow:0_2px_10px_rgba(0,255,0,.55),0_0_2px_rgba(0,0,0,.8)]">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 text-green-400">
                 <span
-                  className="glitch block whitespace-nowrap py-0.5 font-mono [--glitch-cycle:1s]"
+                  className="glitch block whitespace-nowrap py-0.5 font-mono"
                   data-text="Command Lines"
                 >
                   Command Lines
@@ -58,7 +58,7 @@ export function Hero() {
                 <span className="flex items-center">
                   <i aria-hidden className="w-24 sm:w-32 lg:w-40" />
                   <span
-                    className="glitch block whitespace-nowrap py-0.5 font-mono [--glitch-cycle:3.2s]"
+                    className="glitch block whitespace-nowrap py-0.5 font-mono"
                     data-text="Timelines"
                   >
                     Timelines
