@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clapperboard, Code2, FileText, Github, MessageCircle } from "lucide-react";
+import { Clapperboard, Code2, FileText, Github, MessageCircle, Film, Code, FileCode, Atom, Server, Cloud, Database, Binary, GitBranch, FileSpreadsheet } from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 const about1Img = about1ImgRaw as unknown as string;
@@ -118,18 +118,18 @@ export function About() {
             <div className="grid md:grid-cols-2 gap-8">
               <section>
                 <h3 className="text-lg font-semibold mb-2">Hard skills</h3>
-                <ul className="list-disc pl-5 space-y-1 marker:text-white/60">
-                  <li>After effects</li>
-                  <li>Premiere pro</li>
-                  <li>HTML5 e CSS3 (Tailwind)</li>
-                  <li>JavaScript | TypeScript</li>
-                  <li>React | React Native | Next.js</li>
-                  <li>Node.js (APIs, SSR)</li>
-                  <li>Cloud Computing: Microsoft Azure</li>
-                  <li>SQL: MySQL | SQLite</li>
-                  <li>Python (análise de dados, integração de IA)</li>
-                  <li>Versionamento: Git, GitHub, Git Bash</li>
-                  <li>Excel</li>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2"><Film className="w-4 h-4 text-purple-400" /> After effects</li>
+                  <li className="flex items-center gap-2"><Film className="w-4 h-4 text-purple-400" /> Premiere pro</li>
+                  <li className="flex items-center gap-2"><Code className="w-4 h-4 text-orange-400" /> HTML5 e CSS3 (Tailwind)</li>
+                  <li className="flex items-center gap-2"><FileCode className="w-4 h-4 text-yellow-400" /> JavaScript | TypeScript</li>
+                  <li className="flex items-center gap-2"><Atom className="w-4 h-4 text-cyan-400" /> React | React Native | Next.js</li>
+                  <li className="flex items-center gap-2"><Server className="w-4 h-4 text-green-400" /> Node.js (APIs, SSR)</li>
+                  <li className="flex items-center gap-2"><Cloud className="w-4 h-4 text-blue-400" /> Cloud Computing: Microsoft Azure</li>
+                  <li className="flex items-center gap-2"><Database className="w-4 h-4 text-blue-300" /> SQL: MySQL | SQLite</li>
+                  <li className="flex items-center gap-2"><Binary className="w-4 h-4 text-yellow-300" /> Python (análise de dados, integração de IA)</li>
+                  <li className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-orange-500" /> Versionamento: Git, GitHub, Git Bash</li>
+                  <li className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-green-500" /> Excel</li>
                 </ul>
               </section>
 
