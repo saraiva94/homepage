@@ -53,34 +53,6 @@ export function About() {
                 <img src={about1Img} alt="eu" className="w-full h-full object-cover" />
               </div>
 
-              {/* Currículo (vermelho) */}
-              <a
-                href="/Curriculo_Swamiy_Saraiva.pdf"
-                download="Curriculo_Swamiy_Saraiva.pdf"
-                className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
-              >
-                <FileText className="w-4 h-4" />
-                Currículo
-              </a>
-
-              {/* GitHub (cinza) */}
-              <a
-                href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black focus-visible:outline-gray-400`}
-              >
-                <Github className="w-4 h-4" />
-                Github
-              </a>
-
-              {/* WhatsApp (verde) */}
-              <a
-                href="https://wa.me/5521969381944"
-                className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
-              >
-                <MessageCircle className="w-4 h-4" />
-                Whatsapp
-              </a>
-
               {/* Portfólio Editor */}
               <Link
                 to="/portfolio/edits"
@@ -98,6 +70,34 @@ export function About() {
                 <Code2 className="w-4 h-4" />
                 Portfólio Dev
               </Link>
+
+              {/* WhatsApp (verde) */}
+              <a
+                href="https://wa.me/5521969381944"
+                className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
+              >
+                <MessageCircle className="w-4 h-4" />
+                Whatsapp
+              </a>
+
+              {/* Currículo (vermelho) */}
+              <a
+                href="/Curriculo_Swamiy_Saraiva.pdf"
+                download="Curriculo_Swamiy_Saraiva.pdf"
+                className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
+              >
+                <FileText className="w-4 h-4" />
+                Currículo
+              </a>
+
+              {/* GitHub (cinza) */}
+              <a
+                href="https://github.com/Saraiva94"
+                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black focus-visible:outline-gray-400`}
+              >
+                <Github className="w-4 h-4 text-black" />
+                Github
+              </a>
             </div>
           </div>
 
