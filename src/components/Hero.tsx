@@ -43,7 +43,7 @@ export function Hero() {
       <div className="relative z-20 container mx-auto px-4 py-0.5">
         <div className="relative pb-[6px] md:pb-[7px]">
           {/* Linha principal */}
-          <div className="grid gap-1 lg:grid-cols-2 items-center mb-1">
+          <div className="flex flex-col lg:flex-row gap-1 items-center justify-center mb-1">
             {/* Título */}
             <div>
               <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400">
@@ -66,7 +66,7 @@ export function Hero() {
             </div>
 
             {/* Imagem das stacks */}
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center lg:justify-center">
               <img
                 src={stacksImg}
                 alt="Stacks"
