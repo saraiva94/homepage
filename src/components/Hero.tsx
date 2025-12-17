@@ -40,8 +40,8 @@ export function Hero() {
       </div>
 
       {/* Conteúdo */}
-      <div className="relative z-20 container mx-auto px-4 py-1">
-        <div className="relative pb-[8px] md:pb-[9px]">
+      <div className="relative z-20 container mx-auto px-4 py-0.5">
+        <div className="relative pb-[6px] md:pb-[7px]">
           {/* Linha principal */}
           <div className="grid gap-1 lg:grid-cols-2 items-center mb-1">
             {/* Título */}
