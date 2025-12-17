@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clapperboard, Code2 } from "lucide-react";
+import { Clapperboard, Code2, FileText, Github, MessageCircle } from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 const about1Img = about1ImgRaw as unknown as string;
@@ -59,6 +59,7 @@ export function About() {
                 download="Curriculo_Swamiy_Saraiva.pdf"
                 className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
               >
+                <FileText className="w-4 h-4" />
                 Currículo
               </a>
 
@@ -67,6 +68,7 @@ export function About() {
                 href="https://github.com/Saraiva94"
                 className={`${btnBase} bg-black hover:bg-neutral-800 active:bg-neutral-900 focus-visible:outline-white`}
               >
+                <Github className="w-4 h-4" />
                 Github
               </a>
 
@@ -75,6 +77,7 @@ export function About() {
                 href="https://wa.me/5521969381944"
                 className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
               >
+                <MessageCircle className="w-4 h-4" />
                 Whatsapp
               </a>
 
