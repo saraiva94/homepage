@@ -63,10 +63,10 @@ export function About() {
                 Currículo
               </a>
 
-              {/* GitHub (preto) */}
+              {/* GitHub (cinza) */}
               <a
                 href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-black hover:bg-neutral-800 active:bg-neutral-900 focus-visible:outline-white`}
+                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black focus-visible:outline-gray-400`}
               >
                 <Github className="w-4 h-4" />
                 Github
