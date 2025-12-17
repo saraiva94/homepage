@@ -93,10 +93,10 @@ export function About() {
               {/* GitHub (cinza) */}
               <a
                 href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black focus-visible:outline-gray-400`}
+                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 !text-black focus-visible:outline-gray-400`}
               >
                 <Github className="w-4 h-4 text-black" />
-                Github
+                <span className="text-black">Github</span>
               </a>
             </div>
           </div>
