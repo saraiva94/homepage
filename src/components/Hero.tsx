@@ -46,7 +46,7 @@ export function Hero() {
           <div className="grid gap-4 lg:grid-cols-2 items-center mb-4">
             {/* Título */}
             <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 text-green-400">
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-green-400">
                 <span
                   className="glitch block whitespace-nowrap py-0.5 font-mono"
                   data-text="Command Lines"
