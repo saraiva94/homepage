@@ -2,9 +2,6 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,33 +24,11 @@ const videos = ["Dieta_animal.mp4", "Groppaverso.mp4", "Propagandas.mp4"];
 export default function EditsPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
-
-  useEffect(() => {
-    AOS.init({ once: true, duration: 700, easing: "ease-out-cubic", offset: 100 });
-  }, []);
-
-  useEffect(() => {
-    const lenis = new Lenis({ smoothWheel: true, lerp: 0.12 });
-
-    let rafId = 0;
-    const raf = (t: number) => {
-      lenis.raf(t);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-
-    lenis.on('scroll', () => {
-      ScrollTrigger.update();
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
 
   const setupCanvas = () => {
     const canvas = canvasRef.current!;
@@ -119,30 +94,39 @@ export default function EditsPage() {
 
     const onResize = () => { setupCanvas(); render(); ScrollTrigger.refresh(); };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
   }, []);
 
   function buildScroll() {
+    const totalVideos = videos.length;
+    const totalSections = totalVideos + 2; // header + videos + footer
+    
+    // Pin the container for the entire scroll duration
     ScrollTrigger.create({
-      trigger: "body",
+      trigger: containerRef.current,
       start: "top top",
-      end: "bottom bottom",
+      end: `+=${totalSections * 100}vh`,
+      pin: true,
       scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
 
+        // Frame animation
         const targetFrame = Math.round(progress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
+        // Header animation (first 15% of scroll)
         if (headerRef.current) {
           if (progress <= 0.15) {
-            const zProgress = progress / 0.15;
-            const translateZ = -500 * zProgress;
-            let opacity = 1;
-            if (progress > 0.1) opacity = 1 - (progress - 0.1) / 0.05;
+            const headerProgress = progress / 0.15;
+            const translateZ = -500 * headerProgress;
+            const opacity = progress > 0.1 ? 1 - (progress - 0.1) / 0.05 : 1;
             gsap.set(headerRef.current, {
               transform: `translate(-50%,-50%) translateZ(${translateZ}px)`,
               opacity: Math.max(0, Math.min(1, opacity)),
@@ -151,56 +135,142 @@ export default function EditsPage() {
             gsap.set(headerRef.current, { opacity: 0 });
           }
         }
+
+        // Video sections animation
+        const videoStartProgress = 0.15;
+        const videoEndProgress = 0.85;
+        const videoTotalProgress = videoEndProgress - videoStartProgress;
+        const progressPerVideo = videoTotalProgress / totalVideos;
+
+        videoRefs.current.forEach((videoEl, idx) => {
+          if (!videoEl) return;
+
+          const videoStart = videoStartProgress + idx * progressPerVideo;
+          const videoEnd = videoStart + progressPerVideo;
+          const videoMid = videoStart + progressPerVideo * 0.5;
+
+          if (progress < videoStart) {
+            // Before this video - below viewport
+            gsap.set(videoEl, { 
+              y: "100vh", 
+              opacity: 0,
+              scale: 0.8
+            });
+          } else if (progress >= videoStart && progress < videoMid) {
+            // Entering - animate from bottom to center
+            const enterProgress = (progress - videoStart) / (videoMid - videoStart);
+            gsap.set(videoEl, { 
+              y: `${100 - enterProgress * 100}vh`, 
+              opacity: enterProgress,
+              scale: 0.8 + enterProgress * 0.2
+            });
+          } else if (progress >= videoMid && progress < videoEnd) {
+            // Exiting - animate from center to top
+            const exitProgress = (progress - videoMid) / (videoEnd - videoMid);
+            gsap.set(videoEl, { 
+              y: `${-exitProgress * 100}vh`, 
+              opacity: 1 - exitProgress,
+              scale: 1 - exitProgress * 0.2
+            });
+          } else {
+            // After this video - above viewport
+            gsap.set(videoEl, { 
+              y: "-100vh", 
+              opacity: 0,
+              scale: 0.8
+            });
+          }
+        });
       },
     });
   }
 
   return (
     <main className="relative bg-black text-white">
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 w-full h-full z-0"
-        style={{ pointerEvents: "none" }}
-      />
-      <div
-        ref={headerRef}
-        className="absolute left-1/2 top-[12vh] -translate-x-1/2 -translate-y-1/2 text-center [transform-style:preserve-3d] z-10"
-        style={{ opacity: 1 }}
+      {/* Scroll spacer */}
+      <div style={{ height: `${(videos.length + 2) * 100}vh` }} />
+      
+      {/* Pinned container */}
+      <div 
+        ref={containerRef}
+        className="fixed inset-0 w-full h-screen overflow-hidden"
+        style={{ perspective: "1000px" }}
       >
-        <Link to="/" className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
-             border border-white bg-white text-black
-             hover:bg-transparent hover:text-white transition">
-          ← Voltar
-        </Link>
-      </div>
+        {/* Background canvas */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full z-0"
+          style={{ pointerEvents: "none" }}
+        />
 
-      {[...videos].reverse().map((name, idx) => (
-        <section key={idx} className="h-screen flex items-center justify-center">
-          <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
-            <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
-              <source src={`/videos/${name}`} type="video/mp4" />
-            </video>
+        {/* Header */}
+        <div
+          ref={headerRef}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <Link 
+            to="/" 
+            className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
+              border border-white bg-white text-black
+              hover:bg-transparent hover:text-white transition"
+          >
+            ← Voltar
+          </Link>
+        </div>
+
+        {/* Video sections */}
+        {[...videos].reverse().map((name, idx) => (
+          <div
+            key={idx}
+            ref={el => { videoRefs.current[idx] = el; }}
+            className="absolute inset-0 flex items-center justify-center z-20"
+            style={{ transform: "translateY(100vh)", opacity: 0 }}
+          >
+            <div className="w-[min(92vw,1000px)] px-6">
+              <video 
+                controls 
+                className="w-full rounded-2xl border border-white/10 shadow-2xl"
+              >
+                <source src={`/videos/${name}`} type="video/mp4" />
+              </video>
+            </div>
           </div>
-        </section>
-      ))}
+        ))}
 
-      <section className="h-screen flex items-center justify-center">
-        <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6 text-center">
-          <h3 className="text-xl font-semibold mb-3">Quer ver mais?</h3>
-          <p className="opacity-80 mb-4">Faça contato</p>
-          <div className="flex justify-center gap-4">
-            <Link to="/" className="inline-block rounded-md bg-white text-black px-4 py-2 font-semibold hover:bg-gray-100 transition">
-              Voltar à Home
-            </Link>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-block rounded-md bg-gray-700 text-white px-4 py-2 font-semibold hover:bg-gray-600 transition"
-            >
-              Início
-            </button>
+        {/* Footer section */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+          style={{ 
+            opacity: 0,
+            transform: "translateY(100vh)"
+          }}
+          ref={el => {
+            if (el) {
+              videoRefs.current[videos.length] = el;
+            }
+          }}
+        >
+          <div className="w-[min(92vw,1000px)] px-6 text-center pointer-events-auto">
+            <h3 className="text-xl font-semibold mb-3">Quer ver mais?</h3>
+            <p className="opacity-80 mb-4">Faça contato</p>
+            <div className="flex justify-center gap-4">
+              <Link 
+                to="/" 
+                className="inline-block rounded-md bg-white text-black px-4 py-2 font-semibold hover:bg-gray-100 transition"
+              >
+                Voltar à Home
+              </Link>
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="inline-block rounded-md bg-gray-700 text-white px-4 py-2 font-semibold hover:bg-gray-600 transition"
+              >
+                Início
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
