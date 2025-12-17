@@ -115,7 +115,8 @@ export function About() {
               <span className="block">Faculdade Unigranrio</span>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="relative">
+              {/* Hard skills - à esquerda */}
               <section>
                 <h3 className="text-lg font-semibold mb-2">Hard skills</h3>
                 <ul className="space-y-1">
@@ -133,8 +134,9 @@ export function About() {
                 </ul>
               </section>
 
-              <section className="flex flex-col items-center justify-center">
-                <h3 className="text-lg font-semibold mb-2">Soft skills</h3>
+              {/* Soft skills - centralizado */}
+              <section className="absolute top-0 left-1/2 -translate-x-1/2">
+                <h3 className="text-lg font-semibold mb-2 text-center">Soft skills</h3>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2"><MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação</li>
                   <li className="flex items-center gap-2"><ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar</li>
