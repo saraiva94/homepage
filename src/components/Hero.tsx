@@ -27,22 +27,52 @@ export function Hero() {
       {/* Overlay escuro */}
       <div className="absolute inset-0 z-[1] bg-black/50 pointer-events-none" />
       {/* Vídeo de fundo - grid duplicado */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-3 grid-rows-3">
-        {[...Array(9)].map((_, i) => (
-          <video
-            key={i}
-            ref={i === 0 ? videoRef : null}
-            className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
-            autoPlay
-            muted
-            playsInline
-            loop
-            preload="auto"
-            aria-hidden="true"
-          >
-            <source src={binary} type="video/mp4" />
-          </video>
-        ))}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
+        <video
+          ref={videoRef}
+          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={binary} type="video/mp4" />
+        </video>
+        <video
+          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={binary} type="video/mp4" />
+        </video>
+        <video
+          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={binary} type="video/mp4" />
+        </video>
+        <video
+          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={binary} type="video/mp4" />
+        </video>
       </div>
 
       {/* Conteúdo */}
