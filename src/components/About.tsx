@@ -1,6 +1,5 @@
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
-import { MatrixRain } from "./MatrixRain";
 
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
@@ -18,21 +17,18 @@ export function About() {
     <section className="py-6 bg-transparent mb-6 md:mb-10">
       <div className="container mx-auto px-4">
         <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden">
-          {/* Matrix background */}
-          <MatrixRain />
-
           {/* overlay glass */}
           <div
             aria-hidden
-            className="absolute inset-0 z-[1] rounded-3xl
-                       bg-black/30 backdrop-blur-sm backdrop-saturate-150
-                       border border-green-500/20 ring-1 ring-green-500/10
-                       shadow-[0_8px_30px_rgba(0,255,0,0.15)]
+            className="absolute inset-0 z-0 rounded-3xl
+                       bg-black/40 backdrop-blur-md backdrop-saturate-150
+                       border border-green-500/30 ring-1 ring-green-500/20
+                       shadow-[0_8px_30px_rgba(0,255,0,0.2)]
                        pointer-events-none"
           />
 
           {/* bloco imagem de fundo */}
-          <div className="relative z-[2]">
+          <div className="relative z-[1]">
             <div className="relative w-full h-[400px] rounded-3xl overflow-hidden">
               <img
                 src={about2Img}
