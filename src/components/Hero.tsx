@@ -43,11 +43,11 @@ export function Hero() {
       <div className="relative z-20 container mx-auto px-4 py-0.5">
         <div className="relative pb-[6px] md:pb-[7px]">
           {/* Linha principal */}
-          <div className="flex flex-col md:flex-row gap-1 items-center justify-between mb-1">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-1">
             {/* Command Lines - Esquerda */}
-            <div className="flex-1 flex justify-start">
+            <div className="flex-1 flex justify-start md:-mr-8">
               <span
-                className="glitch text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400 font-mono"
+                className="glitch text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-green-400 font-mono"
                 data-text="Command Lines"
               >
                 Command Lines
@@ -64,9 +64,9 @@ export function Hero() {
             </div>
 
             {/* Timelines - Direita */}
-            <div className="flex-1 flex justify-end">
+            <div className="flex-1 flex justify-end md:-ml-8">
               <span
-                className="glitch text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400 font-mono"
+                className="glitch text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-green-400 font-mono"
                 data-text="Timelines"
               >
                 Timelines
