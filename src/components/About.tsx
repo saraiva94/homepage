@@ -1,5 +1,8 @@
-import about1Img from "@/assets/eu.png";
-import about2Img from "@/assets/background.jpg";
+import about1ImgRaw from "@/assets/eu.png";
+import about2ImgRaw from "@/assets/background.jpg";
+
+const about1Img = about1ImgRaw as unknown as string;
+const about2Img = about2ImgRaw as unknown as string;
 
 export function About() {
   const btnBase =

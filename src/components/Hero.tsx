@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import binary from "@/assets/binary.mp4";
-import stacksImg from "@/assets/stacks.png";
+import stacksImgRaw from "@/assets/stacks.png";
 import { Clapperboard, Code2 } from "lucide-react";
+
+const stacksImg = stacksImgRaw as unknown as string;
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
