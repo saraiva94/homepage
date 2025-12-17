@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
+import { Clapperboard, Code2 } from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
-
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
 
@@ -76,6 +77,24 @@ export function About() {
               >
                 Whatsapp
               </a>
+
+              {/* Portfólio Editor */}
+              <Link
+                to="/portfolio/edits"
+                className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
+              >
+                <Clapperboard className="w-4 h-4" />
+                Portfólio Editor
+              </Link>
+
+              {/* Portfólio Desenvolvedor */}
+              <Link
+                to="/portfolio/dev"
+                className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
+              >
+                <Code2 className="w-4 h-4" />
+                Portfólio Dev
+              </Link>
             </div>
           </div>
 
