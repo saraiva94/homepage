@@ -123,12 +123,11 @@ export default function EditsPage() {
   }, []);
 
   function buildScroll() {
-    const durationPx = document.body.scrollHeight - window.innerHeight;
     ScrollTrigger.create({
       trigger: "body",
       start: "top top",
-      end: `+=${durationPx}`,
-      scrub: 1,
+      end: "bottom bottom",
+      scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
 
@@ -139,11 +138,11 @@ export default function EditsPage() {
         }
 
         if (headerRef.current) {
-          if (progress <= 0.25) {
-            const zProgress = progress / 0.25;
-            const translateZ = -800 * zProgress;
+          if (progress <= 0.15) {
+            const zProgress = progress / 0.15;
+            const translateZ = -500 * zProgress;
             let opacity = 1;
-            if (progress > 0.2) opacity = 1 - (progress - 0.2) / 0.05;
+            if (progress > 0.1) opacity = 1 - (progress - 0.1) / 0.05;
             gsap.set(headerRef.current, {
               transform: `translate(-50%,-50%) translateZ(${translateZ}px)`,
               opacity: Math.max(0, Math.min(1, opacity)),
