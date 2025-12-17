@@ -103,7 +103,7 @@ export function About() {
 
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
-            <div className="text-white/90 leading-snug mb-6">
+            <div className="text-white/90 leading-snug mb-6 text-center">
               <span className="block text-lg font-bold leading-tight md:hidden">
                 Análise e<br />
                 desenvolvimento<br />
