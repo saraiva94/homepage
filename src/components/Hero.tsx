@@ -40,10 +40,10 @@ export function Hero() {
       </div>
 
       {/* Conteúdo */}
-      <div className="relative z-20 container mx-auto px-4 py-6">
-        <div className="relative pb-[32px] md:pb-[36px]">
+      <div className="relative z-20 container mx-auto px-4 py-3">
+        <div className="relative pb-[20px] md:pb-[22px]">
           {/* Linha principal */}
-          <div className="grid gap-4 lg:grid-cols-2 items-center mb-4">
+          <div className="grid gap-2 lg:grid-cols-2 items-center mb-2">
             {/* Título */}
             <div>
               <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-green-400">
