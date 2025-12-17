@@ -107,9 +107,11 @@ export default function EditsPage() {
     ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
-      end: `+=${(totalVideos + 1) * 100}vh`,
+      end: () => `+=${(totalVideos + 1) * window.innerHeight}`,
       pin: true,
-      scrub: 0.5,
+      scrub: 0.6,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
       onUpdate: (self) => {
         const progress = self.progress;
 
@@ -183,13 +185,10 @@ export default function EditsPage() {
 
   return (
     <main className="relative bg-black text-white">
-      {/* Scroll spacer */}
-      <div style={{ height: `${(videos.length + 2) * 100}vh` }} />
-      
       {/* Pinned container */}
       <div 
         ref={containerRef}
-        className="fixed inset-0 w-full h-screen overflow-hidden"
+        className="relative h-screen w-full overflow-hidden"
         style={{ perspective: "1000px" }}
       >
         {/* Background canvas */}
