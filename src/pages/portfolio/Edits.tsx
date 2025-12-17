@@ -101,83 +101,79 @@ export default function EditsPage() {
   }, []);
 
   function buildScroll() {
-    const totalVideos = videos.length;
-    const totalSections = totalVideos + 2; // header + videos + footer
+    const totalVideos = videos.length + 1; // videos + footer
     
     // Pin the container for the entire scroll duration
     ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
-      end: `+=${totalSections * 100}vh`,
+      end: `+=${(totalVideos + 1) * 100}vh`,
       pin: true,
       scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
 
-        // Frame animation
+        // Frame animation - background only
         const targetFrame = Math.round(progress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
-        // Header animation (first 15% of scroll)
-        if (headerRef.current) {
-          if (progress <= 0.15) {
-            const headerProgress = progress / 0.15;
-            const translateZ = -500 * headerProgress;
-            const opacity = progress > 0.1 ? 1 - (progress - 0.1) / 0.05 : 1;
-            gsap.set(headerRef.current, {
-              transform: `translate(-50%,-50%) translateZ(${translateZ}px)`,
-              opacity: Math.max(0, Math.min(1, opacity)),
-            });
-          } else {
-            gsap.set(headerRef.current, { opacity: 0 });
-          }
-        }
-
-        // Video sections animation
-        const videoStartProgress = 0.15;
-        const videoEndProgress = 0.85;
-        const videoTotalProgress = videoEndProgress - videoStartProgress;
-        const progressPerVideo = videoTotalProgress / totalVideos;
+        // Video sections animation - each video takes equal portion of scroll
+        const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
           if (!videoEl) return;
 
-          const videoStart = videoStartProgress + idx * progressPerVideo;
+          const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
-          const videoMid = videoStart + progressPerVideo * 0.5;
+          const videoEnterEnd = videoStart + progressPerVideo * 0.3;
+          const videoExitStart = videoEnd - progressPerVideo * 0.3;
 
           if (progress < videoStart) {
-            // Before this video - below viewport
+            // Before this video - below viewport with depth
             gsap.set(videoEl, { 
-              y: "100vh", 
+              y: "120%", 
               opacity: 0,
-              scale: 0.8
+              scale: 0.7,
+              rotateX: 15
             });
-          } else if (progress >= videoStart && progress < videoMid) {
-            // Entering - animate from bottom to center
-            const enterProgress = (progress - videoStart) / (videoMid - videoStart);
+          } else if (progress >= videoStart && progress < videoEnterEnd) {
+            // Entering - animate from bottom to center with depth
+            const enterProgress = (progress - videoStart) / (videoEnterEnd - videoStart);
+            const eased = 1 - Math.pow(1 - enterProgress, 3); // ease out
             gsap.set(videoEl, { 
-              y: `${100 - enterProgress * 100}vh`, 
-              opacity: enterProgress,
-              scale: 0.8 + enterProgress * 0.2
+              y: `${120 - eased * 120}%`, 
+              opacity: eased,
+              scale: 0.7 + eased * 0.3,
+              rotateX: 15 - eased * 15
             });
-          } else if (progress >= videoMid && progress < videoEnd) {
-            // Exiting - animate from center to top
-            const exitProgress = (progress - videoMid) / (videoEnd - videoMid);
+          } else if (progress >= videoEnterEnd && progress < videoExitStart) {
+            // Visible - centered
             gsap.set(videoEl, { 
-              y: `${-exitProgress * 100}vh`, 
-              opacity: 1 - exitProgress,
-              scale: 1 - exitProgress * 0.2
+              y: "0%", 
+              opacity: 1,
+              scale: 1,
+              rotateX: 0
+            });
+          } else if (progress >= videoExitStart && progress < videoEnd) {
+            // Exiting - animate from center to top with depth
+            const exitProgress = (progress - videoExitStart) / (videoEnd - videoExitStart);
+            const eased = Math.pow(exitProgress, 3); // ease in
+            gsap.set(videoEl, { 
+              y: `${-eased * 120}%`, 
+              opacity: 1 - eased,
+              scale: 1 - eased * 0.3,
+              rotateX: -eased * 15
             });
           } else {
             // After this video - above viewport
             gsap.set(videoEl, { 
-              y: "-100vh", 
+              y: "-120%", 
               opacity: 0,
-              scale: 0.8
+              scale: 0.7,
+              rotateX: -15
             });
           }
         });
@@ -203,15 +199,14 @@ export default function EditsPage() {
           style={{ pointerEvents: "none" }}
         />
 
-        {/* Header */}
+        {/* Header - fixed at top */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10"
-          style={{ transformStyle: "preserve-3d" }}
+          className="absolute left-1/2 top-8 -translate-x-1/2 text-center z-30"
         >
           <Link 
             to="/" 
-            className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
+            className="inline-block rounded-md px-4 py-2 font-semibold
               border border-white bg-white text-black
               hover:bg-transparent hover:text-white transition"
           >
