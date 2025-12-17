@@ -46,7 +46,7 @@ export function Hero() {
           <div className="grid gap-1 lg:grid-cols-2 items-center mb-1">
             {/* Título */}
             <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-green-400">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400">
                 <span
                   className="glitch block whitespace-nowrap py-0.5 font-mono"
                   data-text="Command Lines"
@@ -70,7 +70,7 @@ export function Hero() {
               <img
                 src={stacksImg}
                 alt="Stacks"
-                className="w-full h-auto max-w-[260px] md:max-w-[320px] lg:max-w-[380px] xl:max-w-[440px] object-contain select-none pointer-events-none"
+                className="w-full h-auto max-w-[182px] md:max-w-[224px] lg:max-w-[266px] xl:max-w-[308px] object-contain select-none pointer-events-none"
               />
             </div>
           </div>
