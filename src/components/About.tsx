@@ -21,7 +21,7 @@ export function About() {
           <div
             aria-hidden
             className="absolute inset-0 z-0 rounded-3xl
-                       bg-black/20 backdrop-blur-md backdrop-saturate-150
+                       bg-black/20 backdrop-blur-sm backdrop-saturate-150
                        border border-green-500/30 ring-1 ring-green-500/20
                        shadow-[0_8px_30px_rgba(0,255,0,0.2)]
                        pointer-events-none"
