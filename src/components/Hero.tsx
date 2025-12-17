@@ -64,7 +64,7 @@ export function Hero() {
             </div>
 
             {/* Timelines - Direita */}
-            <div className="flex-1 flex justify-end md:-ml-16 lg:-ml-20">
+            <div className="flex-1 flex justify-end md:-ml-28 lg:-ml-36">
               <span
                 className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-green-400 font-mono"
                 data-text="Timelines"
