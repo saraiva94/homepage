@@ -104,7 +104,7 @@ export default function EditsPage() {
     const totalVideos = videos.length + 1; // videos + footer
     
     // Pin the container for the entire scroll duration
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
       end: () => `+=${(totalVideos + 1) * window.innerHeight}`,
@@ -135,51 +135,57 @@ export default function EditsPage() {
 
           if (progress < videoStart) {
             // Before this video - below viewport with depth
-            gsap.set(videoEl, { 
-              y: "120%", 
+            gsap.set(videoEl, {
+              y: "120%",
               opacity: 0,
               scale: 0.7,
-              rotateX: 15
+              rotateX: 15,
             });
           } else if (progress >= videoStart && progress < videoEnterEnd) {
             // Entering - animate from bottom to center with depth
             const enterProgress = (progress - videoStart) / (videoEnterEnd - videoStart);
             const eased = 1 - Math.pow(1 - enterProgress, 3); // ease out
-            gsap.set(videoEl, { 
-              y: `${120 - eased * 120}%`, 
+            gsap.set(videoEl, {
+              y: `${120 - eased * 120}%`,
               opacity: eased,
               scale: 0.7 + eased * 0.3,
-              rotateX: 15 - eased * 15
+              rotateX: 15 - eased * 15,
             });
           } else if (progress >= videoEnterEnd && progress < videoExitStart) {
             // Visible - centered
-            gsap.set(videoEl, { 
-              y: "0%", 
+            gsap.set(videoEl, {
+              y: "0%",
               opacity: 1,
               scale: 1,
-              rotateX: 0
+              rotateX: 0,
             });
           } else if (progress >= videoExitStart && progress < videoEnd) {
             // Exiting - animate from center to top with depth
             const exitProgress = (progress - videoExitStart) / (videoEnd - videoExitStart);
             const eased = Math.pow(exitProgress, 3); // ease in
-            gsap.set(videoEl, { 
-              y: `${-eased * 120}%`, 
+            gsap.set(videoEl, {
+              y: `${-eased * 120}%`,
               opacity: 1 - eased,
               scale: 1 - eased * 0.3,
-              rotateX: -eased * 15
+              rotateX: -eased * 15,
             });
           } else {
             // After this video - above viewport
-            gsap.set(videoEl, { 
-              y: "-120%", 
+            gsap.set(videoEl, {
+              y: "-120%",
               opacity: 0,
               scale: 0.7,
-              rotateX: -15
+              rotateX: -15,
             });
           }
         });
       },
+    });
+
+    // QA/Fix: force a refresh after layout is stable so progress maps to scroll correctly.
+    requestAnimationFrame(() => {
+      st.refresh();
+      ScrollTrigger.refresh();
     });
   }
 
