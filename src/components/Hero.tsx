@@ -43,35 +43,34 @@ export function Hero() {
       <div className="relative z-20 container mx-auto px-4 py-0.5">
         <div className="relative pb-[6px] md:pb-[7px]">
           {/* Linha principal */}
-          <div className="flex flex-col lg:flex-row gap-1 items-center justify-center mb-1">
-            {/* Título */}
-            <div>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400">
-                <span
-                  className="glitch block whitespace-nowrap py-0.5 font-mono"
-                  data-text="Command Lines"
-                >
-                  Command Lines
-                </span>
-                <span className="flex items-center">
-                  <i aria-hidden className="w-24 sm:w-32 lg:w-40" />
-                  <span
-                    className="glitch block whitespace-nowrap py-0.5 font-mono"
-                    data-text="Timelines"
-                  >
-                    Timelines
-                  </span>
-                </span>
-              </h1>
+          <div className="flex flex-col md:flex-row gap-1 items-center justify-between mb-1">
+            {/* Command Lines - Esquerda */}
+            <div className="flex-1 flex justify-start">
+              <span
+                className="glitch text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400 font-mono"
+                data-text="Command Lines"
+              >
+                Command Lines
+              </span>
             </div>
 
-            {/* Imagem das stacks */}
-            <div className="flex items-center justify-center lg:justify-center">
+            {/* Imagem das stacks - Centro */}
+            <div className="flex-shrink-0 flex items-center justify-center">
               <img
                 src={stacksImg}
                 alt="Stacks"
                 className="w-full h-auto max-w-[182px] md:max-w-[224px] lg:max-w-[266px] xl:max-w-[308px] object-contain select-none pointer-events-none"
               />
+            </div>
+
+            {/* Timelines - Direita */}
+            <div className="flex-1 flex justify-end">
+              <span
+                className="glitch text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-green-400 font-mono"
+                data-text="Timelines"
+              >
+                Timelines
+              </span>
             </div>
           </div>
         </div>
