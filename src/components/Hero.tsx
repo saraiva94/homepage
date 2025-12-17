@@ -40,8 +40,8 @@ export function Hero() {
       </div>
 
       {/* Conteúdo */}
-      <div className="relative z-20 container mx-auto px-4 py-0.5">
-        <div className="relative pb-[6px] md:pb-[7px]">
+      <div className="relative z-20 container mx-auto px-4 py-px">
+        <div className="relative pb-[5px] md:pb-[6px]">
           {/* Linha principal */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-1">
             {/* Command Lines - Esquerda */}
