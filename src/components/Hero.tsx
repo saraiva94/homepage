@@ -25,12 +25,12 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#6f00ff] text-white">
+    <section className="relative isolate overflow-hidden bg-black text-green-400">
       {/* Vídeo de fundo */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.25] [transform:translateZ(0)]"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.35] [transform:translateZ(0)] [filter:hue-rotate(90deg)_saturate(2)]"
           autoPlay
           muted
           playsInline
@@ -42,13 +42,13 @@ export function Hero() {
       </div>
 
       {/* Conteúdo */}
-      <div className="relative z-20 container mx-auto px-4 py-12">
-        <div className="relative pb-[64px] md:pb-[72px]">
+      <div className="relative z-20 container mx-auto px-4 py-6">
+        <div className="relative pb-[32px] md:pb-[36px]">
           {/* Linha principal */}
-          <div className="grid gap-8 lg:grid-cols-2 items-center mb-8">
+          <div className="grid gap-4 lg:grid-cols-2 items-center mb-4">
             {/* Título */}
             <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 [-webkit-text-stroke:1.1px_rgba(0,0,0,.5)] [text-shadow:0_2px_10px_rgba(0,0,0,.55),0_0_2px_rgba(0,0,0,.8)]">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-10 [-webkit-text-stroke:1.1px_rgba(0,255,0,.3)] [text-shadow:0_2px_10px_rgba(0,255,0,.55),0_0_2px_rgba(0,0,0,.8)]">
                 <span
                   className="glitch block whitespace-nowrap py-0.5 font-mono [--glitch-cycle:1s]"
                   data-text="Command Lines"
@@ -79,25 +79,25 @@ export function Hero() {
 
           {/* Barra fixa de botões colada na base da SECTION */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0">
-            <div className="relative pointer-events-auto mx-0 px-4 h-[64px] md:h-[72px] pb-[35px] md:pb-[35px]">
+            <div className="relative pointer-events-auto mx-0 px-4 h-[32px] md:h-[36px] pb-[16px] md:pb-[18px]">
               <div className="flex gap-3 items-end">
                 <Link
                   to="/portfolio/edits"
                   className="
-                    group h-13 flex items-center justify-center gap-2
-                    px-4 rounded-md font-semibold
-                    bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
-                    text-white
-                    focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2
+                    group h-10 flex items-center justify-center gap-2
+                    px-3 rounded-md font-semibold text-sm
+                    bg-green-900/80 hover:bg-green-700 active:bg-green-800
+                    text-green-400 border border-green-500/30
+                    focus-visible:outline-2 focus-visible:outline-green-500/50 focus-visible:outline-offset-2
 
                     transition-colors duration-300 ease-in-out
                     motion-safe:transition-transform motion-safe:duration-300
-                    hover:-translate-y-0.5 hover:shadow-md
+                    hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)]
                   "
                 >
                   <Clapperboard
                     className="
-                      w-5 h-5
+                      w-4 h-4
                       motion-safe:transition-transform motion-safe:duration-300
                       group-hover:scale-110 group-hover:-rotate-1
                     "
@@ -108,20 +108,20 @@ export function Hero() {
                 <Link
                   to="/portfolio/dev"
                   className="
-                    group h-13 flex items-center justify-center gap-2
-                    px-4 rounded-md font-semibold
-                    bg-[#001077] hover:bg-[#2563eb] active:bg-[#1d4ed8]
-                    text-white
-                    focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2
+                    group h-10 flex items-center justify-center gap-2
+                    px-3 rounded-md font-semibold text-sm
+                    bg-green-900/80 hover:bg-green-700 active:bg-green-800
+                    text-green-400 border border-green-500/30
+                    focus-visible:outline-2 focus-visible:outline-green-500/50 focus-visible:outline-offset-2
 
                     transition-colors duration-300 ease-in-out
                     motion-safe:transition-transform motion-safe:duration-300
-                    hover:-translate-y-0.5 hover:shadow-md
+                    hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)]
                   "
                 >
                   <Code2
                     className="
-                      w-5 h-5
+                      w-4 h-4
                       motion-safe:transition-transform motion-safe:duration-300
                       group-hover:scale-110 group-hover:-rotate-1
                     "
