@@ -133,8 +133,8 @@ export function About() {
                 </ul>
               </section>
 
-              <section>
-                <h3 className="text-lg font-semibold mb-2">Soft skills</h3>
+              <section className="flex flex-col items-center md:items-start md:pl-8">
+                <h3 className="text-lg font-semibold mb-2 text-center md:text-left">Soft skills</h3>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2"><MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação</li>
                   <li className="flex items-center gap-2"><ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar</li>
