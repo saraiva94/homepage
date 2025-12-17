@@ -185,7 +185,7 @@ export default function EditsPage() {
 
   return (
     <main className="relative bg-black text-white">
-      {/* Pinned container */}
+      {/* Pinned container - this gets pinned by ScrollTrigger */}
       <div 
         ref={containerRef}
         className="relative h-screen w-full overflow-hidden"
@@ -219,7 +219,11 @@ export default function EditsPage() {
             key={idx}
             ref={el => { videoRefs.current[idx] = el; }}
             className="absolute inset-0 flex items-center justify-center z-20"
-            style={{ transform: "translateY(100vh)", opacity: 0 }}
+            style={{ 
+              transform: "translateY(120%)", 
+              opacity: 0,
+              transformStyle: "preserve-3d"
+            }}
           >
             <div className="w-[min(92vw,1000px)] px-6">
               <video 
@@ -237,7 +241,8 @@ export default function EditsPage() {
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ 
             opacity: 0,
-            transform: "translateY(100vh)"
+            transform: "translateY(120%)",
+            transformStyle: "preserve-3d"
           }}
           ref={el => {
             if (el) {
@@ -265,6 +270,9 @@ export default function EditsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Scroll spacer - creates scrollable area for ScrollTrigger */}
+      <div style={{ height: `${(videos.length + 2) * 100}vh` }} aria-hidden="true" />
     </main>
   );
 }
