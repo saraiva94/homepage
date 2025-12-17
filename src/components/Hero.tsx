@@ -1,8 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import binary from "@/assets/binary.mp4";
 import stacksImgRaw from "@/assets/stacks.png";
-import { Clapperboard, Code2 } from "lucide-react";
 
 const stacksImg = stacksImgRaw as unknown as string;
 
@@ -74,61 +72,6 @@ export function Hero() {
                 alt="Stacks"
                 className="w-full h-auto max-w-[520px] md:max-w-[640px] lg:max-w-[760px] xl:max-w-[880px] object-contain select-none pointer-events-none"
               />
-            </div>
-          </div>
-
-          {/* Barra fixa de botões colada na base da SECTION */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0">
-            <div className="relative pointer-events-auto mx-0 px-4 h-[32px] md:h-[36px] pb-[16px] md:pb-[18px]">
-              <div className="flex gap-3 items-end">
-                <Link
-                  to="/portfolio/edits"
-                  className="
-                    group h-10 flex items-center justify-center gap-2
-                    px-3 rounded-md font-semibold text-sm
-                    bg-green-900/80 hover:bg-green-700 active:bg-green-800
-                    text-green-400 border border-green-500/30
-                    focus-visible:outline-2 focus-visible:outline-green-500/50 focus-visible:outline-offset-2
-
-                    transition-colors duration-300 ease-in-out
-                    motion-safe:transition-transform motion-safe:duration-300
-                    hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)]
-                  "
-                >
-                  <Clapperboard
-                    className="
-                      w-4 h-4
-                      motion-safe:transition-transform motion-safe:duration-300
-                      group-hover:scale-110 group-hover:-rotate-1
-                    "
-                  />
-                  Portfólio Editor
-                </Link>
-
-                <Link
-                  to="/portfolio/dev"
-                  className="
-                    group h-10 flex items-center justify-center gap-2
-                    px-3 rounded-md font-semibold text-sm
-                    bg-green-900/80 hover:bg-green-700 active:bg-green-800
-                    text-green-400 border border-green-500/30
-                    focus-visible:outline-2 focus-visible:outline-green-500/50 focus-visible:outline-offset-2
-
-                    transition-colors duration-300 ease-in-out
-                    motion-safe:transition-transform motion-safe:duration-300
-                    hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(0,255,0,0.3)]
-                  "
-                >
-                  <Code2
-                    className="
-                      w-4 h-4
-                      motion-safe:transition-transform motion-safe:duration-300
-                      group-hover:scale-110 group-hover:-rotate-1
-                    "
-                  />
-                  Portfólio Desenvolvedor
-                </Link>
-              </div>
             </div>
           </div>
         </div>
