@@ -24,6 +24,8 @@ export function Hero() {
 
   return (
     <section className="relative isolate overflow-hidden bg-black text-green-400">
+      {/* Overlay escuro */}
+      <div className="absolute inset-0 z-[1] bg-black/50 pointer-events-none" />
       {/* Vídeo de fundo - grid duplicado */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
         <video
