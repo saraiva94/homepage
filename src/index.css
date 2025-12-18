@@ -238,7 +238,7 @@ body {
 /* Before pseudo-element animations */
 .glitch::before {
   left: 2px;
-  text-shadow: -2px 0 #00ff00;
+  text-shadow: -2px 0 #ff0000;
   animation: 
     glitch-before-rgb 3s infinite,
     glitch-before-distort 3s infinite 3s,
@@ -249,7 +249,7 @@ body {
   0%, 100% {
     clip-path: inset(0 0 70% 0);
     transform: translate(0);
-    text-shadow: -2px 0 #00ff00, 2px 0 #ff00ff;
+    text-shadow: -2px 0 #ff0000, 2px 0 #0066ff;
   }
   20% {
     clip-path: inset(30% 0 40% 0);
@@ -319,7 +319,7 @@ body {
 /* After pseudo-element animations */
 .glitch::after {
   left: -2px;
-  text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff;
+  text-shadow: 2px 0 #0066ff, -2px 0 #ff0000;
   animation: 
     glitch-after-rgb 3s infinite,
     glitch-after-distort 3s infinite 3s,
