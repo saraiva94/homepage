@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ============= CONSTANTES CONFIGURÁVEIS (Ultimate_tubular) =============
 const FRAME_START = 14;
 const FRAME_END = 274;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
@@ -17,11 +18,25 @@ const FRAME_BASENAME = "Ultimate_tubular_";
 const FRAME_EXT = "jpg";
 const FRAME_PAD = 5;
 
-const frameURL = (idx0: number) => {
+// Scroll config
+const FRAME_END_AT = 0.9; // Frames terminam em 90% do scroll
+
+// Header animation config
+const HEADER_Z_END = 0.25;
+const HEADER_FADE_START = 0.2;
+const HEADER_FADE_END = 0.25;
+const Z_HEADER_BACK = -800;
+const PERSPECTIVE_PX = 1000;
+
+// ============= HELPERS =============
+const frameURL = (idx0: number): string => {
   const n = FRAME_START + idx0;
   const filename = `${FRAME_BASENAME}${String(n).padStart(FRAME_PAD, "0")}.${FRAME_EXT}`;
   return encodeURI(`${FRAMES_DIR}/${filename}`);
 };
+
+const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
+const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 const videos = [
   "coding.mp4", "coding.mp4", "coding.mp4", "coding.mp4",
@@ -35,25 +50,39 @@ export default function DevPage() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
 
+  // ============= LENIS + SCROLLTRIGGER SYNC (OBRIGATÓRIO) =============
   useEffect(() => {
     const lenis = new Lenis({ smoothWheel: true, lerp: 0.12 });
-    const raf = (t: number) => {
-      lenis.raf(t);
-      requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
+
+    // CRÍTICO: Lenis scroll → ScrollTrigger.update()
     lenis.on("scroll", ScrollTrigger.update);
-    return () => lenis.destroy();
+
+    // Conectar Lenis ao loop GSAP (ticker) - não usar RAF separado
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    // Desabilitar lag smoothing para sync consistente
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.lagSmoothing(500, 33);
+    };
   }, []);
 
   useEffect(() => {
     AOS.init({ once: true, duration: 700, easing: "ease-out-cubic", offset: 200 });
   }, []);
 
-  const setupCanvas = () => {
-    const canvas = canvasRef.current!;
-    const ctx = (ctxRef.current ||= canvas.getContext("2d"));
+  // ============= CANVAS SETUP (DPR correto) =============
+  const setupCanvas = (): void => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctxRef.current = ctx;
 
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     const vw = window.innerWidth;
@@ -66,16 +95,17 @@ export default function DevPage() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
-  const render = () => {
-    const ctx = ctxRef.current!;
-    const canvas = canvasRef.current!;
+  // ============= RENDER FRAME (cover + centralizado) =============
+  const render = (): void => {
+    const ctx = ctxRef.current;
+    const canvas = canvasRef.current;
     if (!ctx || !canvas) return;
 
     const img = imagesRef.current[stateRef.current.frame];
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
-    const cw = canvas.clientWidth;
-    const ch = canvas.clientHeight;
+    const cw = window.innerWidth;
+    const ch = window.innerHeight;
     ctx.clearRect(0, 0, cw, ch);
 
     const canvasAspect = cw / ch;
@@ -91,6 +121,7 @@ export default function DevPage() {
     ctx.drawImage(img, dx, dy, dw, dh);
   };
 
+  // ============= PRELOAD + INIT =============
   useEffect(() => {
     const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
     imagesRef.current = new Array(urls.length);
@@ -101,28 +132,48 @@ export default function DevPage() {
       const img = new Image();
       img.decoding = "sync";
       img.src = urls[i];
-      img.onload = img.onerror = () => {
+
+      const onAssetReady = () => {
         remaining--;
         if (remaining === 0) {
+          console.log(`[Dev] FRAME_COUNT: ${TOTAL_FRAMES}, imagesLoaded: true, firstFrameOk: ${imagesRef.current[0]?.complete}`);
           setupCanvas();
           stateRef.current.frame = 0;
           render();
           buildScroll();
         }
       };
+
+      img.onload = onAssetReady;
+      img.onerror = () => {
+        console.warn(`[Dev] Frame ${i} falhou: ${urls[i]}`);
+        onAssetReady();
+      };
+
       imagesRef.current[i] = img;
     }
 
+    // Resize handler com debounce
+    let resizeTimer: number;
     const onResize = () => {
-      setupCanvas();
-      render();
-      ScrollTrigger.refresh();
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        setupCanvas();
+        render();
+        ScrollTrigger.refresh();
+      }, 150);
     };
+
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearTimeout(resizeTimer);
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
   }, []);
 
-  function buildScroll() {
+  // ============= SCROLLTRIGGER =============
+  function buildScroll(): void {
     const durationPx = document.body.scrollHeight - window.innerHeight;
 
     ScrollTrigger.create({
@@ -133,32 +184,46 @@ export default function DevPage() {
       onUpdate: (self) => {
         const progress = self.progress;
 
-        const targetFrame = Math.round(progress * (stateRef.current.count - 1));
+        // ===== FRAMES (0% → 90%) =====
+        const frameProgress = Math.min(progress / FRAME_END_AT, 1);
+        const targetFrame = Math.round(frameProgress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
+        // ===== HEADER: Z recuo + fade =====
         if (headerRef.current) {
-          if (progress <= 0.25) {
-            const zProgress = progress / 0.25;
-            const translateZ = -800 * zProgress;
-            let opacity = 1;
-            if (progress > 0.2) opacity = 1 - (progress - 0.2) / 0.05;
-            gsap.set(headerRef.current, {
-              transform: `translate(-50%,-50%) translateZ(${translateZ}px)`,
-              opacity: Math.max(0, Math.min(1, opacity)),
-            });
+          const tZ = clamp01(progress / HEADER_Z_END);
+          const z = lerp(0, Z_HEADER_BACK, tZ);
+
+          let headerOpacity: number;
+          if (progress < HEADER_FADE_START) {
+            headerOpacity = 1;
+          } else if (progress <= HEADER_FADE_END) {
+            headerOpacity = 1 - (progress - HEADER_FADE_START) / (HEADER_FADE_END - HEADER_FADE_START);
           } else {
-            gsap.set(headerRef.current, { opacity: 0 });
+            headerOpacity = 0;
           }
+
+          gsap.set(headerRef.current, {
+            transform: `translate(-50%, -50%) translateZ(${z}px)`,
+            opacity: clamp01(headerOpacity),
+          });
         }
       },
+    });
+
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
     });
   }
 
   return (
-    <main className="relative bg-black text-white" style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}>
+    <main 
+      className="relative bg-black text-white" 
+      style={{ transformStyle: "preserve-3d", perspective: `${PERSPECTIVE_PX}px` }}
+    >
       <canvas
         ref={canvasRef}
         className="fixed inset-0 w-full h-full z-0"
@@ -167,12 +232,18 @@ export default function DevPage() {
 
       <div
         ref={headerRef}
-        className="absolute left-1/2 top-[12vh] -translate-x-1/2 -translate-y-1/2 text-center [transform-style:preserve-3d] z-10"
-        style={{ opacity: 1 }}
+        className="fixed left-1/2 top-[12vh] -translate-x-1/2 -translate-y-1/2 text-center z-10"
+        style={{ 
+          transformStyle: "preserve-3d",
+          opacity: 1 
+        }}
       >
-        <Link to="/" className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
-             border border-white bg-white text-black
-             hover:bg-transparent hover:text-white transition">
+        <Link 
+          to="/" 
+          className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
+            border border-white bg-white text-black
+            hover:bg-transparent hover:text-white transition"
+        >
           ← Voltar
         </Link>
       </div>

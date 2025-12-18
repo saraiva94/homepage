@@ -331,8 +331,9 @@ export default function EditsPage() {
         {/* HEADER - recua em Z e faz fade */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-8 -translate-x-1/2 z-30"
+          className="absolute left-1/2 top-8 z-30"
           style={{
+            transform: "translate(-50%, 0) translateZ(0px)",
             transformStyle: "preserve-3d",
             opacity: 1,
           }}
