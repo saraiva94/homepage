@@ -327,7 +327,7 @@ export default function EditsPage() {
         >
           <Link
             to="/"
-            className="px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 shadow-2xl"
+            className="px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-white/20"
           >
             Voltar para Home
           </Link>
