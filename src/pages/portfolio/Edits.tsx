@@ -42,6 +42,7 @@ export default function EditsPage() {
   const containerRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const endButtonRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
 
@@ -228,6 +229,24 @@ export default function EditsPage() {
             gsap.set(videoEl, { opacity: 0, scale: 1.6, y: "0%" });
           }
         });
+
+        // ===== BOTÃO HOMEPAGE - aparece quando último vídeo sai =====
+        if (endButtonRef.current) {
+          const lastVideoEnd = 1; // progresso = 100%
+          const buttonStart = lastVideoEnd - (1 / totalVideos) * 0.35;
+          
+          if (progress >= buttonStart) {
+            const t = (progress - buttonStart) / (lastVideoEnd - buttonStart);
+            const eased = 1 - Math.pow(1 - t, 3);
+            gsap.set(endButtonRef.current, {
+              opacity: eased,
+              scale: 0.8 + eased * 0.2,
+              pointerEvents: eased > 0.5 ? "auto" : "none",
+            });
+          } else {
+            gsap.set(endButtonRef.current, { opacity: 0, scale: 0.8, pointerEvents: "none" });
+          }
+        }
       },
     });
 
@@ -299,6 +318,20 @@ export default function EditsPage() {
             </div>
           </div>
         ))}
+
+        {/* Botão Homepage - aparece ao fim */}
+        <div
+          ref={endButtonRef}
+          className="absolute inset-0 flex items-center justify-center z-25"
+          style={{ opacity: 0, pointerEvents: "none" }}
+        >
+          <Link
+            to="/"
+            className="px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 shadow-2xl"
+          >
+            Voltar para Home
+          </Link>
+        </div>
       </section>
     </main>
   );
