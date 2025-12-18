@@ -339,12 +339,12 @@ export default function EditsPage() {
         {/* Botão Homepage - aparece ao fim */}
         <div
           ref={endButtonRef}
-          className="absolute inset-0 flex items-center justify-center z-25"
+          className="absolute inset-0 flex items-center justify-center z-30"
           style={{ opacity: 0, pointerEvents: "none" }}
         >
           <Link
             to="/"
-            className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
             style={{
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
             }}
