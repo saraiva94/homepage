@@ -14,13 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          password_hash: string
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          password_hash: string
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password_hash?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      portfolio_videos: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          id: string
+          portfolio_type: string
+          updated_at: string | null
+          video_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          portfolio_type: string
+          updated_at?: string | null
+          video_url: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          portfolio_type?: string
+          updated_at?: string | null
+          video_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      verify_admin_login: {
+        Args: { p_password: string; p_username: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
