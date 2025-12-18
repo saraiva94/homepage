@@ -202,7 +202,7 @@ export default function DevPage() {
           });
         }
 
-        // ===== VIDEOS - entram de cima, saem para baixo =====
+        // ===== VIDEOS - entram de cima com zoom in, saem para baixo com zoom out =====
         const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
@@ -210,36 +210,36 @@ export default function DevPage() {
 
           const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
-          const enterEnd = videoStart + progressPerVideo * 0.4; // entrada mais longa
-          const exitStart = videoEnd - progressPerVideo * 0.3;
+          const enterEnd = videoStart + progressPerVideo * 0.4;
+          const exitStart = videoEnd - progressPerVideo * 0.35;
 
           if (progress < videoStart) {
-            // Antes de entrar: escondido acima
-            gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.9 });
+            // Antes de entrar: escondido acima e pequeno
+            gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.5 });
           } else if (progress >= videoStart && progress < enterEnd) {
-            // Entrando: vem de cima para o centro
+            // Entrando: vem de cima + zoom in
             const t = (progress - videoStart) / (enterEnd - videoStart);
-            const eased = 1 - Math.pow(1 - t, 2); // ease-out suave
+            const eased = 1 - Math.pow(1 - t, 2);
             gsap.set(videoEl, {
-              y: `${-60 + eased * 60}%`, // -60% -> 0%
+              y: `${-60 + eased * 60}%`,
               opacity: eased,
-              scale: 0.9 + eased * 0.1,
+              scale: 0.5 + eased * 0.5, // 0.5 -> 1
             });
           } else if (progress >= enterEnd && progress < exitStart) {
             // Visível no centro
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
           } else if (progress >= exitStart && progress <= videoEnd) {
-            // Saindo: continua descendo
+            // Saindo: desce + continua zoom in (passa para frente)
             const t = (progress - exitStart) / (videoEnd - exitStart);
-            const eased = Math.pow(t, 2); // ease-in suave
+            const eased = Math.pow(t, 2);
             gsap.set(videoEl, {
-              y: `${eased * 60}%`, // 0% -> 60%
+              y: `${eased * 60}%`,
               opacity: 1 - eased,
-              scale: 1 - eased * 0.1,
+              scale: 1 + eased * 0.5, // 1 -> 1.5 (continua crescendo)
             });
           } else {
-            // Depois de sair: escondido abaixo
-            gsap.set(videoEl, { y: "60%", opacity: 0, scale: 0.9 });
+            // Depois de sair: escondido abaixo e grande
+            gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.5 });
           }
         });
 
