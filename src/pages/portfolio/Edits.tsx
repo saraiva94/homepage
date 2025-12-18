@@ -200,7 +200,9 @@ export default function EditsPage() {
         }
 
         // ===== VIDEOS - zoom contínuo: pequeno -> normal -> grande =====
-        const progressPerVideo = 1 / totalVideos;
+        // Reserva 10% do final para o botão homepage aparecer
+        const videoScrollEnd = 0.9;
+        const progressPerVideo = videoScrollEnd / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
           if (!videoEl) return;
@@ -225,7 +227,7 @@ export default function EditsPage() {
           } else if (progress >= enterEnd && progress < exitStart) {
             // Visível e tamanho normal
             gsap.set(videoEl, { opacity: 1, scale: 1, y: "0%" });
-          } else if (progress >= exitStart && progress < videoEnd) {
+          } else if (progress >= exitStart && progress <= videoEnd) {
             // Saindo: continua zoom in (normal -> grande) + fade out
             const t = (progress - exitStart) / (videoEnd - exitStart);
             const eased = Math.pow(t, 2);
@@ -242,11 +244,10 @@ export default function EditsPage() {
 
         // ===== BOTÃO HOMEPAGE - aparece quando último vídeo sai =====
         if (endButtonRef.current) {
-          const lastVideoEnd = 1; // progresso = 100%
-          const buttonStart = lastVideoEnd - (1 / totalVideos) * 0.35;
+          const buttonStart = 0.85; // começa a aparecer em 85%
           
           if (progress >= buttonStart) {
-            const t = (progress - buttonStart) / (lastVideoEnd - buttonStart);
+            const t = (progress - buttonStart) / (1 - buttonStart);
             const eased = 1 - Math.pow(1 - t, 3);
             gsap.set(endButtonRef.current, {
               opacity: eased,
