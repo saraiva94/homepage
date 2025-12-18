@@ -176,26 +176,16 @@ export default function EditsPage() {
           render();
         }
 
-        // ===== HEADER - zoom contínuo como vídeos =====
+        // ===== HEADER - zoom out e desaparece na primeira rolagem =====
         if (headerRef.current) {
-          const headerFadeEnd = 0.12;
-          if (progress < headerFadeEnd) {
-            // Visível: scale 1, opacity 1
-            gsap.set(headerRef.current, {
-              transform: "translate(-50%, 0)",
-              opacity: 1,
-              scale: 1,
-            });
-          } else {
-            // Saindo: continua crescendo + fade out
-            const t = (progress - headerFadeEnd) / (0.25 - headerFadeEnd);
-            const eased = Math.pow(Math.min(t, 1), 2);
-            gsap.set(headerRef.current, {
-              transform: "translate(-50%, 0)",
-              opacity: 1 - eased,
-              scale: 1 + eased * 0.5, // 1 -> 1.5
-            });
-          }
+          const headerFadeEnd = 0.08; // desaparece nos primeiros 8% do scroll
+          const t = clamp01(progress / headerFadeEnd);
+          const eased = Math.pow(t, 2);
+          gsap.set(headerRef.current, {
+            transform: "translate(-50%, 0)",
+            opacity: 1 - eased,
+            scale: 1 + eased * 0.6, // 1 -> 1.6
+          });
         }
 
         // ===== SCROLL HINT - desaparece descendo =====
