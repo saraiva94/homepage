@@ -112,13 +112,13 @@ export function About() {
               <span className="hidden md:block text-2xl font-bold">
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
-              <span className="block text-2xl font-bold">Faculdade Unigranrio</span>
+              <span className="block text-base">Faculdade Unigranrio</span>
             </div>
 
             <div className="relative">
               {/* Hard skills - à esquerda */}
               <section>
-                <h3 className="text-2xl font-bold mb-3 text-green-400">Hard skills</h3>
+                <h3 className="text-2xl font-bold mb-3 text-sky-400">Hard skills</h3>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2"><Film className="w-4 h-4 text-purple-400" /> After effects</li>
                   <li className="flex items-center gap-2"><Film className="w-4 h-4 text-purple-400" /> Premiere pro</li>
@@ -136,7 +136,7 @@ export function About() {
 
               {/* Soft skills - centralizado */}
               <section className="absolute top-0 left-1/2 -translate-x-1/2">
-                <h3 className="text-2xl font-bold mb-3 text-green-400 text-center">Soft skills</h3>
+                <h3 className="text-2xl font-bold mb-3 text-sky-400 text-center">Soft skills</h3>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2"><MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação</li>
                   <li className="flex items-center gap-2"><ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar</li>
