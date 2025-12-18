@@ -6,6 +6,7 @@ import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 import { SkeletonLoader } from "@/components/SkeletonLoader";
+import { SubtlePageTransition } from "@/components/PageTransition";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -373,89 +374,91 @@ export default function DevPage() {
   }
 
   return (
-    <main className="relative w-screen min-h-[100dvh] bg-black text-white overflow-hidden">
-      <section
-        ref={containerRef}
-        className="relative w-screen h-[100dvh] overflow-hidden"
-        style={{ perspective: `${PERSPECTIVE_PX}px` }}
-      >
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full z-0 bg-black"
-        />
-
-        <div
-          ref={headerRef}
-          className="absolute left-1/2 top-8 z-30"
-          style={{ transform: "translate(-50%, 0)" }}
+    <SubtlePageTransition>
+      <main className="relative w-screen min-h-[100dvh] bg-black text-white overflow-hidden">
+        <section
+          ref={containerRef}
+          className="relative w-screen h-[100dvh] overflow-hidden"
+          style={{ perspective: `${PERSPECTIVE_PX}px` }}
         >
-          <Link
-            to="/"
-            className="relative px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
-            style={{
-              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-            }}
-          >
-            Homepage
-          </Link>
-        </div>
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full z-0 bg-black"
+          />
 
-        <div
-          ref={scrollHintRef}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
-        >
-          <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-            Role para ver o conteúdo
-          </span>
-          <svg
-            className="w-8 h-8 text-white animate-bounce"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-
-        {videos.map((video, idx) => (
           <div
-            key={video.id}
-            ref={(el) => {
-              videoRefs.current[idx] = el;
-            }}
-            className="absolute inset-0 flex items-center justify-center z-20 px-4"
-            style={{ transform: "translateY(100%)", opacity: 0 }}
+            ref={headerRef}
+            className="absolute left-1/2 top-8 z-30"
+            style={{ transform: "translate(-50%, 0)" }}
           >
-            <div className="w-full max-w-[1000px]">
-              <video
-                controls
-                playsInline
-                preload="metadata"
-                className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
-              >
-                <source src={video.video_url} type="video/mp4" />
-              </video>
-            </div>
+            <Link
+              to="/"
+              className="relative px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+              style={{
+                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+              }}
+            >
+              Homepage
+            </Link>
           </div>
-        ))}
 
-        <div
-          ref={endButtonRef}
-          className="absolute inset-0 flex items-center justify-center z-30"
-          style={{ opacity: 0, pointerEvents: "none" }}
-        >
-          <Link
-            to="/"
-            className="relative px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
-            style={{
-              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-            }}
+          <div
+            ref={scrollHintRef}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
           >
-            Homepage
-          </Link>
-        </div>
-      </section>
-    </main>
+            <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              Role para ver o conteúdo
+            </span>
+            <svg
+              className="w-8 h-8 text-white animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+
+          {videos.map((video, idx) => (
+            <div
+              key={video.id}
+              ref={(el) => {
+                videoRefs.current[idx] = el;
+              }}
+              className="absolute inset-0 flex items-center justify-center z-20 px-4"
+              style={{ transform: "translateY(100%)", opacity: 0 }}
+            >
+              <div className="w-full max-w-[1000px]">
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
+                >
+                  <source src={video.video_url} type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          ))}
+
+          <div
+            ref={endButtonRef}
+            className="absolute inset-0 flex items-center justify-center z-30"
+            style={{ opacity: 0, pointerEvents: "none" }}
+          >
+            <Link
+              to="/"
+              className="relative px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
+              style={{
+                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+              }}
+            >
+              Homepage
+            </Link>
+          </div>
+        </section>
+      </main>
+    </SubtlePageTransition>
   );
 }
