@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-const ADMIN_USERNAME = "Admin2025";
-const ADMIN_PASSWORD = "administradorpi2025";
+const ADMIN_USERNAME = "Swamiy";
+const ADMIN_PASSWORD = "Desenvolved0r2025";
 
-export default function AdminLogin() {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,24 +33,21 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
-          <h1 className="text-3xl font-bold text-white text-center mb-2">
-            Acesso Administrativo
+          <h1 className="text-3xl font-bold text-white text-center mb-8">
+            Login
           </h1>
-          <p className="text-white/60 text-center mb-8">
-            Entre com suas credenciais
-          </p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-white/80 text-sm font-medium mb-2">
-                Usuário
+                Login
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                placeholder="Digite seu usuário"
+                placeholder="Digite seu login"
                 required
               />
             </div>
