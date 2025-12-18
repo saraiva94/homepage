@@ -20,13 +20,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isAdminLoggedIn");
     if (!isLoggedIn) {
-      navigate("/admin/login");
+      navigate("/login");
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAdminLoggedIn");
-    navigate("/admin/login");
+    navigate("/login");
   };
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
