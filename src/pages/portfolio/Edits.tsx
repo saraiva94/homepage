@@ -339,12 +339,17 @@ export default function EditsPage() {
           className="absolute inset-0 flex items-center justify-center z-25"
           style={{ opacity: 0, pointerEvents: "none" }}
         >
-          <Link
-            to="/"
-            className="px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-white/20"
-          >
-            Voltar para Home
-          </Link>
+          <div className="relative">
+            {/* Pulsação azul */}
+            <span className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping" />
+            <span className="absolute -inset-2 rounded-full bg-sky-400/20 animate-pulse" />
+            <Link
+              to="/"
+              className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-sky-400/50"
+            >
+              Voltar para Home
+            </Link>
+          </div>
         </div>
       </section>
     </main>
