@@ -104,15 +104,15 @@ export function About() {
           {/* TEXTO */}
           <div className="relative z-0 mt-8 text-white">
             <div className="text-white/90 leading-snug mb-6 text-center">
-              <span className="block text-lg font-bold leading-tight md:hidden">
+              <span className="block text-2xl font-bold leading-tight md:hidden">
                 Análise e<br />
                 desenvolvimento<br />
                 de sistemas (ADS)
               </span>
-              <span className="hidden md:block text-lg font-bold">
+              <span className="hidden md:block text-2xl font-bold">
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
-              <span className="block">Faculdade Unigranrio</span>
+              <span className="block text-2xl font-bold">Faculdade Unigranrio</span>
             </div>
 
             <div className="relative">
