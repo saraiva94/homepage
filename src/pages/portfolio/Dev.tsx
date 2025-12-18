@@ -202,7 +202,7 @@ export default function DevPage() {
           });
         }
 
-        // ===== VIDEOS - um por vez =====
+        // ===== VIDEOS - entram de cima, saem para baixo =====
         const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
@@ -210,31 +210,36 @@ export default function DevPage() {
 
           const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
-          const enterEnd = videoStart + progressPerVideo * 0.25;
-          const exitStart = videoEnd - progressPerVideo * 0.25;
+          const enterEnd = videoStart + progressPerVideo * 0.4; // entrada mais longa
+          const exitStart = videoEnd - progressPerVideo * 0.3;
 
           if (progress < videoStart) {
-            gsap.set(videoEl, { y: "100%", opacity: 0, scale: 0.8 });
+            // Antes de entrar: escondido acima
+            gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.9 });
           } else if (progress >= videoStart && progress < enterEnd) {
+            // Entrando: vem de cima para o centro
             const t = (progress - videoStart) / (enterEnd - videoStart);
-            const eased = 1 - Math.pow(1 - t, 3);
+            const eased = 1 - Math.pow(1 - t, 2); // ease-out suave
             gsap.set(videoEl, {
-              y: `${100 - eased * 100}%`,
+              y: `${-60 + eased * 60}%`, // -60% -> 0%
               opacity: eased,
-              scale: 0.8 + eased * 0.2,
+              scale: 0.9 + eased * 0.1,
             });
           } else if (progress >= enterEnd && progress < exitStart) {
+            // Visível no centro
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
           } else if (progress >= exitStart && progress <= videoEnd) {
+            // Saindo: continua descendo
             const t = (progress - exitStart) / (videoEnd - exitStart);
-            const eased = Math.pow(t, 3);
+            const eased = Math.pow(t, 2); // ease-in suave
             gsap.set(videoEl, {
-              y: `${-eased * 100}%`,
+              y: `${eased * 60}%`, // 0% -> 60%
               opacity: 1 - eased,
-              scale: 1 - eased * 0.2,
+              scale: 1 - eased * 0.1,
             });
           } else {
-            gsap.set(videoEl, { y: "-100%", opacity: 0, scale: 0.8 });
+            // Depois de sair: escondido abaixo
+            gsap.set(videoEl, { y: "60%", opacity: 0, scale: 0.9 });
           }
         });
 
