@@ -214,32 +214,32 @@ export default function DevPage() {
           const exitStart = videoEnd - progressPerVideo * 0.35;
 
           if (progress < videoStart) {
-            // Antes de entrar: escondido acima e pequeno
-            gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.5 });
+            // Antes de entrar: escondido acima e bem pequeno
+            gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3 });
           } else if (progress >= videoStart && progress < enterEnd) {
-            // Entrando: vem de cima + zoom in
+            // Entrando: vem de cima + zoom in intenso
             const t = (progress - videoStart) / (enterEnd - videoStart);
             const eased = 1 - Math.pow(1 - t, 2);
             gsap.set(videoEl, {
               y: `${-60 + eased * 60}%`,
               opacity: eased,
-              scale: 0.5 + eased * 0.5, // 0.5 -> 1
+              scale: 0.3 + eased * 0.7, // 0.3 -> 1
             });
           } else if (progress >= enterEnd && progress < exitStart) {
             // Visível no centro
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
           } else if (progress >= exitStart && progress <= videoEnd) {
-            // Saindo: desce + continua zoom in (passa para frente)
+            // Saindo: desce + zoom out intenso (cresce muito)
             const t = (progress - exitStart) / (videoEnd - exitStart);
             const eased = Math.pow(t, 2);
             gsap.set(videoEl, {
               y: `${eased * 60}%`,
               opacity: 1 - eased,
-              scale: 1 + eased * 0.5, // 1 -> 1.5 (continua crescendo)
+              scale: 1 + eased * 0.8, // 1 -> 1.8
             });
           } else {
             // Depois de sair: escondido abaixo e grande
-            gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.5 });
+            gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.8 });
           }
         });
 
