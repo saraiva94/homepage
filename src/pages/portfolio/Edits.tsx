@@ -188,7 +188,7 @@ export default function EditsPage() {
           });
         }
 
-        // ===== VIDEOS - um por vez =====
+        // ===== VIDEOS - fade zoom in/out =====
         const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
@@ -196,32 +196,36 @@ export default function EditsPage() {
 
           const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
-          const enterEnd = videoStart + progressPerVideo * 0.5; // Entrada mais lenta
-          const exitStart = videoEnd - progressPerVideo * 0.15; // Saída rápida
+          const enterEnd = videoStart + progressPerVideo * 0.4;
+          const exitStart = videoEnd - progressPerVideo * 0.4;
 
           if (progress < videoStart) {
-            gsap.set(videoEl, { y: "100%", opacity: 0, scale: 0.8 });
+            // Antes de entrar: escondido e pequeno
+            gsap.set(videoEl, { opacity: 0, scale: 0.5, y: "0%" });
           } else if (progress >= videoStart && progress < enterEnd) {
+            // Entrando: fade in + zoom in
             const t = (progress - videoStart) / (enterEnd - videoStart);
-            // Easing mais suave - ease-out cubic
-            const eased = 1 - Math.pow(1 - t, 2);
+            const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
             gsap.set(videoEl, {
-              y: `${60 - eased * 60}%`, // Começa de 60% em vez de 100%
               opacity: eased,
-              scale: 0.9 + eased * 0.1, // Escala mais sutil
+              scale: 0.5 + eased * 0.5, // 0.5 -> 1
+              y: "0%",
             });
           } else if (progress >= enterEnd && progress < exitStart) {
-            gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
+            // Visível e tamanho normal
+            gsap.set(videoEl, { opacity: 1, scale: 1, y: "0%" });
           } else if (progress >= exitStart && progress < videoEnd) {
+            // Saindo: fade out + zoom out
             const t = (progress - exitStart) / (videoEnd - exitStart);
-            const eased = Math.pow(t, 3);
+            const eased = Math.pow(t, 2); // ease-in quad
             gsap.set(videoEl, {
-              y: `${-eased * 100}%`,
               opacity: 1 - eased,
-              scale: 1 - eased * 0.2,
+              scale: 1 - eased * 0.5, // 1 -> 0.5
+              y: "0%",
             });
           } else {
-            gsap.set(videoEl, { y: "-100%", opacity: 0, scale: 0.8 });
+            // Depois de sair: escondido e pequeno
+            gsap.set(videoEl, { opacity: 0, scale: 0.5, y: "0%" });
           }
         });
       },
