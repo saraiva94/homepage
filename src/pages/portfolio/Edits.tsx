@@ -225,7 +225,7 @@ export default function EditsPage() {
       {/* Container pinned */}
       <section
         ref={containerRef}
-        className="relative w-full h-screen overflow-hidden"
+        className="relative w-full h-[100dvh] overflow-hidden"
         style={{ perspective: `${PERSPECTIVE_PX}px` }}
       >
         {/* Canvas fullscreen */}
@@ -237,7 +237,7 @@ export default function EditsPage() {
         {/* Header */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-8 z-30"
+          className="absolute left-1/2 top-4 z-30"
           style={{ transform: "translate(-50%, 0)", transformStyle: "preserve-3d" }}
         >
           <Link
@@ -252,12 +252,18 @@ export default function EditsPage() {
         {videos.map((name, idx) => (
           <div
             key={idx}
-            ref={el => { videoRefs.current[idx] = el; }}
-            className="absolute inset-0 flex items-center justify-center z-20"
+            ref={(el) => {
+              videoRefs.current[idx] = el;
+            }}
+            className="absolute inset-0 flex items-center justify-center z-20 px-4"
             style={{ transform: "translateY(100%)", opacity: 0 }}
           >
-            <div className="w-[min(90vw,900px)]">
-              <video controls className="w-full rounded-2xl border border-white/20 shadow-2xl">
+            <div className="w-full max-w-[1000px]">
+              <video
+                controls
+                playsInline
+                className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
+              >
                 <source src={`/videos/${name}`} type="video/mp4" />
               </video>
             </div>
