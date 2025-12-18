@@ -181,9 +181,11 @@ export default function EditsPage() {
           const headerFadeEnd = 0.12;
           const t = clamp01(progress / headerFadeEnd);
           const eased = 1 - Math.pow(1 - t, 3);
+          const opacity = 1 - eased;
           gsap.set(headerRef.current, {
             transform: "translate(-50%, 0)",
-            opacity: 1 - eased,
+            opacity,
+            pointerEvents: opacity < 0.1 ? "none" : "auto",
           });
         }
 
