@@ -196,18 +196,19 @@ export default function EditsPage() {
 
           const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
-          const enterEnd = videoStart + progressPerVideo * 0.25;
-          const exitStart = videoEnd - progressPerVideo * 0.25;
+          const enterEnd = videoStart + progressPerVideo * 0.5; // Entrada mais lenta
+          const exitStart = videoEnd - progressPerVideo * 0.15; // Saída rápida
 
           if (progress < videoStart) {
             gsap.set(videoEl, { y: "100%", opacity: 0, scale: 0.8 });
           } else if (progress >= videoStart && progress < enterEnd) {
             const t = (progress - videoStart) / (enterEnd - videoStart);
-            const eased = 1 - Math.pow(1 - t, 3);
+            // Easing mais suave - ease-out cubic
+            const eased = 1 - Math.pow(1 - t, 2);
             gsap.set(videoEl, {
-              y: `${100 - eased * 100}%`,
+              y: `${60 - eased * 60}%`, // Começa de 60% em vez de 100%
               opacity: eased,
-              scale: 0.8 + eased * 0.2,
+              scale: 0.9 + eased * 0.1, // Escala mais sutil
             });
           } else if (progress >= enterEnd && progress < exitStart) {
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
@@ -258,15 +259,18 @@ export default function EditsPage() {
         </div>
 
         {/* Scroll instruction */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 animate-pulse pointer-events-none">
-          <span className="text-white/80 text-sm font-medium tracking-wide">Role para ver o conteúdo</span>
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none">
+          <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-black/60 backdrop-blur-sm rounded-full border border-white/30">
+            Role para ver o conteúdo
+          </span>
           <svg
-            className="w-6 h-6 text-white/80 animate-bounce"
+            className="w-8 h-8 text-white animate-bounce"
             fill="none"
             stroke="currentColor"
+            strokeWidth={2.5}
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
         </div>
 
