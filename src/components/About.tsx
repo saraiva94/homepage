@@ -17,7 +17,7 @@ export function About() {
   return (
     <section className="py-6 bg-transparent mb-6 md:mb-10">
       <div className="container mx-auto px-4">
-        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden">
+        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden max-w-[95%] mx-auto">
           {/* overlay glass */}
           <div
             aria-hidden
