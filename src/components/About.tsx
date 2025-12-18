@@ -17,14 +17,14 @@ export function About() {
   return (
     <section className="py-6 bg-transparent mb-6 md:mb-10">
       <div className="container mx-auto px-4">
-        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden max-w-[95%] mx-auto">
+        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden max-w-[90%] mx-auto">
           {/* overlay glass */}
           <div
             aria-hidden
             className="absolute inset-0 z-0 rounded-3xl
                        bg-black/20 backdrop-blur-sm backdrop-saturate-150
-                       border border-green-500/30 ring-1 ring-green-500/20
-                       shadow-[0_8px_30px_rgba(0,255,0,0.2)]
+                       border border-gray-400/50 ring-1 ring-gray-300/30
+                       shadow-[0_8px_30px_rgba(150,150,150,0.15)]
                        pointer-events-none"
           />
 
