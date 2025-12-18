@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,13 +17,11 @@ const FRAME_EXT = "jpg";
 const FRAME_PAD = 5;
 
 // Scroll config
-const FRAME_END_AT = 0.9; // Frames terminam em 90% do scroll
+const HERO_SCROLL_SCREENS = 9; // Total de telas de scroll (1 hero + 8 videos)
 
-// Header animation config
-const HEADER_Z_END = 0.25;
-const HEADER_FADE_START = 0.2;
-const HEADER_FADE_END = 0.25;
-const Z_HEADER_BACK = -800;
+// Header config
+const HEADER_FADE_END = 0.15;
+const Z_HEADER_BACK = -600;
 const PERSPECTIVE_PX = 1000;
 
 // ============= HELPERS =============
@@ -46,45 +42,33 @@ const videos = [
 export default function DevPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
 
-  // ============= LENIS + SCROLLTRIGGER SYNC (OBRIGATÓRIO) =============
+  // ============= LENIS + SCROLLTRIGGER =============
   useEffect(() => {
-    const lenis = new Lenis({ smoothWheel: true, lerp: 0.12 });
-
-    // CRÍTICO: Lenis scroll → ScrollTrigger.update()
+    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
     lenis.on("scroll", ScrollTrigger.update);
-
-    // Conectar Lenis ao loop GSAP (ticker) - não usar RAF separado
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-
-    // Desabilitar lag smoothing para sync consistente
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
-
     return () => {
       lenis.destroy();
       gsap.ticker.lagSmoothing(500, 33);
     };
   }, []);
 
-  useEffect(() => {
-    AOS.init({ once: true, duration: 700, easing: "ease-out-cubic", offset: 200 });
-  }, []);
-
-  // ============= CANVAS SETUP (DPR correto) =============
+  // ============= CANVAS SETUP =============
   const setupCanvas = (): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctxRef.current = ctx;
 
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
@@ -95,7 +79,7 @@ export default function DevPage() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
-  // ============= RENDER FRAME (cover + centralizado) =============
+  // ============= RENDER FRAME =============
   const render = (): void => {
     const ctx = ctxRef.current;
     const canvas = canvasRef.current;
@@ -108,15 +92,14 @@ export default function DevPage() {
     const ch = window.innerHeight;
     ctx.clearRect(0, 0, cw, ch);
 
-    const canvasAspect = cw / ch;
-    const imageAspect = img.naturalWidth / img.naturalHeight;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const canvasRatio = cw / ch;
 
-    let dw = cw, dh = ch, dx = 0, dy = 0;
-
-    if (imageAspect > canvasAspect) {
-      dh = ch; dw = dh * imageAspect; dx = (cw - dw) / 2;
+    let dw: number, dh: number, dx: number, dy: number;
+    if (imgRatio > canvasRatio) {
+      dh = ch; dw = dh * imgRatio; dx = (cw - dw) / 2; dy = 0;
     } else {
-      dw = cw; dh = dw / imageAspect; dy = (ch - dh) / 2;
+      dw = cw; dh = dw / imgRatio; dx = 0; dy = (ch - dh) / 2;
     }
     ctx.drawImage(img, dx, dy, dw, dh);
   };
@@ -125,35 +108,27 @@ export default function DevPage() {
   useEffect(() => {
     const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
     imagesRef.current = new Array(urls.length);
-
     let remaining = urls.length;
 
     for (let i = 0; i < urls.length; i++) {
       const img = new Image();
       img.decoding = "sync";
       img.src = urls[i];
-
-      const onAssetReady = () => {
+      const onReady = () => {
         remaining--;
         if (remaining === 0) {
-          console.log(`[Dev] FRAME_COUNT: ${TOTAL_FRAMES}, imagesLoaded: true, firstFrameOk: ${imagesRef.current[0]?.complete}`);
+          console.log(`[Dev] Loaded ${TOTAL_FRAMES} frames`);
           setupCanvas();
           stateRef.current.frame = 0;
           render();
-          buildScroll();
+          initScroll();
         }
       };
-
-      img.onload = onAssetReady;
-      img.onerror = () => {
-        console.warn(`[Dev] Frame ${i} falhou: ${urls[i]}`);
-        onAssetReady();
-      };
-
+      img.onload = onReady;
+      img.onerror = () => { console.warn(`[Dev] Frame ${i} failed`); onReady(); };
       imagesRef.current[i] = img;
     }
 
-    // Resize handler com debounce
     let resizeTimer: number;
     const onResize = () => {
       clearTimeout(resizeTimer);
@@ -163,7 +138,6 @@ export default function DevPage() {
         ScrollTrigger.refresh();
       }, 150);
     };
-
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
@@ -173,110 +147,125 @@ export default function DevPage() {
   }, []);
 
   // ============= SCROLLTRIGGER =============
-  function buildScroll(): void {
-    const durationPx = document.body.scrollHeight - window.innerHeight;
+  function initScroll(): void {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const totalVideos = videos.length;
+    const scrollEnd = window.innerHeight * HERO_SCROLL_SCREENS;
 
     ScrollTrigger.create({
-      trigger: "body",
+      trigger: container,
       start: "top top",
-      end: `+=${durationPx}`,
+      end: `+=${scrollEnd}`,
+      pin: true,
+      pinSpacing: true,
       scrub: 1,
       onUpdate: (self) => {
         const progress = self.progress;
 
-        // ===== FRAMES (0% → 90%) =====
-        const frameProgress = Math.min(progress / FRAME_END_AT, 1);
-        const targetFrame = Math.round(frameProgress * (stateRef.current.count - 1));
+        // ===== FRAMES =====
+        const targetFrame = Math.round(progress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
-        // ===== HEADER: Z recuo + fade =====
+        // ===== HEADER fade =====
         if (headerRef.current) {
-          const tZ = clamp01(progress / HEADER_Z_END);
-          const z = lerp(0, Z_HEADER_BACK, tZ);
-
-          let headerOpacity: number;
-          if (progress < HEADER_FADE_START) {
-            headerOpacity = 1;
-          } else if (progress <= HEADER_FADE_END) {
-            headerOpacity = 1 - (progress - HEADER_FADE_START) / (HEADER_FADE_END - HEADER_FADE_START);
-          } else {
-            headerOpacity = 0;
-          }
-
+          const headerProgress = clamp01(progress / HEADER_FADE_END);
+          const z = lerp(0, Z_HEADER_BACK, headerProgress);
+          const opacity = 1 - headerProgress;
           gsap.set(headerRef.current, {
-            transform: `translate(-50%, -50%) translateZ(${z}px)`,
-            opacity: clamp01(headerOpacity),
+            transform: `translate(-50%, 0) translateZ(${z}px)`,
+            opacity: clamp01(opacity),
           });
         }
+
+        // ===== VIDEOS - um por vez =====
+        const progressPerVideo = 1 / totalVideos;
+
+        videoRefs.current.forEach((videoEl, idx) => {
+          if (!videoEl) return;
+
+          const videoStart = idx * progressPerVideo;
+          const videoEnd = videoStart + progressPerVideo;
+          const enterEnd = videoStart + progressPerVideo * 0.25;
+          const exitStart = videoEnd - progressPerVideo * 0.25;
+
+          if (progress < videoStart) {
+            gsap.set(videoEl, { y: "100%", opacity: 0, scale: 0.8 });
+          } else if (progress >= videoStart && progress < enterEnd) {
+            const t = (progress - videoStart) / (enterEnd - videoStart);
+            const eased = 1 - Math.pow(1 - t, 3);
+            gsap.set(videoEl, {
+              y: `${100 - eased * 100}%`,
+              opacity: eased,
+              scale: 0.8 + eased * 0.2,
+            });
+          } else if (progress >= enterEnd && progress < exitStart) {
+            gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
+          } else if (progress >= exitStart && progress < videoEnd) {
+            const t = (progress - exitStart) / (videoEnd - exitStart);
+            const eased = Math.pow(t, 3);
+            gsap.set(videoEl, {
+              y: `${-eased * 100}%`,
+              opacity: 1 - eased,
+              scale: 1 - eased * 0.2,
+            });
+          } else {
+            gsap.set(videoEl, { y: "-100%", opacity: 0, scale: 0.8 });
+          }
+        });
       },
     });
 
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
+    requestAnimationFrame(() => ScrollTrigger.refresh());
   }
 
   return (
-    <main 
-      className="relative bg-black text-white" 
-      style={{ transformStyle: "preserve-3d", perspective: `${PERSPECTIVE_PX}px` }}
-    >
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 w-full h-full z-0"
-        style={{ pointerEvents: "none" }}
-      />
-
-      <div
-        ref={headerRef}
-        className="fixed left-1/2 top-[12vh] -translate-x-1/2 -translate-y-1/2 text-center z-10"
-        style={{ 
-          transformStyle: "preserve-3d",
-          opacity: 1 
-        }}
+    <main className="relative bg-black text-white overflow-hidden">
+      {/* Container pinned */}
+      <section
+        ref={containerRef}
+        className="relative w-full h-screen overflow-hidden"
+        style={{ perspective: `${PERSPECTIVE_PX}px` }}
       >
-        <Link 
-          to="/" 
-          className="inline-block mb-6 rounded-md px-4 py-2 font-semibold
-            border border-white bg-white text-black
-            hover:bg-transparent hover:text-white transition"
+        {/* Canvas fullscreen */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full z-0 bg-black"
+        />
+
+        {/* Header */}
+        <div
+          ref={headerRef}
+          className="absolute left-1/2 top-8 z-30"
+          style={{ transform: "translate(-50%, 0)", transformStyle: "preserve-3d" }}
         >
-          ← Voltar
-        </Link>
-      </div>
-
-      {videos.map((name, idx) => (
-        <section key={idx} className="h-screen flex items-center justify-center">
-          <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6">
-            <video controls className="w-full rounded-2xl border border-white/10 shadow-2xl">
-              <source src={`/videos/${name}`} type="video/mp4" />
-            </video>
-          </div>
-        </section>
-      ))}
-
-      <section className="h-screen flex items-center justify-center">
-        <div data-aos="zoom-in" className="w-[min(92vw,1000px)] px-6 text-center">
-          <h3 className="text-xl font-semibold mb-3">Fechamento</h3>
-          <p className="opacity-80 mb-4">Obrigado por rolar. Quer ver mais?</p>
-          <div className="flex justify-center gap-4">
-            <Link
-              to="/"
-              className="inline-block rounded-md bg-white text-black px-4 py-2 font-semibold"
-            >
-              Voltar à Home
-            </Link>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-block rounded-md bg-gray-700 text-white px-4 py-2 font-semibold"
-            >
-              Voltar ao Topo
-            </button>
-          </div>
+          <Link
+            to="/"
+            className="inline-block rounded-md px-4 py-2 font-semibold border border-white bg-white text-black hover:bg-transparent hover:text-white transition"
+          >
+            ← Voltar
+          </Link>
         </div>
+
+        {/* Videos - cada um em layer separado */}
+        {videos.map((name, idx) => (
+          <div
+            key={idx}
+            ref={el => { videoRefs.current[idx] = el; }}
+            className="absolute inset-0 flex items-center justify-center z-20"
+            style={{ transform: "translateY(100%)", opacity: 0 }}
+          >
+            <div className="w-[min(90vw,900px)]">
+              <video controls className="w-full rounded-2xl border border-white/20 shadow-2xl">
+                <source src={`/videos/${name}`} type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        ))}
       </section>
     </main>
   );
