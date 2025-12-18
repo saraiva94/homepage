@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -18,7 +18,9 @@ const FRAME_EXT = "jpg";
 const FRAME_PAD = 5;
 
 const PERSPECTIVE_PX = 1000;
-const MAX_VIDEOS = 8;
+
+// Performance: Carregar primeiros frames rapidamente para primeira pintura
+const PRIORITY_FRAMES = 10;
 
 // ============= HELPERS =============
 const frameURL = (idx0: number): string => {
@@ -38,6 +40,8 @@ interface Video {
 export default function DevPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [isReady, setIsReady] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -49,6 +53,7 @@ export default function DevPage() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
 
   // Fetch videos from database
   useEffect(() => {
@@ -57,8 +62,7 @@ export default function DevPage() {
         .from("portfolio_videos")
         .select("*")
         .eq("portfolio_type", "dev")
-        .order("display_order")
-        .limit(MAX_VIDEOS);
+        .order("display_order");
 
       if (error) {
         console.error("Error fetching videos:", error);
@@ -71,23 +75,11 @@ export default function DevPage() {
     fetchVideos();
   }, []);
 
-  // ============= LENIS + SCROLLTRIGGER =============
-  useEffect(() => {
-    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-    return () => {
-      lenis.destroy();
-      gsap.ticker.lagSmoothing(500, 33);
-    };
-  }, []);
-
   // ============= CANVAS SETUP =============
-  const setupCanvas = (): void => {
+  const setupCanvas = useCallback((): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
     ctxRef.current = ctx;
 
@@ -98,10 +90,10 @@ export default function DevPage() {
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
+  }, []);
 
   // ============= RENDER FRAME =============
-  const render = (): void => {
+  const render = useCallback((): void => {
     const ctx = ctxRef.current;
     const canvas = canvasRef.current;
     if (!ctx || !canvas) return;
@@ -132,61 +124,13 @@ export default function DevPage() {
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
-  };
-
-  // ============= PRELOAD + INIT =============
-  useEffect(() => {
-    if (isLoading) return;
-
-    const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
-    imagesRef.current = new Array(urls.length);
-    let remaining = urls.length;
-
-    for (let i = 0; i < urls.length; i++) {
-      const img = new Image();
-      img.decoding = "sync";
-      img.src = urls[i];
-      const onReady = () => {
-        remaining--;
-        if (remaining === 0) {
-          console.log(`[Dev] Loaded ${TOTAL_FRAMES} frames`);
-          setupCanvas();
-          stateRef.current.frame = 0;
-          render();
-          initScroll();
-        }
-      };
-      img.onload = onReady;
-      img.onerror = () => { console.warn(`[Dev] Frame ${i} failed`); onReady(); };
-      imagesRef.current[i] = img;
-    }
-
-    let resizeTimer: number;
-    const onResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        setupCanvas();
-        render();
-        ScrollTrigger.refresh();
-      }, 150);
-    };
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      clearTimeout(resizeTimer);
-      if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
-      }
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, [isLoading, videos.length]);
+  }, []);
 
   // ============= SCROLLTRIGGER =============
-  function initScroll(): void {
+  const initScroll = useCallback((): void => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Kill existing ScrollTrigger
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
     }
@@ -194,7 +138,6 @@ export default function DevPage() {
     const totalVideos = videos.length;
     if (totalVideos === 0) return;
 
-    // Dynamic scroll calculation: 1 hero screen + 1 screen per video + 0.5 for button
     const heroScrollScreens = 1 + totalVideos + 0.5;
     const scrollEnd = window.innerHeight * heroScrollScreens;
 
@@ -208,14 +151,12 @@ export default function DevPage() {
       onUpdate: (self) => {
         const progress = self.progress;
 
-        // ===== FRAMES =====
         const targetFrame = Math.round(progress * (stateRef.current.count - 1));
         if (targetFrame !== stateRef.current.frame) {
           stateRef.current.frame = targetFrame;
           render();
         }
 
-        // ===== HEADER - fade out suave =====
         if (headerRef.current) {
           const headerFadeEnd = 0.12;
           const t = clamp01(progress / headerFadeEnd);
@@ -228,7 +169,6 @@ export default function DevPage() {
           });
         }
 
-        // ===== SCROLL HINT - desaparece descendo =====
         if (scrollHintRef.current) {
           const hintFadeEnd = 0.08;
           const hintProgress = clamp01(progress / hintFadeEnd);
@@ -238,7 +178,6 @@ export default function DevPage() {
           });
         }
 
-        // ===== VIDEOS - entram de cima com zoom in, saem para baixo com zoom out =====
         const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
@@ -246,7 +185,6 @@ export default function DevPage() {
 
           const isLastVideo = idx === totalVideos - 1;
           const videoStart = idx * progressPerVideo;
-          // Último vídeo deve terminar em 0.95 (quando botão aparece)
           const videoEnd = isLastVideo ? 0.95 : videoStart + progressPerVideo;
           const enterEnd = videoStart + progressPerVideo * 0.4;
           const exitStart = isLastVideo 
@@ -278,7 +216,6 @@ export default function DevPage() {
           }
         });
 
-        // ===== BOTÃO HOMEPAGE - aparece só quando último vídeo sai =====
         if (endButtonRef.current) {
           const buttonStart = 0.95;
           
@@ -298,12 +235,139 @@ export default function DevPage() {
     });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-  }
+  }, [videos.length, render]);
 
-  if (isLoading) {
+  // ============= LENIS SETUP =============
+  useEffect(() => {
+    if (!isReady) return;
+
+    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+    lenisRef.current = lenis;
+    
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+    
+    return () => {
+      lenis.destroy();
+      lenisRef.current = null;
+      gsap.ticker.lagSmoothing(500, 33);
+    };
+  }, [isReady]);
+
+  // ============= PRELOAD OTIMIZADO =============
+  useEffect(() => {
+    if (isLoading) return;
+
+    const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
+    imagesRef.current = new Array(urls.length);
+    
+    let loadedCount = 0;
+    let priorityLoaded = false;
+
+    const loadImage = (index: number): Promise<void> => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = "async"; // Async para não bloquear thread principal
+        
+        const onComplete = () => {
+          loadedCount++;
+          setLoadProgress(Math.round((loadedCount / urls.length) * 100));
+          
+          // Quando frames prioritários carregarem, iniciar página
+          if (!priorityLoaded && loadedCount >= PRIORITY_FRAMES) {
+            priorityLoaded = true;
+            setupCanvas();
+            stateRef.current.frame = 0;
+            render();
+            setIsReady(true);
+            // Iniciar scroll após pequeno delay para garantir render
+            requestAnimationFrame(() => {
+              initScroll();
+            });
+          }
+          
+          if (loadedCount === urls.length) {
+            console.log(`[Dev] Loaded ${TOTAL_FRAMES} frames`);
+          }
+          
+          resolve();
+        };
+
+        img.onload = onComplete;
+        img.onerror = () => {
+          console.warn(`[Dev] Frame ${index} failed`);
+          onComplete();
+        };
+        
+        imagesRef.current[index] = img;
+        img.src = urls[index];
+      });
+    };
+
+    // Carregar frames prioritários primeiro (em paralelo)
+    const priorityPromises = urls.slice(0, PRIORITY_FRAMES).map((_, i) => loadImage(i));
+    
+    // Depois carregar o resto em batches para não sobrecarregar
+    Promise.all(priorityPromises).then(() => {
+      const BATCH_SIZE = 20;
+      let currentBatch = PRIORITY_FRAMES;
+      
+      const loadNextBatch = () => {
+        const batch = [];
+        for (let i = 0; i < BATCH_SIZE && currentBatch < urls.length; i++, currentBatch++) {
+          batch.push(loadImage(currentBatch));
+        }
+        
+        if (batch.length > 0) {
+          Promise.all(batch).then(() => {
+            // Usar requestIdleCallback se disponível, senão setTimeout
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(loadNextBatch, { timeout: 100 });
+            } else {
+              setTimeout(loadNextBatch, 16);
+            }
+          });
+        }
+      };
+      
+      loadNextBatch();
+    });
+
+    let resizeTimer: number;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        setupCanvas();
+        render();
+        ScrollTrigger.refresh();
+      }, 150);
+    };
+    window.addEventListener("resize", onResize);
+    
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearTimeout(resizeTimer);
+      if (scrollTriggerRef.current) {
+        scrollTriggerRef.current.kill();
+      }
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, [isLoading, setupCanvas, render, initScroll]);
+
+  // Loading state com progresso
+  if (isLoading || !isReady) {
     return (
-      <div className="w-screen h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
+      <div className="w-screen h-screen bg-black flex flex-col items-center justify-center gap-4">
+        <div className="relative w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div 
+            className="absolute inset-y-0 left-0 bg-white rounded-full transition-all duration-200"
+            style={{ width: `${loadProgress}%` }}
+          />
+        </div>
+        <div className="text-white/60 text-sm font-medium">
+          {loadProgress < 100 ? `${loadProgress}%` : 'Preparando...'}
+        </div>
       </div>
     );
   }
@@ -324,19 +388,16 @@ export default function DevPage() {
 
   return (
     <main className="relative w-screen min-h-[100dvh] bg-black text-white overflow-hidden">
-      {/* Container pinned */}
       <section
         ref={containerRef}
         className="relative w-screen h-[100dvh] overflow-hidden"
         style={{ perspective: `${PERSPECTIVE_PX}px` }}
       >
-        {/* Canvas fullscreen */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full z-0 bg-black"
         />
 
-        {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
           className="absolute left-1/2 top-8 z-30"
@@ -353,7 +414,6 @@ export default function DevPage() {
           </Link>
         </div>
 
-        {/* Scroll instruction */}
         <div
           ref={scrollHintRef}
           className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
@@ -372,7 +432,6 @@ export default function DevPage() {
           </svg>
         </div>
 
-        {/* Videos - cada um em layer separado */}
         {videos.map((video, idx) => (
           <div
             key={video.id}
@@ -386,6 +445,7 @@ export default function DevPage() {
               <video
                 controls
                 playsInline
+                preload="metadata"
                 className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
               >
                 <source src={video.video_url} type="video/mp4" />
@@ -394,7 +454,6 @@ export default function DevPage() {
           </div>
         ))}
 
-        {/* Botão Homepage - aparece ao fim */}
         <div
           ref={endButtonRef}
           className="absolute inset-0 flex items-center justify-center z-30"
