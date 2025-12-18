@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { usePrefetchPortfolioFrames } from "@/hooks/usePrefetchPortfolioFrames";
+import { PageTransition } from "@/components/PageTransition";
 import homepageBg from "@/assets/homepage-bg.png";
 
 // CursorTrail lazy loaded - não crítico para primeira pintura
@@ -21,17 +22,19 @@ export default function Index() {
   }, []);
 
   return (
-    <div 
-      className="min-h-screen relative bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${homepageBg})` }}
-    >
-      {showEffects && (
-        <Suspense fallback={null}>
-          <CursorTrail />
-        </Suspense>
-      )}
-      <Hero />
-      <About />
-    </div>
+    <PageTransition>
+      <div 
+        className="min-h-screen relative bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: `url(${homepageBg})` }}
+      >
+        {showEffects && (
+          <Suspense fallback={null}>
+            <CursorTrail />
+          </Suspense>
+        )}
+        <Hero />
+        <About />
+      </div>
+    </PageTransition>
   );
 }
