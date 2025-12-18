@@ -243,13 +243,13 @@ export default function DevPage() {
           }
         });
 
-        // ===== BOTÃO HOMEPAGE - aparece quando último vídeo sai =====
+        // ===== BOTÃO HOMEPAGE - aparece só quando último vídeo sai =====
         if (endButtonRef.current) {
-          const buttonStart = 0.85;
+          const buttonStart = 0.95; // aparece apenas no final
           
           if (progress >= buttonStart) {
             const t = (progress - buttonStart) / (1 - buttonStart);
-            const eased = 1 - Math.pow(1 - t, 3);
+            const eased = 1 - Math.pow(1 - t, 2);
             gsap.set(endButtonRef.current, {
               opacity: eased,
               scale: 0.8 + eased * 0.2,
