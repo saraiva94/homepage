@@ -23,14 +23,13 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative isolate overflow-hidden bg-black text-green-400">
-      {/* Overlay escuro */}
-      <div className="absolute inset-0 z-[1] bg-black/50 pointer-events-none" />
+    <section className="relative isolate overflow-hidden bg-black text-white">
+      {/* Vídeo de fundo - grid duplicado */}
       {/* Vídeo de fundo - grid duplicado */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
         <video
           ref={videoRef}
-          className="w-full h-full object-cover object-center opacity-60"
+          className="w-full h-full object-cover object-center"
           autoPlay
           muted
           playsInline
@@ -41,7 +40,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-60"
+          className="w-full h-full object-cover object-center"
           autoPlay
           muted
           playsInline
@@ -52,7 +51,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-60"
+          className="w-full h-full object-cover object-center"
           autoPlay
           muted
           playsInline
@@ -63,7 +62,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-60"
+          className="w-full h-full object-cover object-center"
           autoPlay
           muted
           playsInline
@@ -83,7 +82,7 @@ export function Hero() {
             {/* Command Lines - Esquerda */}
             <div className="flex-1 flex justify-start md:-mr-16 lg:-mr-20">
               <span
-                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-green-400 font-mono"
+                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white font-mono"
                 data-text="Command Lines"
               >
                 Command Lines
@@ -102,7 +101,7 @@ export function Hero() {
             {/* Timelines - Direita */}
             <div className="flex-1 flex justify-end md:-ml-28 lg:-ml-36">
               <span
-                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-green-400 font-mono"
+                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white font-mono"
                 data-text="Timelines"
               >
                 Timelines
