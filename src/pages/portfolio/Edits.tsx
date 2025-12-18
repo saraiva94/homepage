@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
+import { SkeletonLoader } from "@/components/SkeletonLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -350,21 +351,9 @@ export default function EditsPage() {
     };
   }, [isLoading, setupCanvas, render, initScroll]);
 
-  // Loading state com progresso
+  // Loading state com skeleton
   if (isLoading || !isReady) {
-    return (
-      <div className="w-screen h-screen bg-black flex flex-col items-center justify-center gap-4">
-        <div className="relative w-48 h-1 bg-white/20 rounded-full overflow-hidden">
-          <div 
-            className="absolute inset-y-0 left-0 bg-white rounded-full transition-all duration-200"
-            style={{ width: `${loadProgress}%` }}
-          />
-        </div>
-        <div className="text-white/60 text-sm font-medium">
-          {loadProgress < 100 ? `${loadProgress}%` : 'Preparando...'}
-        </div>
-      </div>
-    );
+    return <SkeletonLoader progress={loadProgress} variant="editor" />;
   }
 
   if (videos.length === 0) {
