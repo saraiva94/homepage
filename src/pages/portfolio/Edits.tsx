@@ -19,9 +19,7 @@ const FRAME_PAD = 3;
 // Scroll config - 1 hero + 3 videos
 const HERO_SCROLL_SCREENS = 5;
 
-// Header config
-const HEADER_FADE_END = 0.15;
-const Z_HEADER_BACK = -600;
+// Perspective config
 const PERSPECTIVE_PX = 1000;
 
 // ============= HELPERS =============
@@ -32,7 +30,6 @@ const frameURL = (idx0: number): string => {
 };
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 const videos = ["Dieta_animal.mp4", "Groppaverso.mp4", "Propagandas.mp4"];
 
@@ -179,15 +176,26 @@ export default function EditsPage() {
           render();
         }
 
-        // ===== HEADER fade =====
+        // ===== HEADER - zoom contínuo como vídeos =====
         if (headerRef.current) {
-          const headerProgress = clamp01(progress / HEADER_FADE_END);
-          const z = lerp(0, Z_HEADER_BACK, headerProgress);
-          const opacity = 1 - headerProgress;
-          gsap.set(headerRef.current, {
-            transform: `translate(-50%, 0) translateZ(${z}px)`,
-            opacity: clamp01(opacity),
-          });
+          const headerFadeEnd = 0.12;
+          if (progress < headerFadeEnd) {
+            // Visível: scale 1, opacity 1
+            gsap.set(headerRef.current, {
+              transform: "translate(-50%, 0)",
+              opacity: 1,
+              scale: 1,
+            });
+          } else {
+            // Saindo: continua crescendo + fade out
+            const t = (progress - headerFadeEnd) / (0.25 - headerFadeEnd);
+            const eased = Math.pow(Math.min(t, 1), 2);
+            gsap.set(headerRef.current, {
+              transform: "translate(-50%, 0)",
+              opacity: 1 - eased,
+              scale: 1 + eased * 0.5, // 1 -> 1.5
+            });
+          }
         }
 
         // ===== SCROLL HINT - desaparece descendo =====
@@ -278,18 +286,23 @@ export default function EditsPage() {
           className="absolute inset-0 w-full h-full z-0 bg-black"
         />
 
-        {/* Header */}
+        {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-4 z-30"
-          style={{ transform: "translate(-50%, 0)", transformStyle: "preserve-3d" }}
+          className="absolute left-1/2 top-8 z-30"
+          style={{ transform: "translate(-50%, 0)" }}
         >
-          <Link
-            to="/"
-            className="inline-block rounded-md px-4 py-2 font-semibold border border-black bg-black text-white hover:bg-transparent hover:text-black transition"
-          >
-            ← Voltar
-          </Link>
+          <div className="relative">
+            {/* Pulsação azul */}
+            <span className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping" />
+            <span className="absolute -inset-2 rounded-full bg-sky-400/20 animate-pulse" />
+            <Link
+              to="/"
+              className="relative px-6 py-3 text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-sky-400/50"
+            >
+              Voltar para Home
+            </Link>
+          </div>
         </div>
 
         {/* Scroll instruction */}
