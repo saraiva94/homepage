@@ -43,6 +43,7 @@ export default function EditsPage() {
   const headerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const endButtonRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
 
@@ -189,6 +190,16 @@ export default function EditsPage() {
           });
         }
 
+        // ===== SCROLL HINT - desaparece descendo =====
+        if (scrollHintRef.current) {
+          const hintFadeEnd = 0.08; // desaparece nos primeiros 8% do scroll
+          const hintProgress = clamp01(progress / hintFadeEnd);
+          gsap.set(scrollHintRef.current, {
+            opacity: 1 - hintProgress,
+            y: hintProgress * 100, // desce 100px
+          });
+        }
+
         // ===== VIDEOS - zoom contínuo: pequeno -> normal -> grande =====
         const progressPerVideo = 1 / totalVideos;
 
@@ -282,7 +293,10 @@ export default function EditsPage() {
         </div>
 
         {/* Scroll instruction */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none">
+        <div
+          ref={scrollHintRef}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
+        >
           <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-black/60 backdrop-blur-sm rounded-full border border-white/30">
             Role para ver o conteúdo
           </span>
