@@ -176,15 +176,16 @@ export default function EditsPage() {
           render();
         }
 
-        // ===== HEADER - zoom out e desaparece na primeira rolagem =====
+        // ===== HEADER - zoom suave e desaparece =====
         if (headerRef.current) {
-          const headerFadeEnd = 0.08; // desaparece nos primeiros 8% do scroll
+          const headerFadeEnd = 0.15; // transição mais longa e suave
           const t = clamp01(progress / headerFadeEnd);
-          const eased = Math.pow(t, 2);
+          // Easing suave ease-out cubic
+          const eased = 1 - Math.pow(1 - t, 3);
           gsap.set(headerRef.current, {
             transform: "translate(-50%, 0)",
             opacity: 1 - eased,
-            scale: 1 + eased * 0.6, // 1 -> 1.6
+            scale: 1 + eased * 0.4, // zoom mais sutil: 1 -> 1.4
           });
         }
 
