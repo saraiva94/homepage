@@ -4,18 +4,15 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
+import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // ============= CONSTANTES CONFIGURÁVEIS (Ultimate_tubular) =============
-const FRAME_START = 14;
+const CONFIG = FRAME_CONFIG.dev;
+const FRAME_START = CONFIG.start;
 const FRAME_END = 274;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
-
-const FRAMES_DIR = "/background/Ultimate_tubular";
-const FRAME_BASENAME = "Ultimate_tubular_";
-const FRAME_EXT = "jpg";
-const FRAME_PAD = 5;
 
 const PERSPECTIVE_PX = 1000;
 
@@ -25,8 +22,8 @@ const PRIORITY_FRAMES = 10;
 // ============= HELPERS =============
 const frameURL = (idx0: number): string => {
   const n = FRAME_START + idx0;
-  const filename = `${FRAME_BASENAME}${String(n).padStart(FRAME_PAD, "0")}.${FRAME_EXT}`;
-  return encodeURI(`${FRAMES_DIR}/${filename}`);
+  const filename = `${CONFIG.basename}${String(n).padStart(CONFIG.pad, "0")}.${CONFIG.ext}`;
+  return encodeURI(`${CONFIG.dir}/${filename}`);
 };
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
