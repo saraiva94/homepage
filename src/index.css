@@ -473,3 +473,17 @@ body {
     transform: translate(0);
   }
 }
+
+/* ===== GLOW PULSE ANIMATION ===== */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4), 0 0 30px rgba(56, 189, 248, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.6), 0 0 50px rgba(56, 189, 248, 0.4);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}

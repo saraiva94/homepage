@@ -292,17 +292,15 @@ export default function EditsPage() {
           className="absolute left-1/2 top-8 z-30"
           style={{ transform: "translate(-50%, 0)" }}
         >
-          <div className="relative">
-            {/* Pulsação azul */}
-            <span className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping" />
-            <span className="absolute -inset-2 rounded-full bg-sky-400/20 animate-pulse" />
-            <Link
-              to="/"
-              className="relative px-6 py-3 text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-sky-400/50"
-            >
-              Voltar para Home
-            </Link>
-          </div>
+          <Link
+            to="/"
+            className="relative px-6 py-3 text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
+          >
+            Voltar para Home
+          </Link>
         </div>
 
         {/* Scroll instruction */}
@@ -352,17 +350,15 @@ export default function EditsPage() {
           className="absolute inset-0 flex items-center justify-center z-25"
           style={{ opacity: 0, pointerEvents: "none" }}
         >
-          <div className="relative">
-            {/* Pulsação azul */}
-            <span className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping" />
-            <span className="absolute -inset-2 rounded-full bg-sky-400/20 animate-pulse" />
-            <Link
-              to="/"
-              className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 shadow-2xl border border-sky-400/50"
-            >
-              Voltar para Home
-            </Link>
-          </div>
+          <Link
+            to="/"
+            className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
+          >
+            Voltar para Home
+          </Link>
         </div>
       </section>
     </main>
