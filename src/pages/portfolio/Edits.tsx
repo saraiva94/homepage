@@ -65,14 +65,14 @@ export default function EditsPage() {
     if (!ctx) return;
     ctxRef.current = ctx;
 
+    // Usa o tamanho real renderizado (evita gaps/"faixa" por diferenças de vw/scrollbar)
+    const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
 
-    canvas.width = Math.floor(vw * dpr);
-    canvas.height = Math.floor(vh * dpr);
-    canvas.style.width = `${vw}px`;
-    canvas.style.height = `${vh}px`;
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+
+    // Desenha em CSS pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
@@ -85,8 +85,10 @@ export default function EditsPage() {
     const img = imagesRef.current[stateRef.current.frame];
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
-    const cw = window.innerWidth;
-    const ch = window.innerHeight;
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+    if (cw === 0 || ch === 0) return;
+
     ctx.clearRect(0, 0, cw, ch);
 
     const imgRatio = img.naturalWidth / img.naturalHeight;
@@ -94,10 +96,17 @@ export default function EditsPage() {
 
     let dw: number, dh: number, dx: number, dy: number;
     if (imgRatio > canvasRatio) {
-      dh = ch; dw = dh * imgRatio; dx = (cw - dw) / 2; dy = 0;
+      dh = ch;
+      dw = dh * imgRatio;
+      dx = (cw - dw) / 2;
+      dy = 0;
     } else {
-      dw = cw; dh = dw / imgRatio; dx = 0; dy = (ch - dh) / 2;
+      dw = cw;
+      dh = dw / imgRatio;
+      dx = 0;
+      dy = (ch - dh) / 2;
     }
+
     ctx.drawImage(img, dx, dy, dw, dh);
   };
 
@@ -221,11 +230,11 @@ export default function EditsPage() {
   }
 
   return (
-    <main className="relative bg-black text-white overflow-hidden">
+    <main className="relative w-screen min-h-[100dvh] bg-black text-white overflow-hidden">
       {/* Container pinned */}
       <section
         ref={containerRef}
-        className="relative w-full h-[100dvh] overflow-hidden"
+        className="relative w-screen h-[100dvh] overflow-hidden"
         style={{ perspective: `${PERSPECTIVE_PX}px` }}
       >
         {/* Canvas fullscreen */}
