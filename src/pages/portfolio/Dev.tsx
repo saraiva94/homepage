@@ -19,9 +19,7 @@ const FRAME_PAD = 5;
 // Scroll config
 const HERO_SCROLL_SCREENS = 9; // Total de telas de scroll (1 hero + 8 videos)
 
-// Header config
-const HEADER_FADE_END = 0.15;
-const Z_HEADER_BACK = -600;
+// Perspective config
 const PERSPECTIVE_PX = 1000;
 
 // ============= HELPERS =============
@@ -32,7 +30,6 @@ const frameURL = (idx0: number): string => {
 };
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 const videos = [
   "coding.mp4", "coding.mp4", "coding.mp4", "coding.mp4",
@@ -45,6 +42,8 @@ export default function DevPage() {
   const containerRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const endButtonRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
 
@@ -180,14 +179,26 @@ export default function DevPage() {
           render();
         }
 
-        // ===== HEADER fade =====
+        // ===== HEADER - fade out suave =====
         if (headerRef.current) {
-          const headerProgress = clamp01(progress / HEADER_FADE_END);
-          const z = lerp(0, Z_HEADER_BACK, headerProgress);
-          const opacity = 1 - headerProgress;
+          const headerFadeEnd = 0.12;
+          const t = clamp01(progress / headerFadeEnd);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const opacity = 1 - eased;
           gsap.set(headerRef.current, {
-            transform: `translate(-50%, 0) translateZ(${z}px)`,
-            opacity: clamp01(opacity),
+            transform: "translate(-50%, 0)",
+            opacity,
+            pointerEvents: opacity < 0.1 ? "none" : "auto",
+          });
+        }
+
+        // ===== SCROLL HINT - desaparece descendo =====
+        if (scrollHintRef.current) {
+          const hintFadeEnd = 0.08;
+          const hintProgress = clamp01(progress / hintFadeEnd);
+          gsap.set(scrollHintRef.current, {
+            opacity: 1 - hintProgress,
+            y: hintProgress * 100,
           });
         }
 
@@ -214,7 +225,7 @@ export default function DevPage() {
             });
           } else if (progress >= enterEnd && progress < exitStart) {
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
-          } else if (progress >= exitStart && progress < videoEnd) {
+          } else if (progress >= exitStart && progress <= videoEnd) {
             const t = (progress - exitStart) / (videoEnd - exitStart);
             const eased = Math.pow(t, 3);
             gsap.set(videoEl, {
@@ -226,6 +237,23 @@ export default function DevPage() {
             gsap.set(videoEl, { y: "-100%", opacity: 0, scale: 0.8 });
           }
         });
+
+        // ===== BOTÃO HOMEPAGE - aparece quando último vídeo sai =====
+        if (endButtonRef.current) {
+          const buttonStart = 0.85;
+          
+          if (progress >= buttonStart) {
+            const t = (progress - buttonStart) / (1 - buttonStart);
+            const eased = 1 - Math.pow(1 - t, 3);
+            gsap.set(endButtonRef.current, {
+              opacity: eased,
+              scale: 0.8 + eased * 0.2,
+              pointerEvents: eased > 0.5 ? "auto" : "none",
+            });
+          } else {
+            gsap.set(endButtonRef.current, { opacity: 0, scale: 0.8, pointerEvents: "none" });
+          }
+        }
       },
     });
 
@@ -246,30 +274,39 @@ export default function DevPage() {
           className="absolute inset-0 w-full h-full z-0 bg-black"
         />
 
-        {/* Header */}
+        {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-4 z-30"
-          style={{ transform: "translate(-50%, 0)", transformStyle: "preserve-3d" }}
+          className="absolute left-1/2 top-8 z-30"
+          style={{ transform: "translate(-50%, 0)" }}
         >
           <Link
             to="/"
-            className="inline-block rounded-md px-4 py-2 font-semibold border border-white bg-white text-black hover:bg-transparent hover:text-white transition"
+            className="relative px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
           >
-            ← Voltar
+            Homepage
           </Link>
         </div>
 
         {/* Scroll instruction */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 animate-pulse pointer-events-none">
-          <span className="text-white/80 text-sm font-medium tracking-wide">Role para ver o conteúdo</span>
+        <div
+          ref={scrollHintRef}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
+        >
+          <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+            Role para ver o conteúdo
+          </span>
           <svg
-            className="w-6 h-6 text-white/80 animate-bounce"
+            className="w-8 h-8 text-white animate-bounce"
             fill="none"
             stroke="currentColor"
+            strokeWidth={2.5}
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
         </div>
 
@@ -294,6 +331,23 @@ export default function DevPage() {
             </div>
           </div>
         ))}
+
+        {/* Botão Homepage - aparece ao fim */}
+        <div
+          ref={endButtonRef}
+          className="absolute inset-0 flex items-center justify-center z-30"
+          style={{ opacity: 0, pointerEvents: "none" }}
+        >
+          <Link
+            to="/"
+            className="relative px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
+          >
+            Homepage
+          </Link>
+        </div>
       </section>
     </main>
   );
