@@ -251,7 +251,7 @@ export default function EditsPage() {
         >
           <Link
             to="/"
-            className="inline-block rounded-md px-4 py-2 font-semibold border border-white bg-white text-black hover:bg-transparent hover:text-white transition"
+            className="inline-block rounded-md px-4 py-2 font-semibold border border-black bg-black text-white hover:bg-transparent hover:text-black transition"
           >
             ← Voltar
           </Link>
