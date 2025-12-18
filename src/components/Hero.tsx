@@ -30,7 +30,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
         <video
           ref={videoRef}
-          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          className="w-full h-full object-cover object-center opacity-60"
           autoPlay
           muted
           playsInline
@@ -41,7 +41,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          className="w-full h-full object-cover object-center opacity-60"
           autoPlay
           muted
           playsInline
@@ -52,7 +52,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          className="w-full h-full object-cover object-center opacity-60"
           autoPlay
           muted
           playsInline
@@ -63,7 +63,7 @@ export function Hero() {
           <source src={binary} type="video/mp4" />
         </video>
         <video
-          className="w-full h-full object-cover object-center opacity-[0.4] [filter:grayscale(100%)_brightness(1.2)_sepia(100%)_hue-rotate(70deg)_saturate(5)]"
+          className="w-full h-full object-cover object-center opacity-60"
           autoPlay
           muted
           playsInline
