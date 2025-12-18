@@ -299,7 +299,7 @@ export default function EditsPage() {
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
             }}
           >
-            Voltar para Home
+            Homepage
           </Link>
         </div>
 
@@ -357,7 +357,7 @@ export default function EditsPage() {
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
             }}
           >
-            Voltar para Home
+            Homepage
           </Link>
         </div>
       </section>
