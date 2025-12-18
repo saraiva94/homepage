@@ -94,6 +94,9 @@ export function Hero() {
               <img
                 src={stacksImg}
                 alt="Stacks"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
                 className="w-full h-auto max-w-[182px] md:max-w-[224px] lg:max-w-[266px] xl:max-w-[308px] object-contain select-none pointer-events-none"
               />
             </div>

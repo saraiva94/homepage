@@ -34,6 +34,8 @@ export function About() {
               <img
                 src={about2Img}
                 alt="background"
+                loading="eager"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-[50%_68%] origin-[50%_68%]
                            transition-transform duration-500 will-change-transform hover:scale-[1.08]"
               />
@@ -50,7 +52,13 @@ export function About() {
             >
               {/* avatar */}
               <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 overflow-hidden rounded-lg">
-                <img src={about1Img} alt="eu" className="w-full h-full object-cover" />
+                <img 
+                  src={about1Img} 
+                  alt="eu" 
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover" 
+                />
               </div>
 
               {/* Portfólio Editor */}
