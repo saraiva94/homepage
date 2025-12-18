@@ -83,15 +83,25 @@ export default function AdminDashboard() {
 
   const handleDelete = async (video: Video) => {
     try {
-      const url = new URL(video.video_url);
-      const pathParts = url.pathname.split("/portfolio-videos/");
-      const filePath = pathParts[1];
+      // Only try to delete from storage if it's a Supabase storage URL
+      if (video.video_url.includes('supabase.co/storage')) {
+        try {
+          const url = new URL(video.video_url);
+          const pathParts = url.pathname.split("/portfolio-videos/");
+          const filePath = pathParts[1];
 
-      if (filePath) {
-        await supabase.storage.from("portfolio-videos").remove([decodeURIComponent(filePath)]);
+          if (filePath) {
+            await supabase.storage.from("portfolio-videos").remove([decodeURIComponent(filePath)]);
+          }
+        } catch (storageErr) {
+          console.warn("Could not delete from storage:", storageErr);
+          // Continue to delete from database even if storage delete fails
+        }
       }
 
-      await supabase.from("portfolio_videos").delete().eq("id", video.id);
+      const { error: dbError } = await supabase.from("portfolio_videos").delete().eq("id", video.id);
+      if (dbError) throw dbError;
+      
       setConfirmDelete(null);
       await fetchVideos();
     } catch (err) {
