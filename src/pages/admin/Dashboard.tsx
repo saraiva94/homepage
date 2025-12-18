@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/backend/client";
-import { Trash2, Film, Code2, LogOut, Plus, X, Check } from "lucide-react";
+import { Trash2, Film, Code2, LogOut, Plus, X, Check, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type PortfolioType = "editor" | "dev";
 
@@ -200,6 +201,13 @@ export default function AdminDashboard() {
       <header className="bg-black/30 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Painel Administrativo</h1>
+          <Link
+            to="/"
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+          >
+            <Home className="w-4 h-4" />
+            Homepage
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition"
