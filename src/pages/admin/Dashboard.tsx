@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import { Trash2, Film, Code2, LogOut, Plus, X, Check } from "lucide-react";
 
 type PortfolioType = "editor" | "dev";
