@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { supabase } from "@/integrations/backend/client";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,11 +17,8 @@ const FRAME_BASENAME = "Ultimate_tubular_";
 const FRAME_EXT = "jpg";
 const FRAME_PAD = 5;
 
-// Scroll config
-const HERO_SCROLL_SCREENS = 9; // Total de telas de scroll (1 hero + 8 videos)
-
-// Perspective config
 const PERSPECTIVE_PX = 1000;
+const MAX_VIDEOS = 8;
 
 // ============= HELPERS =============
 const frameURL = (idx0: number): string => {
@@ -31,12 +29,16 @@ const frameURL = (idx0: number): string => {
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
-const videos = [
-  "coding.mp4", "coding.mp4", "coding.mp4", "coding.mp4",
-  "coding.mp4", "coding.mp4", "coding.mp4", "coding.mp4",
-];
+interface Video {
+  id: string;
+  video_url: string;
+  display_order: number;
+}
 
 export default function DevPage() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const containerRef = useRef<HTMLElement>(null);
@@ -46,6 +48,28 @@ export default function DevPage() {
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+
+  // Fetch videos from database
+  useEffect(() => {
+    const fetchVideos = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_videos")
+        .select("*")
+        .eq("portfolio_type", "dev")
+        .order("display_order")
+        .limit(MAX_VIDEOS);
+
+      if (error) {
+        console.error("Error fetching videos:", error);
+      } else {
+        setVideos(data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchVideos();
+  }, []);
 
   // ============= LENIS + SCROLLTRIGGER =============
   useEffect(() => {
@@ -67,14 +91,12 @@ export default function DevPage() {
     if (!ctx) return;
     ctxRef.current = ctx;
 
-    // Usa o tamanho real renderizado (evita gaps/"faixa" por diferenças de vw/scrollbar)
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     canvas.width = Math.max(1, Math.floor(rect.width * dpr));
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
-    // Desenha em CSS pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
@@ -114,6 +136,8 @@ export default function DevPage() {
 
   // ============= PRELOAD + INIT =============
   useEffect(() => {
+    if (isLoading) return;
+
     const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
     imagesRef.current = new Array(urls.length);
     let remaining = urls.length;
@@ -150,19 +174,31 @@ export default function DevPage() {
     return () => {
       window.removeEventListener("resize", onResize);
       clearTimeout(resizeTimer);
+      if (scrollTriggerRef.current) {
+        scrollTriggerRef.current.kill();
+      }
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, []);
+  }, [isLoading, videos.length]);
 
   // ============= SCROLLTRIGGER =============
   function initScroll(): void {
     const container = containerRef.current;
     if (!container) return;
 
-    const totalVideos = videos.length;
-    const scrollEnd = window.innerHeight * HERO_SCROLL_SCREENS;
+    // Kill existing ScrollTrigger
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.kill();
+    }
 
-    ScrollTrigger.create({
+    const totalVideos = videos.length;
+    if (totalVideos === 0) return;
+
+    // Dynamic scroll calculation: 1 hero screen + 1 screen per video + 0.5 for button
+    const heroScrollScreens = 1 + totalVideos + 0.5;
+    const scrollEnd = window.innerHeight * heroScrollScreens;
+
+    scrollTriggerRef.current = ScrollTrigger.create({
       trigger: container,
       start: "top top",
       end: `+=${scrollEnd}`,
@@ -206,7 +242,7 @@ export default function DevPage() {
         const progressPerVideo = 1 / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
-          if (!videoEl) return;
+          if (!videoEl || idx >= totalVideos) return;
 
           const videoStart = idx * progressPerVideo;
           const videoEnd = videoStart + progressPerVideo;
@@ -214,38 +250,33 @@ export default function DevPage() {
           const exitStart = videoEnd - progressPerVideo * 0.35;
 
           if (progress < videoStart) {
-            // Antes de entrar: escondido acima e bem pequeno
             gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3 });
           } else if (progress >= videoStart && progress < enterEnd) {
-            // Entrando: vem de cima + zoom in intenso
             const t = (progress - videoStart) / (enterEnd - videoStart);
             const eased = 1 - Math.pow(1 - t, 2);
             gsap.set(videoEl, {
               y: `${-60 + eased * 60}%`,
               opacity: eased,
-              scale: 0.3 + eased * 0.7, // 0.3 -> 1
+              scale: 0.3 + eased * 0.7,
             });
           } else if (progress >= enterEnd && progress < exitStart) {
-            // Visível no centro
             gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
           } else if (progress >= exitStart && progress <= videoEnd) {
-            // Saindo: desce + zoom out intenso (cresce muito)
             const t = (progress - exitStart) / (videoEnd - exitStart);
             const eased = Math.pow(t, 2);
             gsap.set(videoEl, {
               y: `${eased * 60}%`,
               opacity: 1 - eased,
-              scale: 1 + eased * 0.8, // 1 -> 1.8
+              scale: 1 + eased * 0.8,
             });
           } else {
-            // Depois de sair: escondido abaixo e grande
             gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.8 });
           }
         });
 
         // ===== BOTÃO HOMEPAGE - aparece só quando último vídeo sai =====
         if (endButtonRef.current) {
-          const buttonStart = 0.95; // aparece apenas no final
+          const buttonStart = 0.95;
           
           if (progress >= buttonStart) {
             const t = (progress - buttonStart) / (1 - buttonStart);
@@ -263,6 +294,28 @@ export default function DevPage() {
     });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-screen h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="w-screen h-screen bg-black flex flex-col items-center justify-center gap-6">
+        <div className="text-white text-xl">Nenhum vídeo disponível</div>
+        <Link
+          to="/"
+          className="px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60"
+        >
+          Voltar para Homepage
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -316,9 +369,9 @@ export default function DevPage() {
         </div>
 
         {/* Videos - cada um em layer separado */}
-        {videos.map((name, idx) => (
+        {videos.map((video, idx) => (
           <div
-            key={idx}
+            key={video.id}
             ref={(el) => {
               videoRefs.current[idx] = el;
             }}
@@ -331,7 +384,7 @@ export default function DevPage() {
                 playsInline
                 className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
               >
-                <source src={`/videos/${name}`} type="video/mp4" />
+                <source src={video.video_url} type="video/mp4" />
               </video>
             </div>
           </div>
