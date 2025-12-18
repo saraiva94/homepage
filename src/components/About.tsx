@@ -90,13 +90,13 @@ export function About() {
                 Currículo
               </a>
 
-              {/* GitHub (cinza) */}
+              {/* GitHub (preto) */}
               <a
                 href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-gray-300 hover:bg-gray-400 active:bg-gray-500 !text-black focus-visible:outline-gray-400`}
+                className={`${btnBase} bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
               >
-                <Github className="w-4 h-4 text-black" />
-                <span className="text-black">Github</span>
+                <Github className="w-4 h-4 text-white" />
+                <span className="text-white">Github</span>
               </a>
             </div>
           </div>
