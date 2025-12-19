@@ -39,26 +39,19 @@
   box-sizing: border-box;
 }
 
-html {
+html,
+body,
+#root {
   width: 100%;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: scroll; /* Garante scroll vertical sempre habilitado */
+  height: 100%;
 }
 
 body {
-  width: 100%;
-  min-height: 100dvh;
   font-family: system-ui, -apple-system, sans-serif;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   overflow-x: hidden;
-  overflow-y: visible; /* Não bloquear scroll */
-}
-
-#root {
-  width: 100%;
-  min-height: 100%;
+  min-height: 100dvh;
 }
 
 /* ===== GLITCH EFFECT SYSTEM ===== */
@@ -493,18 +486,4 @@ body {
 
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* ===== SHIMMER ANIMATION ===== */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 2s infinite;
 }
