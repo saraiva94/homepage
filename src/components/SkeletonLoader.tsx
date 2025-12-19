@@ -21,7 +21,7 @@ export function SkeletonLoader({ progress, variant = 'dev' }: SkeletonLoaderProp
   const theme = gradients[variant];
 
   return (
-    <div className="w-screen h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="fixed inset-0 w-full h-full min-h-screen bg-black flex flex-col items-center justify-center overflow-hidden z-50">
       {/* Background blur/gradient skeleton */}
       <div 
         className={`absolute inset-0 bg-gradient-to-br ${theme.primary} animate-pulse`}
