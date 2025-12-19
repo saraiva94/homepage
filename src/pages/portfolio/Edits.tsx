@@ -260,29 +260,15 @@ export default function EditsPage() {
     imagesRef.current = new Array(urls.length);
     
     let loadedCount = 0;
-    let priorityLoaded = false;
 
     const loadImage = (index: number): Promise<void> => {
       return new Promise((resolve) => {
         const img = new Image();
-        img.decoding = "async"; // Async para não bloquear thread principal
+        img.decoding = "async";
         
         const onComplete = () => {
           loadedCount++;
           setLoadProgress(Math.round((loadedCount / urls.length) * 100));
-          
-          // Quando frames prioritários carregarem, iniciar página
-          if (!priorityLoaded && loadedCount >= PRIORITY_FRAMES) {
-            priorityLoaded = true;
-            setupCanvas();
-            stateRef.current.frame = 0;
-            render();
-            setIsReady(true);
-            // Iniciar scroll após pequeno delay para garantir render
-            requestAnimationFrame(() => {
-              initScroll();
-            });
-          }
           
           if (loadedCount === urls.length) {
             console.log(`[Edits] Loaded ${TOTAL_FRAMES} frames`);
@@ -291,9 +277,9 @@ export default function EditsPage() {
           resolve();
         };
 
-        img.onload = onComplete;
+        img.onload = () => onComplete();
         img.onerror = () => {
-          console.warn(`[Edits] Frame ${index} failed`);
+          console.warn(`[Edits] Frame ${index} failed to load: ${urls[index]}`);
           onComplete();
         };
         
@@ -305,8 +291,22 @@ export default function EditsPage() {
     // Carregar frames prioritários primeiro (em paralelo)
     const priorityPromises = urls.slice(0, PRIORITY_FRAMES).map((_, i) => loadImage(i));
     
-    // Depois carregar o resto em batches para não sobrecarregar
+    // Quando todos os frames prioritários carregarem, iniciar a página
     Promise.all(priorityPromises).then(() => {
+      console.log('[Edits] Priority frames loaded, setting up canvas');
+      setupCanvas();
+      stateRef.current.frame = 0;
+      
+      // Garantir que temos tempo para o canvas ser dimensionado
+      setTimeout(() => {
+        render();
+        setIsReady(true);
+        setTimeout(() => {
+          initScroll();
+        }, 100);
+      }, 50);
+      
+      // Depois carregar o resto em batches para não sobrecarregar
       const BATCH_SIZE = 20;
       let currentBatch = PRIORITY_FRAMES;
       
@@ -318,7 +318,6 @@ export default function EditsPage() {
         
         if (batch.length > 0) {
           Promise.all(batch).then(() => {
-            // Usar requestIdleCallback se disponível, senão setTimeout
             if ('requestIdleCallback' in window) {
               requestIdleCallback(loadNextBatch, { timeout: 100 });
             } else {
