@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 import { PortfolioQADebug } from "@/components/portfolio/PortfolioQADebug";
+import { FrameFallback } from "@/components/portfolio/FrameFallback";
 import { useResponsiveFullscreenCanvas } from "@/hooks/useResponsiveFullscreenCanvas";
 import { useFrameLoader } from "@/hooks/useFrameLoader";
 
@@ -17,8 +18,8 @@ const FRAME_END = 300;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
 
 const PERSPECTIVE_PX = 1000;
-const PRIORITY_FRAMES = 15;
-const PRELOAD_RANGE = 10;
+const PRIORITY_FRAMES = 20; // Aumentado para melhor experiência inicial
+const PRELOAD_RANGE = 15; // Aumentado para scroll mais suave
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
@@ -143,6 +144,9 @@ export default function EditsPage() {
     const scrollEnd = window.innerHeight * heroScrollScreens;
     setScrollSpaceHeight(scrollEnd);
 
+    let lastScrollDirection: "forward" | "backward" | "idle" = "idle";
+    let lastFrameForDirection = 0;
+
     scrollTriggerRef.current = ScrollTrigger.create({
       trigger: triggerEl,
       start: "top top",
@@ -153,14 +157,19 @@ export default function EditsPage() {
 
         const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1));
         if (targetFrame !== frameRef.current) {
+          // Detectar direção do scroll
+          const direction = targetFrame > lastFrameForDirection ? "forward" : "backward";
+          lastScrollDirection = direction;
+          lastFrameForDirection = targetFrame;
+
           frameRef.current = targetFrame;
           setCurrentFrame(targetFrame);
           render();
 
-          // Preload de frames adjacentes durante scroll
-          if (Math.abs(targetFrame - lastPreloadedRef.current) > 3) {
+          // Lazy loading progressivo baseado na posição e direção do scroll
+          if (Math.abs(targetFrame - lastPreloadedRef.current) > 2) {
             lastPreloadedRef.current = targetFrame;
-            frameLoader.preloadAdjacent(targetFrame, PRELOAD_RANGE);
+            frameLoader.loadForScrollPosition(targetFrame, lastScrollDirection, PRELOAD_RANGE);
           }
         }
 
@@ -403,6 +412,13 @@ export default function EditsPage() {
           scrollTriggerInstance={scrollTriggerRef.current}
           framesLoaded={framesLoaded}
           frameLoadErrors={frameLoadErrors}
+        />
+
+        {/* Fallback visual enquanto frames carregam */}
+        <FrameFallback 
+          theme="sunset" 
+          loadProgress={loadProgress}
+          isVisible={loadProgress < 100 || !frameLoader.isFrameReady(currentFrame)}
         />
 
         <canvas
