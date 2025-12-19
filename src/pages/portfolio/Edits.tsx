@@ -70,6 +70,14 @@ export default function EditsPage() {
     fetchVideos();
   }, []);
 
+  // ============= VIEWPORT SIZE (corrige zoom/dimensões em mobile/desktop) =============
+  const getViewportSize = useCallback(() => {
+    const vv = window.visualViewport;
+    const width = Math.max(1, Math.round(vv?.width ?? window.innerWidth));
+    const height = Math.max(1, Math.round(vv?.height ?? window.innerHeight));
+    return { width, height };
+  }, []);
+
   // ============= CANVAS SETUP (responsivo) =============
   const setupCanvas = useCallback((): void => {
     const canvas = canvasRef.current;
@@ -80,53 +88,50 @@ export default function EditsPage() {
 
     ctxRef.current = ctx;
 
-    // Dimensiona pelo tamanho real do elemento (melhor p/ mobile/zoom)
-    const rect = canvas.getBoundingClientRect();
-    const cssWidth = Math.max(1, Math.round(rect.width || window.innerWidth));
-    const cssHeight = Math.max(1, Math.round(rect.height || window.innerHeight));
+    const { width: cssWidth, height: cssHeight } = getViewportSize();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     canvas.width = Math.floor(cssWidth * dpr);
     canvas.height = Math.floor(cssHeight * dpr);
 
+    // coordenadas em CSS pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }, []);
+    ctx.imageSmoothingEnabled = true;
+  }, [getViewportSize]);
 
   // ============= RENDER FRAME =============
   const render = useCallback((): void => {
     const ctx = ctxRef.current;
-    const canvas = canvasRef.current;
-    if (!ctx || !canvas) return;
+    if (!ctx) return;
+
+    const { width: cw, height: ch } = getViewportSize();
+
+    // Sempre pinta o fundo, mesmo se o frame ainda não carregou
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, cw, ch);
 
     const img = imagesRef.current[stateRef.current.frame];
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const cw = Math.max(1, Math.round(rect.width || window.innerWidth));
-    const ch = Math.max(1, Math.round(rect.height || window.innerHeight));
-
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, cw, ch);
-
+    // "cover" para preencher a tela (sem pillarboxing)
     const imgRatio = img.naturalWidth / img.naturalHeight;
     const canvasRatio = cw / ch;
 
-    // "contain" (sem crop) para evitar sensação de superzoom
     let dw: number, dh: number, dx: number, dy: number;
     if (imgRatio > canvasRatio) {
-      dw = cw;
-      dh = dw / imgRatio;
-      dx = 0;
-      dy = (ch - dh) / 2;
-    } else {
       dh = ch;
       dw = dh * imgRatio;
       dx = (cw - dw) / 2;
       dy = 0;
+    } else {
+      dw = cw;
+      dh = dw / imgRatio;
+      dx = 0;
+      dy = (ch - dh) / 2;
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
-  }, []);
+  }, [getViewportSize]);
 
   // ============= SCROLLTRIGGER =============
   const initScroll = useCallback((): void => {
@@ -361,7 +366,11 @@ export default function EditsPage() {
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Canvas fora do container do ScrollTrigger para evitar escala/transform do pin */}
-      <canvas ref={canvasRef} className="absolute inset-0 bg-black" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 bg-black"
+        style={{ width: "100vw", height: "100vh", display: "block" }}
+      />
 
       <section
         ref={containerRef}
