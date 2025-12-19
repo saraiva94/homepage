@@ -41,11 +41,17 @@ export function useFrameLoader(config: FrameLoaderConfig) {
     [config]
   );
 
-  // Carregar um frame específico
+  // Carregar um frame específico com retry automático
   const loadFrame = useCallback(
-    (index: number): Promise<boolean> => {
-      // Já carregado ou carregando
-      if (stateRef.current.images[index]?.complete || loadingRef.current.has(index)) {
+    (index: number, retries: number = 2): Promise<boolean> => {
+      // Já carregado
+      const existing = stateRef.current.images[index];
+      if (existing?.complete && existing.naturalWidth > 0) {
+        return Promise.resolve(true);
+      }
+
+      // Já carregando
+      if (loadingRef.current.has(index)) {
         return Promise.resolve(true);
       }
 
@@ -54,6 +60,7 @@ export function useFrameLoader(config: FrameLoaderConfig) {
       return new Promise((resolve) => {
         const img = new Image();
         img.decoding = "async";
+        img.crossOrigin = "anonymous";
         
         // Hint de alta prioridade para frames importantes
         if (index < 10) {
@@ -61,18 +68,54 @@ export function useFrameLoader(config: FrameLoaderConfig) {
         }
 
         const url = getFrameUrl(index);
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        const cleanup = () => {
+          clearTimeout(timeoutId);
+          loadingRef.current.delete(index);
+        };
 
         img.onload = () => {
-          stateRef.current.images[index] = img;
-          stateRef.current.loadedCount++;
-          loadingRef.current.delete(index);
-          resolve(true);
+          cleanup();
+          if (img.naturalWidth > 0) {
+            stateRef.current.images[index] = img;
+            stateRef.current.loadedCount++;
+            resolve(true);
+          } else {
+            // Imagem inválida, tentar novamente
+            if (retries > 0) {
+              loadFrame(index, retries - 1).then(resolve);
+            } else {
+              resolve(false);
+            }
+          }
         };
 
         img.onerror = () => {
-          loadingRef.current.delete(index);
-          resolve(false);
+          cleanup();
+          // Retry com delay exponencial
+          if (retries > 0) {
+            setTimeout(() => {
+              loadFrame(index, retries - 1).then(resolve);
+            }, 100 * (3 - retries));
+          } else {
+            console.warn(`[FrameLoader] Frame ${index} failed after retries: ${url}`);
+            resolve(false);
+          }
         };
+
+        // Timeout de 10s para imagens grandes
+        timeoutId = setTimeout(() => {
+          if (!img.complete) {
+            img.src = ""; // Cancelar
+            cleanup();
+            if (retries > 0) {
+              loadFrame(index, retries - 1).then(resolve);
+            } else {
+              resolve(false);
+            }
+          }
+        }, 10000);
 
         img.src = url;
       });
