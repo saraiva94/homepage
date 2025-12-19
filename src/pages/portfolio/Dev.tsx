@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 import { PortfolioQADebug } from "@/components/portfolio/PortfolioQADebug";
@@ -51,7 +50,9 @@ export default function DevPage() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
-  const lenisRef = useRef<Lenis | null>(null);
+  const scrollSpaceRef = useRef<HTMLDivElement>(null);
+
+  const [scrollSpaceHeight, setScrollSpaceHeight] = useState<number>(() => window.innerHeight * 2);
 
   // Fetch videos from database
   useEffect(() => {
@@ -127,8 +128,8 @@ export default function DevPage() {
 
   // ============= SCROLLTRIGGER =============
   const initScroll = useCallback((): void => {
-    const container = containerRef.current;
-    if (!container) return;
+    const triggerEl = scrollSpaceRef.current;
+    if (!triggerEl) return;
 
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
@@ -139,13 +140,12 @@ export default function DevPage() {
 
     const heroScrollScreens = 1 + totalVideos + 0.5;
     const scrollEnd = window.innerHeight * heroScrollScreens;
+    setScrollSpaceHeight(scrollEnd);
 
     scrollTriggerRef.current = ScrollTrigger.create({
-      trigger: container,
+      trigger: triggerEl,
       start: "top top",
       end: `+=${scrollEnd}`,
-      pin: true,
-      pinSpacing: true,
       scrub: 1,
       onUpdate: (self) => {
         const progress = self.progress;
@@ -236,23 +236,7 @@ export default function DevPage() {
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }, [videos.length, render]);
 
-  // ============= LENIS SETUP =============
-  useEffect(() => {
-    if (!isReady) return;
-
-    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
-    lenisRef.current = lenis;
-    
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-    
-    return () => {
-      lenis.destroy();
-      lenisRef.current = null;
-      gsap.ticker.lagSmoothing(500, 33);
-    };
-  }, [isReady]);
+  // ============= LENIS (desativado; estava travando o scroll em alguns devices) =============
 
   // ============= PRELOAD =============
   useEffect(() => {
@@ -405,103 +389,108 @@ export default function DevPage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-black text-white overflow-hidden">
-      <PortfolioQADebug
-        name="dev"
-        isReady={isReady}
-        isLoading={isLoading}
-        loadProgress={loadProgress}
-        frame={stateRef.current.frame}
-        totalFrames={TOTAL_FRAMES}
-        videosCount={videos.length}
-        canvasEl={canvasRef.current}
-        containerEl={containerRef.current}
-      />
+    <div className="relative bg-black text-white">
+      {/* Espaçador que cria scroll real no documento */}
+      <div ref={scrollSpaceRef} style={{ height: scrollSpaceHeight }} aria-hidden />
 
-      {/* Canvas fora do container do ScrollTrigger para evitar escala/transform do pin */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 bg-black"
-        style={{ width: "100vw", height: "100vh", display: "block" }}
-      />
+      {/* Stage fixo */}
+      <div className="fixed inset-0 overflow-hidden">
+        <PortfolioQADebug
+          name="dev"
+          isReady={isReady}
+          isLoading={isLoading}
+          loadProgress={loadProgress}
+          frame={stateRef.current.frame}
+          totalFrames={TOTAL_FRAMES}
+          videosCount={videos.length}
+          canvasEl={canvasRef.current}
+          containerEl={containerRef.current}
+        />
 
-      <section
-        ref={containerRef}
-        className="absolute inset-0 overflow-hidden"
-        style={{ perspective: `${PERSPECTIVE_PX}px` }}
-      >
-        <div
-          ref={headerRef}
-          className="absolute left-1/2 top-4 sm:top-8 z-30"
-          style={{ transform: "translate(-50%, 0)" }}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 bg-black"
+          style={{ width: "100vw", height: "100vh", display: "block" }}
+        />
+
+        <section
+          ref={containerRef}
+          className="absolute inset-0 overflow-hidden"
+          style={{ perspective: `${PERSPECTIVE_PX}px` }}
         >
-          <Link
-            to="/"
-            className="relative px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
-            style={{
-              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-            }}
-          >
-            Homepage
-          </Link>
-        </div>
-
-        <div
-          ref={scrollHintRef}
-          className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none"
-        >
-          <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase px-4 py-1.5 sm:px-6 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-            Role para ver o conteúdo
-          </span>
-          <svg
-            className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-
-        {videos.map((video, idx) => (
           <div
-            key={video.id}
-            ref={(el) => {
-              videoRefs.current[idx] = el;
-            }}
-            className="absolute inset-0 flex items-center justify-center z-20 p-4"
-            style={{ transform: "translateY(100%)", opacity: 0 }}
+            ref={headerRef}
+            className="absolute left-1/2 top-4 sm:top-8 z-30"
+            style={{ transform: "translate(-50%, 0)" }}
           >
-            <div className="w-full max-w-[90vw] sm:max-w-[80vw] lg:max-w-[1000px]">
-              <video
-                controls
-                playsInline
-                preload="metadata"
-                className="w-full aspect-video rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
-              >
-                <source src={video.video_url} type="video/mp4" />
-              </video>
-            </div>
+            <Link
+              to="/"
+              className="relative px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+              style={{
+                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+              }}
+            >
+              Homepage
+            </Link>
           </div>
-        ))}
 
-        <div
-          ref={endButtonRef}
-          className="absolute inset-0 flex items-center justify-center z-30"
-          style={{ opacity: 0, pointerEvents: "none" }}
-        >
-          <Link
-            to="/"
-            className="relative px-6 py-3 sm:px-8 sm:py-4 text-lg sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
-            style={{
-              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-            }}
+          <div
+            ref={scrollHintRef}
+            className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none"
           >
-            Homepage
-          </Link>
-        </div>
-      </section>
+            <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase px-4 py-1.5 sm:px-6 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+              Role para ver o conteúdo
+            </span>
+            <svg
+              className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+
+          {videos.map((video, idx) => (
+            <div
+              key={video.id}
+              ref={(el) => {
+                videoRefs.current[idx] = el;
+              }}
+              className="absolute inset-0 flex items-center justify-center z-20 p-4"
+              style={{ transform: "translateY(100%)", opacity: 0 }}
+            >
+              <div className="w-full max-w-[90vw] sm:max-w-[80vw] lg:max-w-[1000px]">
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full aspect-video rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
+                >
+                  <source src={video.video_url} type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          ))}
+
+          <div
+            ref={endButtonRef}
+            className="absolute inset-0 flex items-center justify-center z-30"
+            style={{ opacity: 0, pointerEvents: "none" }}
+          >
+            <Link
+              to="/"
+              className="relative px-6 py-3 sm:px-8 sm:py-4 text-lg sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
+              style={{
+                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+              }}
+            >
+              Homepage
+            </Link>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
