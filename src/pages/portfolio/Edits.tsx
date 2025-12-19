@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 import { PortfolioQADebug } from "@/components/portfolio/PortfolioQADebug";
 import { useResponsiveFullscreenCanvas } from "@/hooks/useResponsiveFullscreenCanvas";
+import { useFrameLoader } from "@/hooks/useFrameLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,14 +17,8 @@ const FRAME_END = 300;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
 
 const PERSPECTIVE_PX = 1000;
-const PRIORITY_FRAMES = 10;
-
-// ============= HELPERS =============
-const frameURL = (idx0: number): string => {
-  const n = FRAME_START + idx0;
-  const filename = `${CONFIG.basename}${String(n).padStart(CONFIG.pad, "0")}.${CONFIG.ext}`;
-  return encodeURI(`${CONFIG.dir}/${filename}`);
-};
+const PRIORITY_FRAMES = 15;
+const PRELOAD_RANGE = 10;
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
@@ -39,7 +34,8 @@ export default function EditsPage() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  
+  const [currentFrame, setCurrentFrame] = useState(0);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const containerRef = useRef<HTMLElement>(null);
@@ -47,12 +43,22 @@ export default function EditsPage() {
   const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const endButtonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const scrollSpaceRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef(0);
+  const lastPreloadedRef = useRef(-1);
 
   const [scrollSpaceHeight, setScrollSpaceHeight] = useState<number>(() => window.innerHeight * 2);
+
+  // Hook otimizado para carregar frames
+  const frameLoader = useFrameLoader({
+    dir: CONFIG.dir,
+    basename: CONFIG.basename,
+    ext: CONFIG.ext,
+    pad: CONFIG.pad,
+    start: FRAME_START,
+    totalFrames: TOTAL_FRAMES,
+  });
 
   // Fetch videos from database
   useEffect(() => {
@@ -74,12 +80,12 @@ export default function EditsPage() {
     fetchVideos();
   }, []);
 
-  // ============= CANVAS FULLSCREEN RESPONSIVO (evita superzoom) =============
+  // Canvas fullscreen responsivo
   const { resizeCanvas, sizeRef } = useResponsiveFullscreenCanvas(canvasRef, {
     maxDpr: 2,
   });
 
-  // ============= RENDER FRAME =============
+  // Render frame otimizado
   const render = useCallback((): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -91,19 +97,15 @@ export default function EditsPage() {
     }
 
     const ctx = ctxRef.current;
-    if (!ctx) return;
-
     const cw = Math.max(1, Math.round(sizeRef.current.width || canvas.clientWidth || window.innerWidth));
     const ch = Math.max(1, Math.round(sizeRef.current.height || canvas.clientHeight || window.innerHeight));
 
-    // Sempre pinta o fundo, mesmo se o frame ainda não carregou
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, cw, ch);
 
-    const img = imagesRef.current[stateRef.current.frame];
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    const img = frameLoader.getFrame(frameRef.current);
+    if (!img) return;
 
-    // "cover" para preencher a tela (sem pillarboxing)
     const imgRatio = img.naturalWidth / img.naturalHeight;
     const canvasRatio = cw / ch;
 
@@ -121,9 +123,9 @@ export default function EditsPage() {
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
-  }, [sizeRef]);
+  }, [sizeRef, frameLoader]);
 
-  // ============= SCROLLTRIGGER =============
+  // ScrollTrigger com preload adjacente
   const initScroll = useCallback((): void => {
     const triggerEl = scrollSpaceRef.current;
     if (!triggerEl) return;
@@ -143,16 +145,24 @@ export default function EditsPage() {
       trigger: triggerEl,
       start: "top top",
       end: `+=${scrollEnd}`,
-      scrub: 1,
+      scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
 
-        const targetFrame = Math.round(progress * (stateRef.current.count - 1));
-        if (targetFrame !== stateRef.current.frame) {
-          stateRef.current.frame = targetFrame;
+        const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1));
+        if (targetFrame !== frameRef.current) {
+          frameRef.current = targetFrame;
+          setCurrentFrame(targetFrame);
           render();
+
+          // Preload de frames adjacentes durante scroll
+          if (Math.abs(targetFrame - lastPreloadedRef.current) > 3) {
+            lastPreloadedRef.current = targetFrame;
+            frameLoader.preloadAdjacent(targetFrame, PRELOAD_RANGE);
+          }
         }
 
+        // Header fade
         if (headerRef.current) {
           const headerFadeEnd = 0.12;
           const t = clamp01(progress / headerFadeEnd);
@@ -165,6 +175,7 @@ export default function EditsPage() {
           });
         }
 
+        // Scroll hint fade
         if (scrollHintRef.current) {
           const hintFadeEnd = 0.08;
           const hintProgress = clamp01(progress / hintFadeEnd);
@@ -174,6 +185,7 @@ export default function EditsPage() {
           });
         }
 
+        // Video animations
         const videoScrollEnd = 0.9;
         const progressPerVideo = videoScrollEnd / totalVideos;
 
@@ -210,9 +222,9 @@ export default function EditsPage() {
           }
         });
 
+        // End button
         if (endButtonRef.current) {
           const buttonStart = 0.85;
-          
           if (progress >= buttonStart) {
             const t = (progress - buttonStart) / (1 - buttonStart);
             const eased = 1 - Math.pow(1 - t, 3);
@@ -229,80 +241,60 @@ export default function EditsPage() {
     });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-  }, [videos.length, render]);
+  }, [videos.length, render, frameLoader]);
 
-  // ============= LENIS (desativado; estava travando o scroll em alguns devices) =============
-
-  // ============= PRELOAD =============
+  // Carregar frames usando o hook otimizado
   useEffect(() => {
     if (isLoading) return;
 
-    const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
-    imagesRef.current = new Array(urls.length);
+    // Enviar frames para cache do Service Worker
+    frameLoader.precacheInServiceWorker(0, PRIORITY_FRAMES);
 
-    let loadedCount = 0;
-    let firstErrorUrl: string | null = null;
+    // Carregar frames prioritários primeiro
+    frameLoader
+      .loadBatch(0, PRIORITY_FRAMES, 8, (loaded) => {
+        setLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
+      })
+      .then((loadedCount) => {
+        if (loadedCount === 0) {
+          setLoadError(frameLoader.getFrameUrl(0));
+          return;
+        }
 
-    const loadImage = (index: number): Promise<boolean> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.decoding = "async";
+        resizeCanvas();
+        frameRef.current = 0;
+        render();
+        setIsReady(true);
 
-        const url = urls[index];
+        setTimeout(() => initScroll(), 100);
 
-        const onComplete = (ok: boolean) => {
-          loadedCount++;
-          setLoadProgress(Math.round((loadedCount / urls.length) * 100));
-          resolve(ok);
+        // Carregar resto dos frames em background
+        let currentBatch = PRIORITY_FRAMES;
+        const BATCH_SIZE = 25;
+
+        const loadNextBatch = () => {
+          if (currentBatch >= TOTAL_FRAMES) return;
+
+          frameLoader
+            .loadBatch(currentBatch, BATCH_SIZE, 6, (loaded) => {
+              const totalLoaded = currentBatch + loaded;
+              setLoadProgress(Math.round((totalLoaded / TOTAL_FRAMES) * 100));
+            })
+            .then(() => {
+              currentBatch += BATCH_SIZE;
+              if ("requestIdleCallback" in window) {
+                requestIdleCallback(() => loadNextBatch(), { timeout: 100 });
+              } else {
+                setTimeout(loadNextBatch, 32);
+              }
+            });
         };
 
-        img.onload = () => onComplete(true);
-        img.onerror = () => {
-          if (!firstErrorUrl) firstErrorUrl = url;
-          onComplete(false);
-        };
+        loadNextBatch();
 
-        imagesRef.current[index] = img;
-        img.src = url;
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+        setTimeout(() => ScrollTrigger.refresh(), 600);
       });
-    };
-
-    const priorityPromises = urls.slice(0, PRIORITY_FRAMES).map((_, i) => loadImage(i));
-
-    Promise.all(priorityPromises).then((results) => {
-      const hasAtLeastOneFrame = results.some(Boolean);
-
-      resizeCanvas();
-      stateRef.current.frame = 0;
-      render();
-
-      if (!hasAtLeastOneFrame) {
-        setLoadError(firstErrorUrl ?? urls[0]);
-        return;
-      }
-
-      setIsReady(true);
-      setTimeout(() => initScroll(), 100);
-
-      const BATCH_SIZE = 20;
-      let currentBatch = PRIORITY_FRAMES;
-
-      const loadNextBatch = () => {
-        const batch = [];
-        for (let i = 0; i < BATCH_SIZE && currentBatch < urls.length; i++, currentBatch++) {
-          batch.push(loadImage(currentBatch));
-        }
-
-        if (batch.length > 0) {
-          Promise.all(batch).then(() => setTimeout(loadNextBatch, 16));
-        }
-      };
-
-      loadNextBatch();
-
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-      setTimeout(() => ScrollTrigger.refresh(), 600);
-    });
 
     const onResize = () => {
       resizeCanvas();
@@ -316,7 +308,7 @@ export default function EditsPage() {
       if (scrollTriggerRef.current) scrollTriggerRef.current.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, [isLoading, resizeCanvas, render, initScroll]);
+  }, [isLoading, resizeCanvas, render, initScroll, frameLoader]);
 
   // Loading state
   if (isLoading || !isReady) {
@@ -351,7 +343,7 @@ export default function EditsPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 via-pink-900/20 to-purple-900/30 animate-pulse" />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-orange-500 to-white rounded-full transition-all duration-300"
               style={{ width: `${loadProgress}%` }}
             />
@@ -378,17 +370,15 @@ export default function EditsPage() {
 
   return (
     <div className="relative bg-black text-white">
-      {/* Espaçador que cria scroll real no documento */}
       <div ref={scrollSpaceRef} style={{ height: scrollSpaceHeight }} aria-hidden />
 
-      {/* Stage fixo */}
       <div className="fixed inset-0 overflow-hidden">
         <PortfolioQADebug
           name="editor"
           isReady={isReady}
           isLoading={isLoading}
           loadProgress={loadProgress}
-          frame={stateRef.current.frame}
+          frame={currentFrame}
           totalFrames={TOTAL_FRAMES}
           videosCount={videos.length}
           canvasEl={canvasRef.current}
