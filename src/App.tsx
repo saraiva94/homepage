@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { AppQADebug } from "@/components/qa/AppQADebug";
 
 // Componente de loading para Suspense
 const PageLoader = () => (
@@ -24,19 +25,22 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
-        {/* Rota crítica - carrega imediatamente */}
-        <Route path="/" element={<Index />} />
-        
-        {/* Rotas lazy-loaded - chunks separados */}
-        <Route path="/portfolio/dev" element={<DevPage />} />
-        <Route path="/portfolio/edits" element={<EditsPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <AppQADebug />
+      <AnimatePresence mode="wait" initial={false}>
+        <Routes location={location} key={location.pathname}>
+          {/* Rota crítica - carrega imediatamente */}
+          <Route path="/" element={<Index />} />
+
+          {/* Rotas lazy-loaded - chunks separados */}
+          <Route path="/portfolio/dev" element={<DevPage />} />
+          <Route path="/portfolio/edits" element={<EditsPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatePresence>
+    </>
   );
 }
 

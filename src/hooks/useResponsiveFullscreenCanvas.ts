@@ -13,7 +13,7 @@ const getViewportSize = (): Size => {
  * do elemento (clientWidth/clientHeight) e cai para visualViewport quando necessário.
  */
 export function useResponsiveFullscreenCanvas(
-  canvasRef: React.RefObject<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
   options?: { maxDpr?: number; onResize?: (size: Size) => void }
 ) {
   const sizeRef = useRef<Size>({ width: 0, height: 0 });
