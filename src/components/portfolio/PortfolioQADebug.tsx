@@ -12,6 +12,8 @@ type Props = {
   canvasEl: HTMLCanvasElement | null;
   containerEl: HTMLElement | null;
   scrollTriggerInstance?: ScrollTrigger | null;
+  framesLoaded?: number;
+  frameLoadErrors?: number;
 };
 
 type Metrics = {
@@ -38,6 +40,12 @@ type Metrics = {
   stIsActive: boolean;
   htmlOverflow: string;
   bodyOverflow: string;
+};
+
+type CacheStats = {
+  frameCount: number;
+  generalCount: number;
+  swStatus: "active" | "installing" | "waiting" | "none";
 };
 
 function readMetrics(
@@ -100,6 +108,13 @@ function readMetrics(
   };
 }
 
+function getSwStatus(): CacheStats["swStatus"] {
+  if (!("serviceWorker" in navigator)) return "none";
+  const reg = navigator.serviceWorker.controller;
+  if (reg) return "active";
+  return "none";
+}
+
 export function PortfolioQADebug(props: Props) {
   const enabled = useMemo(() => {
     if (typeof window === "undefined") return false;
@@ -111,9 +126,46 @@ export function PortfolioQADebug(props: Props) {
     readMetrics(props.canvasEl, props.containerEl, props.scrollTriggerInstance)
   );
 
+  const [cacheStats, setCacheStats] = useState<CacheStats>({
+    frameCount: 0,
+    generalCount: 0,
+    swStatus: getSwStatus(),
+  });
+
   const updateMetrics = useCallback(() => {
     setMetrics(readMetrics(props.canvasEl, props.containerEl, props.scrollTriggerInstance));
+    setCacheStats((prev) => ({ ...prev, swStatus: getSwStatus() }));
   }, [props.canvasEl, props.containerEl, props.scrollTriggerInstance]);
+
+  // Obter estatísticas do cache do Service Worker
+  useEffect(() => {
+    if (!enabled) return;
+    
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "CACHE_STATS") {
+        setCacheStats((prev) => ({
+          ...prev,
+          frameCount: event.data.frameCount,
+          generalCount: event.data.generalCount,
+        }));
+      }
+    };
+
+    navigator.serviceWorker?.addEventListener("message", handleMessage);
+
+    // Solicitar stats a cada 2s
+    const interval = setInterval(() => {
+      navigator.serviceWorker?.controller?.postMessage("GET_CACHE_STATS");
+    }, 2000);
+
+    // Solicitar imediatamente
+    navigator.serviceWorker?.controller?.postMessage("GET_CACHE_STATS");
+
+    return () => {
+      navigator.serviceWorker?.removeEventListener("message", handleMessage);
+      clearInterval(interval);
+    };
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -140,9 +192,12 @@ export function PortfolioQADebug(props: Props) {
     metrics.bodyOverflow.includes("hidden") ||
     metrics.scrollMax <= 0;
 
+  const framesLoaded = props.framesLoaded ?? 0;
+  const frameErrors = props.frameLoadErrors ?? 0;
+
   return (
     <aside
-      className="fixed left-3 top-3 z-[9999] w-[min(440px,calc(100vw-24px))] rounded-lg border border-border bg-background/90 p-3 text-foreground shadow-lg backdrop-blur"
+      className="fixed left-3 top-3 z-[9999] w-[min(440px,calc(100vw-24px))] rounded-lg border border-border bg-background/90 p-3 text-foreground shadow-lg backdrop-blur max-h-[90vh] overflow-y-auto"
       aria-label="QA debug do portfólio"
     >
       <div className="flex items-start justify-between gap-2">
@@ -174,8 +229,28 @@ export function PortfolioQADebug(props: Props) {
         <div className="text-foreground">
           {props.frame + 1}/{props.totalFrames}
         </div>
+        <div>frames loaded</div>
+        <div className="text-foreground">
+          {framesLoaded}/{props.totalFrames}
+          {frameErrors > 0 && (
+            <span className="text-red-400 ml-1">({frameErrors} erros)</span>
+          )}
+        </div>
         <div>vídeos</div>
         <div className="text-foreground">{props.videosCount}</div>
+
+        {/* Cache */}
+        <div className="col-span-2 mt-2 text-[10px] font-bold uppercase tracking-wide text-foreground/60">
+          Service Worker & Cache
+        </div>
+        <div>SW status</div>
+        <div className={`text-foreground ${cacheStats.swStatus === "active" ? "text-green-500" : "text-yellow-400"}`}>
+          {cacheStats.swStatus}
+        </div>
+        <div>frames cached</div>
+        <div className="text-foreground">{cacheStats.frameCount}</div>
+        <div>general cached</div>
+        <div className="text-foreground">{cacheStats.generalCount}</div>
 
         {/* Scroll */}
         <div className="col-span-2 mt-2 text-[10px] font-bold uppercase tracking-wide text-foreground/60">

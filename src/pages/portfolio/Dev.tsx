@@ -35,6 +35,8 @@ export default function DevPage() {
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [framesLoaded, setFramesLoaded] = useState(0);
+  const [frameLoadErrors, setFrameLoadErrors] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -252,11 +254,18 @@ export default function DevPage() {
     frameLoader.precacheInServiceWorker(0, PRIORITY_FRAMES);
 
     // Carregar frames prioritários primeiro
+    let totalErrors = 0;
+
     frameLoader
       .loadBatch(0, PRIORITY_FRAMES, 8, (loaded) => {
+        setFramesLoaded(loaded);
         setLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
       })
       .then((loadedCount) => {
+        const failedCount = PRIORITY_FRAMES - loadedCount;
+        totalErrors += failedCount;
+        setFrameLoadErrors(totalErrors);
+
         if (loadedCount === 0) {
           setLoadError(frameLoader.getFrameUrl(0));
           return;
@@ -274,14 +283,22 @@ export default function DevPage() {
         const BATCH_SIZE = 25;
 
         const loadNextBatch = () => {
-          if (currentBatch >= TOTAL_FRAMES) return;
+          if (currentBatch >= TOTAL_FRAMES) {
+            setLoadProgress(100);
+            return;
+          }
 
           frameLoader
             .loadBatch(currentBatch, BATCH_SIZE, 6, (loaded) => {
-              const totalLoaded = currentBatch + loaded;
-              setLoadProgress(Math.round((totalLoaded / TOTAL_FRAMES) * 100));
+              const progressLoaded = currentBatch + loaded;
+              setFramesLoaded(progressLoaded);
+              setLoadProgress(Math.round((progressLoaded / TOTAL_FRAMES) * 100));
             })
-            .then(() => {
+            .then((batchLoaded) => {
+              const batchFailed = Math.min(BATCH_SIZE, TOTAL_FRAMES - currentBatch) - batchLoaded;
+              totalErrors += batchFailed;
+              setFrameLoadErrors(totalErrors);
+
               currentBatch += BATCH_SIZE;
               // Usar requestIdleCallback para não impactar scroll
               if ("requestIdleCallback" in window) {
@@ -386,6 +403,8 @@ export default function DevPage() {
           canvasEl={canvasRef.current}
           containerEl={containerRef.current}
           scrollTriggerInstance={scrollTriggerRef.current}
+          framesLoaded={framesLoaded}
+          frameLoadErrors={frameLoadErrors}
         />
 
         <canvas
