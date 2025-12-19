@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
+import { PortfolioQADebug } from "@/components/portfolio/PortfolioQADebug";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,6 +38,7 @@ export default function EditsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -266,55 +268,69 @@ export default function EditsPage() {
 
     const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
     imagesRef.current = new Array(urls.length);
-    
-    let loadedCount = 0;
 
-    const loadImage = (index: number): Promise<void> => {
+    let loadedCount = 0;
+    let firstErrorUrl: string | null = null;
+
+    const loadImage = (index: number): Promise<boolean> => {
       return new Promise((resolve) => {
         const img = new Image();
         img.decoding = "async";
-        
-        const onComplete = () => {
+
+        const url = urls[index];
+
+        const onComplete = (ok: boolean) => {
           loadedCount++;
           setLoadProgress(Math.round((loadedCount / urls.length) * 100));
-          resolve();
+          resolve(ok);
         };
 
-        img.onload = onComplete;
-        img.onerror = onComplete;
-        
+        img.onload = () => onComplete(true);
+        img.onerror = () => {
+          if (!firstErrorUrl) firstErrorUrl = url;
+          onComplete(false);
+        };
+
         imagesRef.current[index] = img;
-        img.src = urls[index];
+        img.src = url;
       });
     };
 
-    // Carregar frames prioritários primeiro
     const priorityPromises = urls.slice(0, PRIORITY_FRAMES).map((_, i) => loadImage(i));
-    
-    Promise.all(priorityPromises).then(() => {
+
+    Promise.all(priorityPromises).then((results) => {
+      const hasAtLeastOneFrame = results.some(Boolean);
+
       setupCanvas();
       stateRef.current.frame = 0;
       render();
+
+      if (!hasAtLeastOneFrame) {
+        setLoadError(firstErrorUrl ?? urls[0]);
+        return;
+      }
+
       setIsReady(true);
-      
       setTimeout(() => initScroll(), 100);
-      
-      // Carregar resto em batches
+
       const BATCH_SIZE = 20;
       let currentBatch = PRIORITY_FRAMES;
-      
+
       const loadNextBatch = () => {
         const batch = [];
         for (let i = 0; i < BATCH_SIZE && currentBatch < urls.length; i++, currentBatch++) {
           batch.push(loadImage(currentBatch));
         }
-        
+
         if (batch.length > 0) {
           Promise.all(batch).then(() => setTimeout(loadNextBatch, 16));
         }
       };
-      
+
       loadNextBatch();
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+      setTimeout(() => ScrollTrigger.refresh(), 600);
     });
 
     const onResize = () => {
@@ -323,16 +339,42 @@ export default function EditsPage() {
       ScrollTrigger.refresh();
     };
     window.addEventListener("resize", onResize);
-    
+
     return () => {
       window.removeEventListener("resize", onResize);
       if (scrollTriggerRef.current) scrollTriggerRef.current.kill();
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [isLoading, setupCanvas, render, initScroll]);
 
   // Loading state
   if (isLoading || !isReady) {
+    if (loadError) {
+      return (
+        <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-4 z-50 p-6 text-center">
+          <div className="text-white text-lg font-semibold">Portfólio não carregou (frames)</div>
+          <div className="text-white/60 text-sm max-w-[680px] break-all">
+            Primeiro frame falhou ao carregar: {loadError}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all"
+              onClick={() => window.location.reload()}
+            >
+              Recarregar
+            </button>
+            <Link
+              to="/"
+              className="px-6 py-3 text-base font-bold bg-white/10 text-white rounded-full hover:bg-white/15 transition-all border border-white/20"
+            >
+              Voltar
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 via-pink-900/20 to-purple-900/30 animate-pulse" />
@@ -365,6 +407,18 @@ export default function EditsPage() {
 
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
+      <PortfolioQADebug
+        name="editor"
+        isReady={isReady}
+        isLoading={isLoading}
+        loadProgress={loadProgress}
+        frame={stateRef.current.frame}
+        totalFrames={TOTAL_FRAMES}
+        videosCount={videos.length}
+        canvasEl={canvasRef.current}
+        containerEl={containerRef.current}
+      />
+
       {/* Canvas fora do container do ScrollTrigger para evitar escala/transform do pin */}
       <canvas
         ref={canvasRef}
