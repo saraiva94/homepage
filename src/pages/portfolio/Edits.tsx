@@ -70,24 +70,24 @@ export default function EditsPage() {
     fetchVideos();
   }, []);
 
-  // ============= CANVAS SETUP =============
+  // ============= CANVAS SETUP (responsivo) =============
   const setupCanvas = useCallback((): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+
     ctxRef.current = ctx;
 
-    // Usar dimensões da viewport diretamente
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    // Dimensiona pelo tamanho real do elemento (melhor p/ mobile/zoom)
+    const rect = canvas.getBoundingClientRect();
+    const cssWidth = Math.max(1, Math.round(rect.width || window.innerWidth));
+    const cssHeight = Math.max(1, Math.round(rect.height || window.innerHeight));
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    canvas.width = Math.floor(cssWidth * dpr);
+    canvas.height = Math.floor(cssHeight * dpr);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }, []);
@@ -101,11 +101,11 @@ export default function EditsPage() {
     const img = imagesRef.current[stateRef.current.frame];
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
-    const cw = window.innerWidth;
-    const ch = window.innerHeight;
-    if (cw === 0 || ch === 0) return;
+    const rect = canvas.getBoundingClientRect();
+    const cw = Math.max(1, Math.round(rect.width || window.innerWidth));
+    const ch = Math.max(1, Math.round(rect.height || window.innerHeight));
 
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, cw, ch);
 
     const imgRatio = img.naturalWidth / img.naturalHeight;
@@ -359,16 +359,14 @@ export default function EditsPage() {
 
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
+      {/* Canvas fora do container do ScrollTrigger para evitar escala/transform do pin */}
+      <canvas ref={canvasRef} className="absolute inset-0 bg-black" />
+
       <section
         ref={containerRef}
         className="absolute inset-0 overflow-hidden"
         style={{ perspective: `${PERSPECTIVE_PX}px` }}
       >
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 bg-black"
-        />
-
         <div
           ref={headerRef}
           className="absolute left-1/2 top-4 sm:top-8 z-30"
@@ -406,7 +404,9 @@ export default function EditsPage() {
         {videos.map((video, idx) => (
           <div
             key={video.id}
-            ref={(el) => { videoRefs.current[idx] = el; }}
+            ref={(el) => {
+              videoRefs.current[idx] = el;
+            }}
             className="absolute inset-0 flex items-center justify-center z-20 p-4"
             style={{ transform: "translateY(100%)", opacity: 0 }}
           >
