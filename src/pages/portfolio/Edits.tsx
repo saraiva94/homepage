@@ -6,6 +6,7 @@ import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
 import { PortfolioQADebug } from "@/components/portfolio/PortfolioQADebug";
+import { useResponsiveFullscreenCanvas } from "@/hooks/useResponsiveFullscreenCanvas";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -72,41 +73,27 @@ export default function EditsPage() {
     fetchVideos();
   }, []);
 
-  // ============= VIEWPORT SIZE (corrige zoom/dimensões em mobile/desktop) =============
-  const getViewportSize = useCallback(() => {
-    const vv = window.visualViewport;
-    const width = Math.max(1, Math.round(vv?.width ?? window.innerWidth));
-    const height = Math.max(1, Math.round(vv?.height ?? window.innerHeight));
-    return { width, height };
-  }, []);
-
-  // ============= CANVAS SETUP (responsivo) =============
-  const setupCanvas = useCallback((): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
-
-    ctxRef.current = ctx;
-
-    const { width: cssWidth, height: cssHeight } = getViewportSize();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-
-    canvas.width = Math.floor(cssWidth * dpr);
-    canvas.height = Math.floor(cssHeight * dpr);
-
-    // coordenadas em CSS pixels
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-  }, [getViewportSize]);
+  // ============= CANVAS FULLSCREEN RESPONSIVO (evita superzoom) =============
+  const { resizeCanvas, sizeRef } = useResponsiveFullscreenCanvas(canvasRef, {
+    maxDpr: 2,
+  });
 
   // ============= RENDER FRAME =============
   const render = useCallback((): void => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (!ctxRef.current) {
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) return;
+      ctxRef.current = ctx;
+    }
+
     const ctx = ctxRef.current;
     if (!ctx) return;
 
-    const { width: cw, height: ch } = getViewportSize();
+    const cw = Math.max(1, Math.round(sizeRef.current.width || canvas.clientWidth || window.innerWidth));
+    const ch = Math.max(1, Math.round(sizeRef.current.height || canvas.clientHeight || window.innerHeight));
 
     // Sempre pinta o fundo, mesmo se o frame ainda não carregou
     ctx.fillStyle = "#000";
@@ -133,7 +120,7 @@ export default function EditsPage() {
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
-  }, [getViewportSize]);
+  }, [sizeRef]);
 
   // ============= SCROLLTRIGGER =============
   const initScroll = useCallback((): void => {
@@ -301,7 +288,7 @@ export default function EditsPage() {
     Promise.all(priorityPromises).then((results) => {
       const hasAtLeastOneFrame = results.some(Boolean);
 
-      setupCanvas();
+      resizeCanvas();
       stateRef.current.frame = 0;
       render();
 
@@ -334,7 +321,7 @@ export default function EditsPage() {
     });
 
     const onResize = () => {
-      setupCanvas();
+      resizeCanvas();
       render();
       ScrollTrigger.refresh();
     };
@@ -345,7 +332,7 @@ export default function EditsPage() {
       if (scrollTriggerRef.current) scrollTriggerRef.current.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, [isLoading, setupCanvas, render, initScroll]);
+  }, [isLoading, resizeCanvas, render, initScroll]);
 
   // Loading state
   if (isLoading || !isReady) {
