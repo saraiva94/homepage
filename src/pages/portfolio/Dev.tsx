@@ -405,6 +405,7 @@ export default function DevPage() {
           videosCount={videos.length}
           canvasEl={canvasRef.current}
           containerEl={containerRef.current}
+          scrollTriggerInstance={scrollTriggerRef.current}
         />
 
         <canvas

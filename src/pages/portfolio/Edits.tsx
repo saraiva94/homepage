@@ -393,6 +393,7 @@ export default function EditsPage() {
           videosCount={videos.length}
           canvasEl={canvasRef.current}
           containerEl={containerRef.current}
+          scrollTriggerInstance={scrollTriggerRef.current}
         />
 
         <canvas
