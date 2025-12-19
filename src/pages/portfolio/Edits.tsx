@@ -111,17 +111,18 @@ export default function EditsPage() {
     const imgRatio = img.naturalWidth / img.naturalHeight;
     const canvasRatio = cw / ch;
 
+    // "contain" (sem crop) para evitar sensação de superzoom
     let dw: number, dh: number, dx: number, dy: number;
     if (imgRatio > canvasRatio) {
-      dh = ch;
-      dw = dh * imgRatio;
-      dx = (cw - dw) / 2;
-      dy = 0;
-    } else {
       dw = cw;
       dh = dw / imgRatio;
       dx = 0;
       dy = (ch - dh) / 2;
+    } else {
+      dh = ch;
+      dw = dh * imgRatio;
+      dx = (cw - dw) / 2;
+      dy = 0;
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
