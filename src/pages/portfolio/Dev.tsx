@@ -18,8 +18,8 @@ const FRAME_END = 274;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
 
 const PERSPECTIVE_PX = 1000;
-const PRIORITY_FRAMES = 20; // Aumentado para melhor experiência inicial
-const PRELOAD_RANGE = 15; // Aumentado para scroll mais suave
+const PRIORITY_FRAMES = 3; // Mínimo para iniciar rápido
+const PRELOAD_RANGE = 8; // Lazy load sob demanda
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
@@ -259,37 +259,31 @@ export default function DevPage() {
   useEffect(() => {
     if (isLoading) return;
 
-    // Enviar frames para cache do Service Worker
-    frameLoader.precacheInServiceWorker(0, PRIORITY_FRAMES);
-
-    // Carregar frames prioritários primeiro
-    let totalErrors = 0;
-
+    // Carregar apenas frames iniciais mínimos (rápido)
     frameLoader
-      .loadBatch(0, PRIORITY_FRAMES, 8, (loaded) => {
+      .loadBatch(0, PRIORITY_FRAMES, 3, (loaded) => {
         setFramesLoaded(loaded);
-        setLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
+        // Mostrar progresso mais rápido inicialmente
+        setLoadProgress(Math.round((loaded / PRIORITY_FRAMES) * 30));
       })
       .then((loadedCount) => {
-        const failedCount = PRIORITY_FRAMES - loadedCount;
-        totalErrors += failedCount;
-        setFrameLoadErrors(totalErrors);
-
         if (loadedCount === 0) {
           setLoadError(frameLoader.getFrameUrl(0));
           return;
         }
 
+        // Pronto para exibir com poucos frames!
         resizeCanvas();
         frameRef.current = 0;
         render();
         setIsReady(true);
+        setLoadProgress(30); // 30% = pronto para usar
 
-        setTimeout(() => initScroll(), 100);
+        setTimeout(() => initScroll(), 50);
 
-        // Carregar resto dos frames em background
+        // Background loading: carregar resto sob demanda durante idle
         let currentBatch = PRIORITY_FRAMES;
-        const BATCH_SIZE = 25;
+        const BATCH_SIZE = 10; // Batches menores = menos bloqueio
 
         const loadNextBatch = () => {
           if (currentBatch >= TOTAL_FRAMES) {
@@ -297,28 +291,36 @@ export default function DevPage() {
             return;
           }
 
-          frameLoader
-            .loadBatch(currentBatch, BATCH_SIZE, 6, (loaded) => {
-              const progressLoaded = currentBatch + loaded;
-              setFramesLoaded(progressLoaded);
-              setLoadProgress(Math.round((progressLoaded / TOTAL_FRAMES) * 100));
-            })
-            .then((batchLoaded) => {
-              const batchFailed = Math.min(BATCH_SIZE, TOTAL_FRAMES - currentBatch) - batchLoaded;
-              totalErrors += batchFailed;
-              setFrameLoadErrors(totalErrors);
+          // Usar requestIdleCallback para não impactar UX
+          const loadBatch = () => {
+            frameLoader
+              .loadBatch(currentBatch, BATCH_SIZE, 3, (loaded) => {
+                const progressLoaded = currentBatch + loaded;
+                setFramesLoaded(progressLoaded);
+                // Progresso de 30% a 100%
+                setLoadProgress(30 + Math.round((progressLoaded / TOTAL_FRAMES) * 70));
+              })
+              .then((batchLoaded) => {
+                const batchFailed = Math.min(BATCH_SIZE, TOTAL_FRAMES - currentBatch) - batchLoaded;
+                if (batchFailed > 0) {
+                  setFrameLoadErrors(prev => prev + batchFailed);
+                }
+                
+                currentBatch += BATCH_SIZE;
+                // Delay maior entre batches para não sobrecarregar
+                setTimeout(loadNextBatch, 100);
+              });
+          };
 
-              currentBatch += BATCH_SIZE;
-              // Usar requestIdleCallback para não impactar scroll
-              if ("requestIdleCallback" in window) {
-                requestIdleCallback(() => loadNextBatch(), { timeout: 100 });
-              } else {
-                setTimeout(loadNextBatch, 32);
-              }
-            });
+          if ("requestIdleCallback" in window) {
+            requestIdleCallback(loadBatch, { timeout: 500 });
+          } else {
+            setTimeout(loadBatch, 50);
+          }
         };
 
-        loadNextBatch();
+        // Iniciar background loading após 200ms
+        setTimeout(loadNextBatch, 200);
 
         requestAnimationFrame(() => ScrollTrigger.refresh());
         setTimeout(() => ScrollTrigger.refresh(), 600);
