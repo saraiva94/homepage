@@ -5,8 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { FRAME_CONFIG } from "@/hooks/usePrefetchPortfolioFrames";
-import { SkeletonLoader } from "@/components/SkeletonLoader";
-
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,8 +15,6 @@ const FRAME_END = 274;
 const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
 
 const PERSPECTIVE_PX = 1000;
-
-// Performance: Carregar primeiros frames rapidamente para primeira pintura
 const PRIORITY_FRAMES = 10;
 
 // ============= HELPERS =============
@@ -78,15 +74,20 @@ export default function DevPage() {
   const setupCanvas = useCallback((): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
     ctxRef.current = ctx;
 
-    const rect = canvas.getBoundingClientRect();
+    // Usar dimensões da viewport diretamente
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }, []);
@@ -100,11 +101,12 @@ export default function DevPage() {
     const img = imagesRef.current[stateRef.current.frame];
     if (!img || !img.complete || img.naturalWidth === 0) return;
 
-    const cw = canvas.clientWidth;
-    const ch = canvas.clientHeight;
+    const cw = window.innerWidth;
+    const ch = window.innerHeight;
     if (cw === 0 || ch === 0) return;
 
-    ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, cw, ch);
 
     const imgRatio = img.naturalWidth / img.naturalHeight;
     const canvasRatio = cw / ch;
@@ -254,7 +256,7 @@ export default function DevPage() {
     };
   }, [isReady]);
 
-  // ============= PRELOAD OTIMIZADO =============
+  // ============= PRELOAD =============
   useEffect(() => {
     if (isLoading) return;
 
@@ -271,44 +273,29 @@ export default function DevPage() {
         const onComplete = () => {
           loadedCount++;
           setLoadProgress(Math.round((loadedCount / urls.length) * 100));
-          
-          if (loadedCount === urls.length) {
-            console.log(`[Dev] Loaded ${TOTAL_FRAMES} frames`);
-          }
-          
           resolve();
         };
 
-        img.onload = () => onComplete();
-        img.onerror = () => {
-          console.warn(`[Dev] Frame ${index} failed to load: ${urls[index]}`);
-          onComplete();
-        };
+        img.onload = onComplete;
+        img.onerror = onComplete;
         
         imagesRef.current[index] = img;
         img.src = urls[index];
       });
     };
 
-    // Carregar frames prioritários primeiro (em paralelo)
+    // Carregar frames prioritários primeiro
     const priorityPromises = urls.slice(0, PRIORITY_FRAMES).map((_, i) => loadImage(i));
     
-    // Quando todos os frames prioritários carregarem, iniciar a página
     Promise.all(priorityPromises).then(() => {
-      console.log('[Dev] Priority frames loaded, setting up canvas');
       setupCanvas();
       stateRef.current.frame = 0;
+      render();
+      setIsReady(true);
       
-      // Garantir que temos tempo para o canvas ser dimensionado
-      setTimeout(() => {
-        render();
-        setIsReady(true);
-        setTimeout(() => {
-          initScroll();
-        }, 100);
-      }, 50);
+      setTimeout(() => initScroll(), 100);
       
-      // Depois carregar o resto em batches para não sobrecarregar
+      // Carregar resto em batches
       const BATCH_SIZE = 20;
       let currentBatch = PRIORITY_FRAMES;
       
@@ -319,52 +306,52 @@ export default function DevPage() {
         }
         
         if (batch.length > 0) {
-          Promise.all(batch).then(() => {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(loadNextBatch, { timeout: 100 });
-            } else {
-              setTimeout(loadNextBatch, 16);
-            }
-          });
+          Promise.all(batch).then(() => setTimeout(loadNextBatch, 16));
         }
       };
       
       loadNextBatch();
     });
 
-    let resizeTimer: number;
     const onResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        setupCanvas();
-        render();
-        ScrollTrigger.refresh();
-      }, 150);
+      setupCanvas();
+      render();
+      ScrollTrigger.refresh();
     };
     window.addEventListener("resize", onResize);
     
     return () => {
       window.removeEventListener("resize", onResize);
-      clearTimeout(resizeTimer);
-      if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
-      }
+      if (scrollTriggerRef.current) scrollTriggerRef.current.kill();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, [isLoading, setupCanvas, render, initScroll]);
 
-  // Loading state com skeleton
+  // Loading state
   if (isLoading || !isReady) {
-    return <SkeletonLoader progress={loadProgress} variant="dev" />;
+    return (
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/30 via-blue-900/20 to-purple-900/30 animate-pulse" />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-cyan-500 to-white rounded-full transition-all duration-300"
+              style={{ width: `${loadProgress}%` }}
+            />
+          </div>
+          <span className="text-white/50 text-sm">{loadProgress}%</span>
+        </div>
+      </div>
+    );
   }
 
   if (videos.length === 0) {
     return (
-      <div className="w-screen h-screen bg-black flex flex-col items-center justify-center gap-6">
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-6">
         <div className="text-white text-xl">Nenhum vídeo disponível</div>
         <Link
           to="/"
-          className="px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60"
+          className="px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105"
         >
           Voltar para Homepage
         </Link>
@@ -373,89 +360,87 @@ export default function DevPage() {
   }
 
   return (
-    <main className="relative w-screen min-h-[100dvh] bg-black text-white overflow-hidden">
-        <section
-          ref={containerRef}
-          className="relative w-screen h-[100dvh] overflow-hidden"
-          style={{ perspective: `${PERSPECTIVE_PX}px` }}
+    <div className="fixed inset-0 bg-black text-white overflow-hidden">
+      <section
+        ref={containerRef}
+        className="absolute inset-0 overflow-hidden"
+        style={{ perspective: `${PERSPECTIVE_PX}px` }}
+      >
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 bg-black"
+        />
+
+        <div
+          ref={headerRef}
+          className="absolute left-1/2 top-4 sm:top-8 z-30"
+          style={{ transform: "translate(-50%, 0)" }}
         >
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full z-0 bg-black"
-          />
-
-          <div
-            ref={headerRef}
-            className="absolute left-1/2 top-8 z-30"
-            style={{ transform: "translate(-50%, 0)" }}
+          <Link
+            to="/"
+            className="relative px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
           >
-            <Link
-              to="/"
-              className="relative px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
-              style={{
-                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-              }}
-            >
-              Homepage
-            </Link>
-          </div>
+            Homepage
+          </Link>
+        </div>
 
-          <div
-            ref={scrollHintRef}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
+        <div
+          ref={scrollHintRef}
+          className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none"
+        >
+          <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase px-4 py-1.5 sm:px-6 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+            Role para ver o conteúdo
+          </span>
+          <svg
+            className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            viewBox="0 0 24 24"
           >
-            <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-              Role para ver o conteúdo
-            </span>
-            <svg
-              className="w-8 h-8 text-white animate-bounce"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.5}
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
 
-          {videos.map((video, idx) => (
-            <div
-              key={video.id}
-              ref={(el) => {
-                videoRefs.current[idx] = el;
-              }}
-              className="absolute inset-0 flex items-center justify-center z-20 px-4"
-              style={{ transform: "translateY(100%)", opacity: 0 }}
-            >
-              <div className="w-full max-w-[1000px]">
-                <video
-                  controls
-                  playsInline
-                  preload="metadata"
-                  className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
-                >
-                  <source src={video.video_url} type="video/mp4" />
-                </video>
-              </div>
+        {videos.map((video, idx) => (
+          <div
+            key={video.id}
+            ref={(el) => { videoRefs.current[idx] = el; }}
+            className="absolute inset-0 flex items-center justify-center z-20 p-4"
+            style={{ transform: "translateY(100%)", opacity: 0 }}
+          >
+            <div className="w-full max-w-[90vw] sm:max-w-[80vw] lg:max-w-[1000px]">
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full aspect-video rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
+              >
+                <source src={video.video_url} type="video/mp4" />
+              </video>
             </div>
-          ))}
-
-          <div
-            ref={endButtonRef}
-            className="absolute inset-0 flex items-center justify-center z-30"
-            style={{ opacity: 0, pointerEvents: "none" }}
-          >
-            <Link
-              to="/"
-              className="relative px-8 py-4 text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
-              style={{
-                boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
-              }}
-            >
-              Homepage
-            </Link>
           </div>
-        </section>
-      </main>
+        ))}
+
+        <div
+          ref={endButtonRef}
+          className="absolute inset-0 flex items-center justify-center z-30"
+          style={{ opacity: 0, pointerEvents: "none" }}
+        >
+          <Link
+            to="/"
+            className="relative px-6 py-3 sm:px-8 sm:py-4 text-lg sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
+            style={{
+              boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
+            }}
+          >
+            Homepage
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }
