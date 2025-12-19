@@ -244,14 +244,10 @@ export default function DevPage() {
         videoRefs.current.forEach((videoEl, idx) => {
           if (!videoEl || idx >= totalVideos) return;
 
-          const isLastVideo = idx === totalVideos - 1;
           const videoStart = idx * progressPerVideo;
-          // Último vídeo deve terminar em 0.95 (quando botão aparece)
-          const videoEnd = isLastVideo ? 0.95 : videoStart + progressPerVideo;
+          const videoEnd = videoStart + progressPerVideo;
           const enterEnd = videoStart + progressPerVideo * 0.4;
-          const exitStart = isLastVideo 
-            ? videoEnd - (videoEnd - enterEnd) * 0.5 
-            : videoEnd - progressPerVideo * 0.35;
+          const exitStart = videoEnd - progressPerVideo * 0.35;
 
           if (progress < videoStart) {
             gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3 });
