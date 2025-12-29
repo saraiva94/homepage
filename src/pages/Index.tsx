@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import CursorTrail from "@/components/CursorTrail";
@@ -6,13 +6,37 @@ import homepageBg from "@/assets/homepage-bg.png";
 import { preloadAllPortfolios } from "@/utils/preloadPortfolioFrames";
 
 export default function Index() {
-  // Pré-carrega os frames dos portfolios enquanto o usuário está na homepage
+  const [videosLoaded, setVideosLoaded] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showHero, setShowHero] = useState(false);
+
+  const handleVideosLoaded = useCallback(() => {
+    setVideosLoaded(true);
+  }, []);
+
+  // Inicia a animação do About imediatamente
   useEffect(() => {
-    // Aguarda um pouco para não competir com o carregamento inicial da página
+    const timer = setTimeout(() => {
+      setShowAbout(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Quando os vídeos carregarem, mostra o Hero
+  useEffect(() => {
+    if (videosLoaded) {
+      const timer = setTimeout(() => {
+        setShowHero(true);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [videosLoaded]);
+
+  // Pré-carrega os frames dos portfolios
+  useEffect(() => {
     const timer = setTimeout(() => {
       preloadAllPortfolios();
     }, 1500);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -22,8 +46,8 @@ export default function Index() {
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
-      <Hero />
-      <About />
+      <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
+      <About isVisible={showAbout} />
     </div>
   );
 }
