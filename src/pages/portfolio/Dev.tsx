@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // ============= CONSTANTES CONFIGURÁVEIS (Ultimate_tubular) =============
 const FRAME_START = 14;
@@ -334,10 +335,10 @@ export default function DevPage() {
           className="absolute inset-0 w-full h-full z-0 bg-black"
         />
 
-        {/* Header - Botões Homepage e Voltar ao início */}
+        {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-8 z-30 flex gap-3"
+          className="absolute left-1/2 top-8 z-30"
           style={{ transform: "translate(-50%, 0)" }}
         >
           <Link
@@ -349,12 +350,6 @@ export default function DevPage() {
           >
             Homepage
           </Link>
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="relative px-6 py-3 text-base font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm"
-          >
-            Voltar ao início
-          </button>
         </div>
 
         {/* Scroll instruction */}
@@ -414,7 +409,13 @@ export default function DevPage() {
             Homepage
           </Link>
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => {
+              gsap.to(window, {
+                scrollTo: { y: 0 },
+                duration: 2,
+                ease: "power2.inOut",
+              });
+            }}
             className="relative px-8 py-4 text-xl font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto"
           >
             Voltar ao início
