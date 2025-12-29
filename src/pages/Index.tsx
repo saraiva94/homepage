@@ -45,14 +45,27 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mede o Hero quando ele aparece
+  // Mede o Hero quando ele aparece (para posicionar o About abaixo dele)
   useEffect(() => {
-    if (showHero) {
-      const heroEl = document.querySelector<HTMLElement>("[data-hero]");
-      if (heroEl) {
-        setHeroHeight(heroEl.offsetHeight);
-      }
+    if (!showHero) {
+      setHeroHeight(0);
+      return;
     }
+
+    const heroEl = document.querySelector<HTMLElement>("[data-hero]");
+    if (!heroEl) return;
+
+    const updateHero = () => setHeroHeight(heroEl.offsetHeight);
+    updateHero();
+
+    const ro = new ResizeObserver(() => updateHero());
+    ro.observe(heroEl);
+
+    window.addEventListener("resize", updateHero);
+    return () => {
+      window.removeEventListener("resize", updateHero);
+      ro.disconnect();
+    };
   }, [showHero]);
 
   // Mede o About e aplica escala para caber no viewport (máx. 20% de redução)
@@ -100,16 +113,16 @@ export default function Index() {
 
   return (
     <div
-      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
 
-      {/* About: centralizado no viewport antes do Hero, depois posicionado abaixo do Hero */}
+      {/* About: centralizado antes do Hero; quando o Hero entra, desce para ficar abaixo dele */}
       <div
-        className="flex-1 flex items-start justify-center transition-all duration-700 ease-out"
-        style={{ paddingTop: verticalOffset }}
+        className="h-full w-full flex justify-center transition-all duration-700 ease-out"
+        style={{ paddingTop: showHero ? heroHeight : verticalOffset }}
       >
         <div
           className="w-full origin-top transition-transform duration-700 ease-out will-change-transform"
