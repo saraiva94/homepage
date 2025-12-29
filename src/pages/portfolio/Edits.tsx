@@ -5,29 +5,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
+import { getCachedImages, preloadPortfolioFrames } from "@/utils/preloadPortfolioFrames";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // ============= CONSTANTES CONFIGURÁVEIS (sunset_timeline) =============
-const FRAME_START = 1;
-const FRAME_END = 300;
-const TOTAL_FRAMES = FRAME_END - FRAME_START + 1;
-
-const FRAMES_DIR = "/background/sunset_timeline";
-const FRAME_BASENAME = "Neon_sunset_timeline";
-const FRAME_EXT = "jpg";
-const FRAME_PAD = 3;
+const TOTAL_FRAMES = 300; // 300 - 1 + 1
 
 const PERSPECTIVE_PX = 1000;
 const MAX_VIDEOS = 8;
 
 // ============= HELPERS =============
-const frameURL = (idx0: number): string => {
-  const n = FRAME_START + idx0;
-  const filename = `${FRAME_BASENAME}${String(n).padStart(FRAME_PAD, "0")}.${FRAME_EXT}`;
-  return encodeURI(`${FRAMES_DIR}/${filename}`);
-};
-
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
 interface Video {
@@ -139,28 +127,28 @@ export default function EditsPage() {
   useEffect(() => {
     if (isLoading) return;
 
-    const urls = Array.from({ length: TOTAL_FRAMES }, (_, i) => frameURL(i));
-    imagesRef.current = new Array(urls.length);
-    let remaining = urls.length;
+    const initImages = async () => {
+      // Tenta usar imagens do cache primeiro
+      let cachedImages = getCachedImages("edits");
+      
+      if (cachedImages) {
+        console.log(`[Edits] Usando ${cachedImages.length} frames do cache`);
+        imagesRef.current = cachedImages;
+      } else {
+        // Se não tem cache, aguarda o preload
+        console.log(`[Edits] Cache não encontrado, carregando frames...`);
+        const images = await preloadPortfolioFrames("edits");
+        imagesRef.current = images;
+        console.log(`[Edits] Loaded ${images.length} frames`);
+      }
 
-    for (let i = 0; i < urls.length; i++) {
-      const img = new Image();
-      img.decoding = "sync";
-      img.src = urls[i];
-      const onReady = () => {
-        remaining--;
-        if (remaining === 0) {
-          console.log(`[Edits] Loaded ${TOTAL_FRAMES} frames`);
-          setupCanvas();
-          stateRef.current.frame = 0;
-          render();
-          initScroll();
-        }
-      };
-      img.onload = onReady;
-      img.onerror = () => { console.warn(`[Edits] Frame ${i} failed`); onReady(); };
-      imagesRef.current[i] = img;
-    }
+      setupCanvas();
+      stateRef.current.frame = 0;
+      render();
+      initScroll();
+    };
+
+    initImages();
 
     let resizeTimer: number;
     const onResize = () => {

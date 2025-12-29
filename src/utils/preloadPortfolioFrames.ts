@@ -18,9 +18,9 @@ const PORTFOLIOS = {
   },
 };
 
-type PortfolioType = keyof typeof PORTFOLIOS;
+export type PortfolioType = keyof typeof PORTFOLIOS;
 
-const generateFrameURLs = (type: PortfolioType): string[] => {
+export const generateFrameURLs = (type: PortfolioType): string[] => {
   const config = PORTFOLIOS[type];
   const totalFrames = config.frameEnd - config.frameStart + 1;
   
@@ -31,18 +31,31 @@ const generateFrameURLs = (type: PortfolioType): string[] => {
   });
 };
 
-// Cache para controlar o que já foi pré-carregado
-const preloadedPortfolios = new Set<PortfolioType>();
+// Cache para armazenar as imagens já carregadas
+const imageCache = new Map<PortfolioType, HTMLImageElement[]>();
 const preloadingPortfolios = new Set<PortfolioType>();
 
-export const preloadPortfolioFrames = (type: PortfolioType): Promise<void> => {
-  // Já foi carregado ou está carregando
-  if (preloadedPortfolios.has(type) || preloadingPortfolios.has(type)) {
-    return Promise.resolve();
+export const preloadPortfolioFrames = (type: PortfolioType): Promise<HTMLImageElement[]> => {
+  // Já foi carregado, retorna do cache
+  if (imageCache.has(type)) {
+    return Promise.resolve(imageCache.get(type)!);
+  }
+
+  // Já está carregando, aguarda
+  if (preloadingPortfolios.has(type)) {
+    return new Promise((resolve) => {
+      const checkInterval = setInterval(() => {
+        if (imageCache.has(type)) {
+          clearInterval(checkInterval);
+          resolve(imageCache.get(type)!);
+        }
+      }, 100);
+    });
   }
 
   preloadingPortfolios.add(type);
   const urls = generateFrameURLs(type);
+  const images: HTMLImageElement[] = new Array(urls.length);
   
   console.log(`[Preload] Iniciando pré-carregamento de ${urls.length} frames para ${type}...`);
 
@@ -50,33 +63,37 @@ export const preloadPortfolioFrames = (type: PortfolioType): Promise<void> => {
     let loaded = 0;
     const total = urls.length;
 
-    urls.forEach((url) => {
+    urls.forEach((url, i) => {
       const img = new Image();
-      img.decoding = "async"; // Não bloqueia a thread principal
+      img.decoding = "async";
+      images[i] = img;
       
       const onComplete = () => {
         loaded++;
         if (loaded === total) {
-          preloadedPortfolios.add(type);
+          imageCache.set(type, images);
           preloadingPortfolios.delete(type);
           console.log(`[Preload] ${type} completo: ${total} frames carregados`);
-          resolve();
+          resolve(images);
         }
       };
 
       img.onload = onComplete;
-      img.onerror = onComplete; // Continua mesmo com erro
+      img.onerror = onComplete;
       img.src = url;
     });
   });
 };
 
 export const preloadAllPortfolios = (): void => {
-  // Carrega com delay entre cada portfolio para não sobrecarregar
   preloadPortfolioFrames("dev");
   setTimeout(() => preloadPortfolioFrames("edits"), 2000);
 };
 
+export const getCachedImages = (type: PortfolioType): HTMLImageElement[] | null => {
+  return imageCache.get(type) || null;
+};
+
 export const isPortfolioPreloaded = (type: PortfolioType): boolean => {
-  return preloadedPortfolios.has(type);
+  return imageCache.has(type);
 };
