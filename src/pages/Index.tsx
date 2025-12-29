@@ -42,12 +42,30 @@ export default function Index() {
 
   return (
     <div 
-      className="min-h-screen relative bg-cover bg-center bg-fixed"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
-      <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-      <About isVisible={showAbout} />
+      
+      {/* Hero - aparece de cima quando os vídeos carregam */}
+      <div 
+        className={`flex-shrink-0 transition-all duration-700 ease-out ${
+          showHero ? "opacity-100 max-h-[200px]" : "opacity-0 max-h-0"
+        }`}
+      >
+        <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
+      </div>
+      
+      {/* About - centralizado quando Hero não está visível, se ajusta quando Hero aparece */}
+      <div 
+        className={`flex-1 flex transition-all duration-700 ease-out ${
+          showHero 
+            ? "items-start pt-4" 
+            : "items-center justify-center"
+        }`}
+      >
+        <About isVisible={showAbout} compact={showHero} />
+      </div>
     </div>
   );
 }
