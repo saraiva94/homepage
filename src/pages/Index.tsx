@@ -42,21 +42,12 @@ export default function Index() {
 
   return (
     <div 
-      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
+      className="min-h-screen relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-
-      {/* About: mantém proporções; reduz no máximo 20% quando o navbar entra */}
-      <div
-        className={
-          "flex-1 min-h-0 flex items-center justify-center transition-transform duration-700 ease-out " +
-          (showHero ? "scale-[0.8] origin-center" : "scale-100")
-        }
-      >
-        <About isVisible={showAbout} />
-      </div>
+      <About isVisible={showAbout} />
     </div>
   );
 }
