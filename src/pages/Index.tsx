@@ -42,12 +42,14 @@ export default function Index() {
 
   return (
     <div 
-      className="min-h-screen relative bg-cover bg-center bg-fixed"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-      <About isVisible={showAbout} />
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <About isVisible={showAbout} />
+      </div>
     </div>
   );
 }
