@@ -1,77 +1,67 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import binary from "@/assets/binary.mp4";
 import stacksImgRaw from "@/assets/stacks.png";
 
 const stacksImg = stacksImgRaw as unknown as string;
 
 export function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.playsInline = true;
-    v.loop = true;
-    const tryPlay = () => v.play().catch(() => {});
-    if (v.readyState >= 2) tryPlay();
-    else {
-      v.addEventListener("canplay", tryPlay, { once: true });
-      const t = setTimeout(tryPlay, 1200);
-      return () => clearTimeout(t);
+  const syncAndPlay = useCallback(() => {
+    const videos = videoRefs.current.filter(Boolean) as HTMLVideoElement[];
+    if (videos.length === 0) return;
+
+    // Use the first video as master
+    const master = videos[0];
+    
+    const playAll = () => {
+      videos.forEach((v) => {
+        v.muted = true;
+        v.playsInline = true;
+        v.loop = true;
+        // Sync time with master
+        if (v !== master) {
+          v.currentTime = master.currentTime;
+        }
+        v.play().catch(() => {});
+      });
+    };
+
+    if (master.readyState >= 2) {
+      playAll();
+    } else {
+      master.addEventListener("canplay", playAll, { once: true });
     }
   }, []);
 
+  useEffect(() => {
+    // Small delay to ensure all refs are set
+    const t = setTimeout(syncAndPlay, 100);
+    return () => clearTimeout(t);
+  }, [syncAndPlay]);
+
+  const setVideoRef = (index: number) => (el: HTMLVideoElement | null) => {
+    videoRefs.current[index] = el;
+  };
+
   return (
     <section className="relative isolate overflow-hidden bg-black text-white">
-      {/* Vídeo de fundo - grid duplicado */}
-      {/* Vídeo de fundo - grid duplicado */}
+      {/* Vídeo de fundo - grid duplicado otimizado */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover object-center opacity-80"
-          autoPlay
-          muted
-          playsInline
-          loop
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={binary} type="video/mp4" />
-        </video>
-        <video
-          className="w-full h-full object-cover object-center opacity-80"
-          autoPlay
-          muted
-          playsInline
-          loop
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={binary} type="video/mp4" />
-        </video>
-        <video
-          className="w-full h-full object-cover object-center opacity-80"
-          autoPlay
-          muted
-          playsInline
-          loop
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={binary} type="video/mp4" />
-        </video>
-        <video
-          className="w-full h-full object-cover object-center opacity-80"
-          autoPlay
-          muted
-          playsInline
-          loop
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={binary} type="video/mp4" />
-        </video>
+        {[0, 1, 2, 3].map((index) => (
+          <video
+            key={index}
+            ref={setVideoRef(index)}
+            className="w-full h-full object-cover object-center opacity-80"
+            muted
+            playsInline
+            loop
+            preload={index === 0 ? "auto" : "metadata"}
+            aria-hidden="true"
+          >
+            <source src={binary} type="video/mp4" />
+          </video>
+        ))}
       </div>
 
       {/* Conteúdo */}
