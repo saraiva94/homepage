@@ -1,31 +1,55 @@
 import { Link } from "react-router-dom";
-import { Clapperboard, Code2, FileText, Github, MessageCircle, Film, Code, FileCode, Atom, Server, Cloud, Database, Binary, GitBranch, FileSpreadsheet, MessagesSquare, ListChecks, Users, Zap, Lightbulb } from "lucide-react";
+import {
+  Clapperboard,
+  Code2,
+  FileText,
+  Github,
+  MessageCircle,
+  Film,
+  Code,
+  FileCode,
+  Atom,
+  Server,
+  Cloud,
+  Database,
+  Binary,
+  GitBranch,
+  FileSpreadsheet,
+  MessagesSquare,
+  ListChecks,
+  Users,
+  Zap,
+  Lightbulb,
+} from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
+
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
 
 interface AboutProps {
   isVisible?: boolean;
+  scale?: number;
 }
 
-export function About({ isVisible = true }: AboutProps) {
+export function About({ isVisible = true, scale = 1 }: AboutProps) {
   const btnBase =
-    "mt-1 w-[var(--avatar)] inline-flex items-center justify-center gap-1.5 " +
-    "px-2 py-1 rounded-md font-semibold text-white shadow-sm text-xs " +
+    "mt-2 w-[var(--avatar)] inline-flex items-center justify-center gap-2 " +
+    "px-4 py-2 rounded-md font-semibold text-white shadow-sm " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
     "transition-colors duration-300 ease-in-out " +
     "motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out " +
     "hover:-translate-y-0.5 hover:shadow-md";
 
   return (
-    <section 
-      className={`h-full py-2 bg-transparent transition-opacity duration-1000 ease-out flex flex-col ${
+    <section
+      className={`py-6 bg-transparent mb-6 md:mb-10 transition-opacity duration-1000 ease-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
+      style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
     >
-      <div className="container mx-auto px-4 h-full flex flex-col">
-        <div className="relative rounded-3xl p-3 [--avatar:clamp(80px,15vw,140px)] overflow-hidden flex-1 flex flex-col">
+      <div className="container mx-auto px-4">
+        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden">
           {/* overlay glass */}
           <div
             aria-hidden
@@ -37,8 +61,8 @@ export function About({ isVisible = true }: AboutProps) {
           />
 
           {/* bloco imagem de fundo */}
-          <div className="relative z-[1] flex-[2]">
-            <div className="relative w-full h-full min-h-[150px] max-h-[300px] rounded-3xl overflow-hidden">
+          <div className="relative z-[1]">
+            <div className="relative w-full h-[400px] rounded-3xl overflow-hidden">
               <img
                 src={about2Img}
                 alt="background"
@@ -57,7 +81,7 @@ export function About({ isVisible = true }: AboutProps) {
               "
             >
               {/* avatar */}
-              <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-2 overflow-hidden rounded-lg">
+              <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 overflow-hidden rounded-lg">
                 <img src={about1Img} alt="eu" className="w-full h-full object-cover" />
               </div>
 
@@ -110,50 +134,83 @@ export function About({ isVisible = true }: AboutProps) {
           </div>
 
           {/* TEXTO */}
-          <div className="relative z-0 mt-4 text-white flex-1 min-h-0">
-            <div className="text-white/90 leading-snug mb-2 text-center">
-              <span className="block text-base md:text-lg font-bold leading-tight md:hidden">
-                Análise e desenvolvimento de sistemas (ADS)
+          <div className="relative z-0 mt-8 text-white">
+            <div className="text-white/90 leading-snug mb-6 text-center">
+              <span className="block text-2xl font-bold leading-tight md:hidden">
+                Análise e<br />
+                desenvolvimento<br />
+                de sistemas (ADS)
               </span>
-              <span className="hidden md:block text-lg font-bold">
+              <span className="hidden md:block text-2xl font-bold">
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
-              <span className="block text-xs md:text-sm">Faculdade Unigranrio</span>
+              <span className="block text-base">Faculdade Unigranrio</span>
             </div>
 
-            <div className="relative flex justify-between">
+            <div className="relative">
               {/* Hard skills - à esquerda */}
-              <section className="flex-1">
-                <h3 className="text-base md:text-lg font-bold mb-1 text-sky-400">Hard skills</h3>
-                <ul className="space-y-0 text-[10px] md:text-xs leading-tight">
-                  <li className="flex items-center gap-1"><Film className="w-3 h-3 text-purple-400 flex-shrink-0" /> After effects</li>
-                  <li className="flex items-center gap-1"><Film className="w-3 h-3 text-purple-400 flex-shrink-0" /> Premiere pro</li>
-                  <li className="flex items-center gap-1"><Code className="w-3 h-3 text-orange-400 flex-shrink-0" /> HTML5 e CSS3 (Tailwind)</li>
-                  <li className="flex items-center gap-1"><FileCode className="w-3 h-3 text-yellow-400 flex-shrink-0" /> JavaScript | TypeScript</li>
-                  <li className="flex items-center gap-1"><Atom className="w-3 h-3 text-cyan-400 flex-shrink-0" /> React | React Native | Next.js</li>
-                  <li className="flex items-center gap-1"><Server className="w-3 h-3 text-green-400 flex-shrink-0" /> Node.js (APIs, SSR)</li>
-                  <li className="flex items-center gap-1"><Cloud className="w-3 h-3 text-blue-400 flex-shrink-0" /> Cloud Computing: Microsoft Azure</li>
-                  <li className="flex items-center gap-1"><Database className="w-3 h-3 text-blue-300 flex-shrink-0" /> SQL: MySQL | SQLite</li>
-                  <li className="flex items-center gap-1"><Binary className="w-3 h-3 text-yellow-300 flex-shrink-0" /> Python (análise de dados, integração de IA)</li>
-                  <li className="flex items-center gap-1"><GitBranch className="w-3 h-3 text-orange-500 flex-shrink-0" /> Versionamento: Git, GitHub, Git Bash</li>
-                  <li className="flex items-center gap-1"><FileSpreadsheet className="w-3 h-3 text-green-500 flex-shrink-0" /> Excel</li>
+              <section>
+                <h3 className="text-2xl font-bold mb-3 text-sky-400">Hard skills</h3>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    <Film className="w-4 h-4 text-purple-400" /> After effects
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Film className="w-4 h-4 text-purple-400" /> Premiere pro
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Code className="w-4 h-4 text-orange-400" /> HTML5 e CSS3 (Tailwind)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FileCode className="w-4 h-4 text-yellow-400" /> JavaScript | TypeScript
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Atom className="w-4 h-4 text-cyan-400" /> React | React Native | Next.js
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Server className="w-4 h-4 text-green-400" /> Node.js (APIs, SSR)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Cloud className="w-4 h-4 text-blue-400" /> Cloud Computing: Microsoft Azure
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Database className="w-4 h-4 text-blue-300" /> SQL: MySQL | SQLite
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Binary className="w-4 h-4 text-yellow-300" /> Python (análise de dados,
+                    integração de IA)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <GitBranch className="w-4 h-4 text-orange-500" /> Versionamento: Git, GitHub,
+                    Git Bash
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FileSpreadsheet className="w-4 h-4 text-green-500" /> Excel
+                  </li>
                 </ul>
               </section>
 
-              {/* Soft skills - centro */}
-              <section className="flex-1 flex flex-col items-center">
-                <h3 className="text-base md:text-lg font-bold mb-1 text-sky-400 text-center">Soft skills</h3>
-                <ul className="space-y-0 text-[10px] md:text-xs leading-tight">
-                  <li className="flex items-center gap-1"><MessagesSquare className="w-3 h-3 text-blue-400 flex-shrink-0" /> Boa comunicação</li>
-                  <li className="flex items-center gap-1"><ListChecks className="w-3 h-3 text-green-400 flex-shrink-0" /> Organização exemplar</li>
-                  <li className="flex items-center gap-1"><Users className="w-3 h-3 text-purple-400 flex-shrink-0" /> Trabalho em equipe</li>
-                  <li className="flex items-center gap-1"><Zap className="w-3 h-3 text-yellow-400 flex-shrink-0" /> Proatividade</li>
-                  <li className="flex items-center gap-1"><Lightbulb className="w-3 h-3 text-orange-400 flex-shrink-0" /> Visão criativa</li>
+              {/* Soft skills - centralizado horizontalmente no card */}
+              <section className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                <h3 className="text-2xl font-bold mb-3 text-sky-400 text-center">Soft skills</h3>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    <MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-purple-400" /> Trabalho em equipe
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-400" /> Proatividade
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-orange-400" /> Visão criativa
+                  </li>
                 </ul>
               </section>
-              
-              {/* Espaço para o avatar/botões */}
-              <div className="w-[var(--avatar)]"></div>
             </div>
           </div>
 

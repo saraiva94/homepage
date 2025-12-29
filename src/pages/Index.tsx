@@ -40,6 +40,8 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
+  const aboutScale = showHero ? 0.92 : 1;
+
   return (
     <div 
       className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
@@ -47,8 +49,8 @@ export default function Index() {
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <About isVisible={showAbout} />
+      <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center">
+        <About isVisible={showAbout} scale={aboutScale} />
       </div>
     </div>
   );
