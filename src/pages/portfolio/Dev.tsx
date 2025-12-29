@@ -239,7 +239,9 @@ export default function DevPage() {
         }
 
         // ===== VIDEOS - entram de cima com zoom in, saem para baixo com zoom out =====
-        const progressPerVideo = 1 / totalVideos;
+        // Último vídeo deve estar 100% invisível quando botão aparece (0.95)
+        const buttonStart = 0.95;
+        const progressPerVideo = buttonStart / totalVideos;
 
         videoRefs.current.forEach((videoEl, idx) => {
           if (!videoEl || idx >= totalVideos) return;
