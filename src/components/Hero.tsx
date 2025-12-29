@@ -63,10 +63,10 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   return (
     <section 
       data-hero
-      className={`relative isolate overflow-hidden bg-black text-white transition-all duration-700 ease-out ${
-        isVisible 
-          ? "opacity-100 translate-y-0" 
-          : "opacity-0 -translate-y-full"
+      className={`absolute top-0 left-0 isolate w-full overflow-hidden bg-black text-white transition-all duration-700 ease-out ${
+        isVisible
+          ? "opacity-100 translate-y-0 pointer-events-auto"
+          : "opacity-0 -translate-y-full pointer-events-none"
       }`}
     >
       {/* Vídeo de fundo - grid duplicado otimizado */}
