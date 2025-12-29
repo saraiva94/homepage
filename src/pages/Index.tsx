@@ -40,8 +40,6 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  const aboutScale = showHero ? 0.92 : 1;
-
   return (
     <div 
       className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
@@ -49,8 +47,14 @@ export default function Index() {
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-      <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center">
-        <About isVisible={showAbout} scale={aboutScale} />
+      
+      {/* Container do About com escala proporcional */}
+      <div 
+        className={`flex-1 min-h-0 overflow-hidden flex items-start justify-center transition-transform duration-700 ease-out ${
+          showHero ? "scale-[0.85] origin-top" : "scale-100"
+        }`}
+      >
+        <About isVisible={showAbout} />
       </div>
     </div>
   );
