@@ -1,17 +1,35 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import binary from "@/assets/binary.mp4";
 import stacksImgRaw from "@/assets/stacks.png";
 
 const stacksImg = stacksImgRaw as unknown as string;
 
-export function Hero() {
+interface HeroProps {
+  onVideosLoaded?: () => void;
+  isVisible?: boolean;
+}
+
+export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [loadedCount, setLoadedCount] = useState(0);
+  const hasNotified = useRef(false);
+
+  const handleVideoCanPlay = useCallback(() => {
+    setLoadedCount((prev) => prev + 1);
+  }, []);
+
+  // Notifica quando todos os 4 vídeos estão carregados
+  useEffect(() => {
+    if (loadedCount >= 4 && !hasNotified.current) {
+      hasNotified.current = true;
+      onVideosLoaded?.();
+    }
+  }, [loadedCount, onVideosLoaded]);
 
   const syncAndPlay = useCallback(() => {
     const videos = videoRefs.current.filter(Boolean) as HTMLVideoElement[];
     if (videos.length === 0) return;
 
-    // Use the first video as master
     const master = videos[0];
     
     const playAll = () => {
@@ -19,7 +37,6 @@ export function Hero() {
         v.muted = true;
         v.playsInline = true;
         v.loop = true;
-        // Sync time with master
         if (v !== master) {
           v.currentTime = master.currentTime;
         }
@@ -35,7 +52,6 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    // Small delay to ensure all refs are set
     const t = setTimeout(syncAndPlay, 100);
     return () => clearTimeout(t);
   }, [syncAndPlay]);
@@ -45,7 +61,13 @@ export function Hero() {
   };
 
   return (
-    <section className="relative isolate overflow-hidden bg-black text-white">
+    <section 
+      className={`relative isolate overflow-hidden bg-black text-white transition-all duration-700 ease-out ${
+        isVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 -translate-y-full"
+      }`}
+    >
       {/* Vídeo de fundo - grid duplicado otimizado */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
         {[0, 1, 2, 3].map((index) => (
@@ -56,8 +78,9 @@ export function Hero() {
             muted
             playsInline
             loop
-            preload={index === 0 ? "auto" : "metadata"}
+            preload="auto"
             aria-hidden="true"
+            onCanPlayThrough={handleVideoCanPlay}
           >
             <source src={binary} type="video/mp4" />
           </video>

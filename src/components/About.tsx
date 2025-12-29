@@ -5,7 +5,11 @@ import about2ImgRaw from "@/assets/background.jpg";
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
 
-export function About() {
+interface AboutProps {
+  isVisible?: boolean;
+}
+
+export function About({ isVisible = true }: AboutProps) {
   const btnBase =
     "mt-2 w-[var(--avatar)] inline-flex items-center justify-center gap-2 " +
     "px-4 py-2 rounded-md font-semibold text-white shadow-sm " +
@@ -15,7 +19,11 @@ export function About() {
     "hover:-translate-y-0.5 hover:shadow-md";
 
   return (
-    <section className="py-6 bg-transparent mb-6 md:mb-10">
+    <section 
+      className={`py-6 bg-transparent mb-6 md:mb-10 transition-opacity duration-1000 ease-out ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden">
           {/* overlay glass */}
