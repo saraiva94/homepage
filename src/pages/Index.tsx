@@ -13,6 +13,7 @@ export default function Index() {
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
   const [aboutContentHeight, setAboutContentHeight] = useState<number>(0);
   const [aboutScale, setAboutScale] = useState<number>(1);
+  
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -44,7 +45,7 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mede o About (sem distorcer elementos internos) e aplica uma escala global (máx. 20%)
+  // Mede o About e aplica escala para caber no viewport (máx. 20% de redução)
   useEffect(() => {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl) return;
@@ -56,7 +57,7 @@ export default function Index() {
 
       setAboutContentHeight(contentH);
 
-      // Espaço disponível no primeiro viewport (evita rolagem)
+      // Espaço disponível no viewport
       const available = window.innerHeight - heroH;
       if (contentH <= 0 || available <= 0) {
         setAboutScale(1);
@@ -85,16 +86,27 @@ export default function Index() {
 
   const scaledHeight = aboutContentHeight > 0 ? aboutContentHeight * aboutScale : undefined;
 
+  // Calcula o translateY para centralizar quando o Hero não está visível
+  const centerOffset = !showHero && scaledHeight
+    ? (window.innerHeight - scaledHeight) / 2
+    : 0;
+
   return (
     <div
-      className="min-h-screen relative bg-cover bg-center bg-fixed"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
 
-      {/* Mantém o layout original do card; escala o bloco inteiro para caber no viewport inicial */}
-      <div className="w-full flex justify-center" style={{ height: scaledHeight }}>
+      {/* About: centralizado antes do Hero, posicionado abaixo do Hero depois */}
+      <div
+        className="w-full flex justify-center transition-all duration-700 ease-out"
+        style={{
+          height: scaledHeight,
+          transform: showHero ? "translateY(0)" : `translateY(${centerOffset}px)`,
+        }}
+      >
         <div
           className="w-full origin-top transition-transform duration-700 ease-out will-change-transform"
           style={{ transform: `scale(${aboutScale})` }}
