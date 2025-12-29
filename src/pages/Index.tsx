@@ -47,12 +47,13 @@ export default function Index() {
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
-      
-      {/* Container do About com escala proporcional */}
-      <div 
-        className={`flex-1 min-h-0 overflow-hidden flex items-start justify-center transition-transform duration-700 ease-out ${
-          showHero ? "scale-[0.85] origin-top" : "scale-100"
-        }`}
+
+      {/* About: mantém proporções; reduz no máximo 20% quando o navbar entra */}
+      <div
+        className={
+          "flex-1 min-h-0 flex items-center justify-center transition-transform duration-700 ease-out " +
+          (showHero ? "scale-[0.8] origin-center" : "scale-100")
+        }
       >
         <About isVisible={showAbout} />
       </div>
