@@ -13,7 +13,7 @@ export default function Index() {
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
   const [aboutContentHeight, setAboutContentHeight] = useState<number>(0);
   const [aboutScale, setAboutScale] = useState<number>(1);
-  
+  const [heroHeight, setHeroHeight] = useState<number>(0);
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -45,20 +45,29 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Mede o Hero quando ele aparece
+  useEffect(() => {
+    if (showHero) {
+      const heroEl = document.querySelector<HTMLElement>("[data-hero]");
+      if (heroEl) {
+        setHeroHeight(heroEl.offsetHeight);
+      }
+    }
+  }, [showHero]);
+
   // Mede o About e aplica escala para caber no viewport (máx. 20% de redução)
   useEffect(() => {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl) return;
 
     const update = () => {
-      const heroEl = document.querySelector<HTMLElement>("[data-hero]");
-      const heroH = showHero ? heroEl?.offsetHeight ?? 0 : 0;
       const contentH = aboutEl.offsetHeight;
-
       setAboutContentHeight(contentH);
 
-      // Espaço disponível no viewport
-      const available = window.innerHeight - heroH;
+      // Espaço disponível: viewport completo se Hero não visível, senão subtrai Hero
+      const currentHeroH = showHero ? heroHeight : 0;
+      const available = window.innerHeight - currentHeroH;
+
       if (contentH <= 0 || available <= 0) {
         setAboutScale(1);
         return;
@@ -74,38 +83,33 @@ export default function Index() {
     const ro = new ResizeObserver(() => update());
     ro.observe(aboutEl);
 
-    const heroEl = document.querySelector<HTMLElement>("[data-hero]");
-    if (heroEl) ro.observe(heroEl);
-
     window.addEventListener("resize", update);
     return () => {
       window.removeEventListener("resize", update);
       ro.disconnect();
     };
-  }, [showHero, showAbout]);
+  }, [showHero, showAbout, heroHeight]);
 
   const scaledHeight = aboutContentHeight > 0 ? aboutContentHeight * aboutScale : undefined;
 
-  // Calcula o translateY para centralizar quando o Hero não está visível
-  const centerOffset = !showHero && scaledHeight
-    ? (window.innerHeight - scaledHeight) / 2
+  // Calcula posição vertical para centralizar quando Hero não está visível
+  const availableSpace = showHero ? window.innerHeight - heroHeight : window.innerHeight;
+  const verticalOffset = scaledHeight
+    ? Math.max(0, (availableSpace - scaledHeight) / 2)
     : 0;
 
   return (
     <div
-      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
 
-      {/* About: centralizado antes do Hero, posicionado abaixo do Hero depois */}
+      {/* About: centralizado no viewport antes do Hero, depois posicionado abaixo do Hero */}
       <div
-        className="w-full flex justify-center transition-all duration-700 ease-out"
-        style={{
-          height: scaledHeight,
-          transform: showHero ? "translateY(0)" : `translateY(${centerOffset}px)`,
-        }}
+        className="flex-1 flex items-start justify-center transition-all duration-700 ease-out"
+        style={{ paddingTop: verticalOffset }}
       >
         <div
           className="w-full origin-top transition-transform duration-700 ease-out will-change-transform"
