@@ -42,7 +42,7 @@ export function About({ isVisible = true }: AboutProps) {
 
   return (
     <section
-      className={`py-6 bg-transparent transition-opacity duration-1000 ease-out ${
+      className={`py-6 bg-transparent mb-6 md:mb-10 transition-opacity duration-1000 ease-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
