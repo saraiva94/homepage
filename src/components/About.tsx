@@ -57,9 +57,9 @@ export function About({ isVisible = true }: AboutProps) {
         />
 
         {/* Conteúdo principal: distribuição original (imagem no topo, skills embaixo, avatar/botões à direita) */}
-        <div className="relative z-[1] h-full flex flex-col p-4 gap-4">
-          {/* Topo: imagem de background */}
-          <div className="relative flex-[0_0_52%] min-h-[220px] rounded-2xl overflow-hidden">
+        <div className="relative z-[1] h-full flex flex-col p-4 gap-2">
+          {/* Topo: imagem de background com avatar */}
+          <div className="relative flex-[0_0_45%] min-h-[180px] rounded-2xl overflow-hidden">
             <img
               src={about2Img}
               alt="background"
@@ -67,65 +67,61 @@ export function About({ isVisible = true }: AboutProps) {
                          transition-transform duration-500 will-change-transform hover:scale-[1.08]"
             />
 
-            {/* avatar + botões (direita) */}
+            {/* avatar (direita) */}
             <div
               className="absolute right-[clamp(0.5rem,2vw,1rem)] bottom-[clamp(0.5rem,2vw,1rem)] z-20 flex flex-col items-center pointer-events-auto"
               style={{
-                // mantém proporção parecida com o layout original dentro do container 60/80
-                // (sem depender de scale do card)
                 ['--avatar' as any]: 'clamp(96px, 10vw, 160px)',
               }}
             >
               <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 border-white/40 overflow-hidden rounded-lg shadow-lg">
                 <img src={about1Img} alt="foto do Swamiy" className="w-full h-full object-cover" />
               </div>
-
-              <Link
-                to="/portfolio/edits"
-                className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
-                style={{ width: 'var(--avatar)' }}
-              >
-                <Clapperboard className="w-4 h-4" />
-                Portfólio Editor
-              </Link>
-
-              <Link
-                to="/portfolio/dev"
-                className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
-                style={{ width: 'var(--avatar)' }}
-              >
-                <Code2 className="w-4 h-4" />
-                Portfólio Dev
-              </Link>
-
-              <a
-                href="https://wa.me/5521969381944"
-                className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
-                style={{ width: 'var(--avatar)' }}
-              >
-                <MessageCircle className="w-4 h-4" />
-                Whatsapp
-              </a>
-
-              <a
-                href="/Curriculo_Swamiy_Saraiva.pdf"
-                download="Curriculo_Swamiy_Saraiva.pdf"
-                className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
-                style={{ width: 'var(--avatar)' }}
-              >
-                <FileText className="w-4 h-4" />
-                Currículo
-              </a>
-
-              <a
-                href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
-                style={{ width: 'var(--avatar)' }}
-              >
-                <Github className="w-4 h-4 text-white" />
-                <span className="text-white">Github</span>
-              </a>
             </div>
+          </div>
+
+          {/* Botões horizontais abaixo da imagem */}
+          <div className="flex gap-2 w-full">
+            <Link
+              to="/portfolio/edits"
+              className={`${btnBase} flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
+            >
+              <Clapperboard className="w-4 h-4" />
+              Portfólio Editor
+            </Link>
+
+            <Link
+              to="/portfolio/dev"
+              className={`${btnBase} flex-1 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
+            >
+              <Code2 className="w-4 h-4" />
+              Portfólio Dev
+            </Link>
+
+            <a
+              href="https://wa.me/5521969381944"
+              className={`${btnBase} flex-1 bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
+            >
+              <MessageCircle className="w-4 h-4" />
+              Whatsapp
+            </a>
+
+            <a
+              href="/Curriculo_Swamiy_Saraiva.pdf"
+              download="Curriculo_Swamiy_Saraiva.pdf"
+              className={`${btnBase} flex-1 bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
+            >
+              <FileText className="w-4 h-4" />
+              Currículo
+            </a>
+
+            <a
+              href="https://github.com/Saraiva94"
+              className={`${btnBase} flex-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
+            >
+              <Github className="w-4 h-4 text-white" />
+              <span className="text-white">Github</span>
+            </a>
           </div>
 
           {/* Base: texto e skills (porção inferior do card) */}
