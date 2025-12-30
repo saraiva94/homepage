@@ -190,7 +190,7 @@ export default function Index() {
       {/* About: ocupa o restante do viewport, centralizado, sem colapsar layout */}
       <div className="flex-1 min-h-0 flex items-center justify-center">
         <div
-          className="inline-block origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
+          className="w-full max-w-6xl origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
           style={{ transform: `scale(${aboutScale})` }}
         >
           <div ref={aboutContentRef}>
