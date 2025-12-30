@@ -58,11 +58,9 @@ export default function Index() {
         <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
       </div>
 
-      {/* About: ocupa 60% largura x 80% altura do espaço disponível */}
+      {/* About: ocupa 80% largura x 90% altura do espaço disponível */}
       <div className="flex-1 min-h-0 flex items-center justify-center p-4">
-        <div
-          className="w-[80%] h-[90%] max-w-6xl flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-        >
+        <div className="w-[80%] h-[90%] transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]">
           <About isVisible={showAbout} />
         </div>
       </div>
