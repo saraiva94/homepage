@@ -22,8 +22,12 @@ import {
   SiNodedotjs,
   SiMysql,
   SiSqlite,
+  SiPython,
+  SiGit,
+  SiGithub,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
+import { FileSpreadsheet } from "lucide-react";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 
@@ -184,6 +188,10 @@ export function About({ isVisible = true }: AboutProps) {
                     { icon: VscAzure, color: "#0078D4", label: "Azure" },
                     { icon: SiMysql, color: "#4479A1", label: "MySQL" },
                     { icon: SiSqlite, color: "#003B57", label: "SQLite" },
+                    { icon: SiPython, color: "#3776AB", label: "Python" },
+                    { icon: SiGit, color: "#F05032", label: "Git" },
+                    { icon: SiGithub, color: "#FFFFFF", label: "GitHub" },
+                    { icon: FileSpreadsheet, color: "#217346", label: "Excel" },
                   ].map((skill, idx) => (
                     <div
                       key={idx}
@@ -211,11 +219,11 @@ export function About({ isVisible = true }: AboutProps) {
                   }}
                 >
                   {[
-                    { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
-                    { icon: ListChecks, color: "text-green-400", label: "Organização" },
-                    { icon: Users, color: "text-purple-400", label: "Trabalho em equipe" },
-                    { icon: Zap, color: "text-yellow-400", label: "Proatividade" },
-                    { icon: Lightbulb, color: "text-orange-400", label: "Criatividade" },
+                    { icon: MessagesSquare, color: "#60A5FA", label: "Comunicação" },
+                    { icon: ListChecks, color: "#4ADE80", label: "Organização" },
+                    { icon: Users, color: "#C084FC", label: "Trabalho em equipe" },
+                    { icon: Zap, color: "#FACC15", label: "Proatividade" },
+                    { icon: Lightbulb, color: "#FB923C", label: "Criatividade" },
                   ].map((skill, idx) => (
                     <div
                       key={idx}
@@ -223,8 +231,8 @@ export function About({ isVisible = true }: AboutProps) {
                       style={{ width: 'var(--skill-w)', height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
                     >
                       <skill.icon 
-                        className={`${skill.color} shrink-0`} 
-                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)' }}
+                        className="shrink-0" 
+                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
                       <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
                     </div>
