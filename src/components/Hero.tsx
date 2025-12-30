@@ -81,7 +81,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
             loop
             preload="auto"
             aria-hidden="true"
-            onCanPlayThrough={handleVideoCanPlay}
+            onCanPlay={handleVideoCanPlay}
           >
             <source src={binary} type="video/mp4" />
           </video>

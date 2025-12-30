@@ -22,14 +22,25 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Quando os vídeos carregarem, mostra o Hero
+  // Quando os vídeos carregarem, mostra o Hero (com fallback)
   useEffect(() => {
+    let timer: number | undefined;
+
     if (videosLoaded) {
-      const timer = setTimeout(() => {
+      timer = window.setTimeout(() => {
         setShowHero(true);
       }, 200);
-      return () => clearTimeout(timer);
     }
+
+    // Fallback: se o browser não disparar eventos de vídeo, não "mata" o layout
+    const fallback = window.setTimeout(() => {
+      setShowHero(true);
+    }, 1200);
+
+    return () => {
+      if (timer) window.clearTimeout(timer);
+      window.clearTimeout(fallback);
+    };
   }, [videosLoaded]);
 
   // Pré-carrega os frames dos portfolios
@@ -42,10 +53,9 @@ export default function Index() {
 
   return (
     <div
-      className="w-full min-h-screen max-h-screen overflow-hidden relative bg-cover bg-center bg-no-repeat flex flex-col"
-      style={{ 
+      className="w-full h-[100dvh] overflow-x-hidden overflow-y-auto relative bg-cover bg-center bg-no-repeat flex flex-col"
+      style={{
         backgroundImage: `url(${homepageBg})`,
-        height: '100dvh',
       }}
     >
       <CursorTrail />
