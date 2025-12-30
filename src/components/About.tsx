@@ -5,19 +5,25 @@ import {
   FileText,
   Github,
   MessageCircle,
-  Film,
-  Code,
-  FileCode,
-  Atom,
-  Server,
-  Cloud,
-  Database,
   MessagesSquare,
   ListChecks,
   Users,
   Zap,
   Lightbulb,
 } from "lucide-react";
+import {
+  SiAdobeaftereffects,
+  SiAdobepremierepro,
+  SiHtml5,
+  SiJavascript,
+  SiTypescript,
+  SiReact,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiMysql,
+  SiSqlite,
+} from "react-icons/si";
+import { VscAzure } from "react-icons/vsc";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 
@@ -166,18 +172,18 @@ export function About({ isVisible = true }: AboutProps) {
                   }}
                 >
                   {[
-                    { icon: Film, color: "text-purple-400", label: "After Effects" },
-                    { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
-                    { icon: Code, color: "text-orange-400", label: "HTML5 & CSS3" },
-                    { icon: FileCode, color: "text-yellow-400", label: "JavaScript" },
-                    { icon: FileCode, color: "text-blue-400", label: "TypeScript" },
-                    { icon: Atom, color: "text-cyan-400", label: "React" },
-                    { icon: Atom, color: "text-cyan-400", label: "React Native" },
-                    { icon: Atom, color: "text-cyan-400", label: "Next.js" },
-                    { icon: Server, color: "text-green-400", label: "Node.js" },
-                    { icon: Cloud, color: "text-blue-400", label: "Azure" },
-                    { icon: Database, color: "text-blue-300", label: "MySQL" },
-                    { icon: Database, color: "text-blue-300", label: "SQLite" },
+                    { icon: SiAdobeaftereffects, color: "#9999FF", label: "After Effects" },
+                    { icon: SiAdobepremierepro, color: "#9999FF", label: "Premiere Pro" },
+                    { icon: SiHtml5, color: "#E34F26", label: "HTML5 & CSS3" },
+                    { icon: SiJavascript, color: "#F7DF1E", label: "JavaScript" },
+                    { icon: SiTypescript, color: "#3178C6", label: "TypeScript" },
+                    { icon: SiReact, color: "#61DAFB", label: "React" },
+                    { icon: SiReact, color: "#61DAFB", label: "React Native" },
+                    { icon: SiNextdotjs, color: "#FFFFFF", label: "Next.js" },
+                    { icon: SiNodedotjs, color: "#339933", label: "Node.js" },
+                    { icon: VscAzure, color: "#0078D4", label: "Azure" },
+                    { icon: SiMysql, color: "#4479A1", label: "MySQL" },
+                    { icon: SiSqlite, color: "#003B57", label: "SQLite" },
                   ].map((skill, idx) => (
                     <div
                       key={idx}
@@ -185,10 +191,10 @@ export function About({ isVisible = true }: AboutProps) {
                       style={{ width: 'var(--skill-w)', height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
                     >
                       <skill.icon 
-                        className={`${skill.color} shrink-0`} 
-                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)' }}
+                        className="shrink-0" 
+                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
-                      <span className="leading-tight truncate" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
+                      <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
                     </div>
                   ))}
                 </div>
@@ -220,7 +226,7 @@ export function About({ isVisible = true }: AboutProps) {
                         className={`${skill.color} shrink-0`} 
                         style={{ width: 'var(--icon-size)', height: 'var(--icon-size)' }}
                       />
-                      <span className="leading-tight truncate" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
+                      <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
                     </div>
                   ))}
                 </div>
