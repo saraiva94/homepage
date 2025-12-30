@@ -15,8 +15,9 @@ export default function Index() {
   const [aboutScale, setAboutScale] = useState<number>(1);
   const [heroHeight, setHeroHeight] = useState<number>(0);
 
-  // Armazena a altura original do About (antes de qualquer escala)
+  // Armazena as dimensões originais do About (antes de qualquer escala)
   const originalAboutHeight = useRef<number>(0);
+  const originalAboutWidth = useRef<number>(0);
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -79,7 +80,7 @@ export default function Index() {
     };
   }, [showHero]);
 
-  // Mede a altura original do About UMA VEZ (antes de aplicar escala)
+  // Mede as dimensões originais do About UMA VEZ (antes de aplicar escala)
   useLayoutEffect(() => {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl || !showAbout) return;
@@ -93,10 +94,12 @@ export default function Index() {
       const previousTransform = parent.style.transform;
       parent.style.transform = "scale(1)";
 
-      // Força reflow e mede
-      const height = aboutEl.getBoundingClientRect().height;
-      if (height > 0 && originalAboutHeight.current === 0) {
-        originalAboutHeight.current = height;
+      const rect = aboutEl.getBoundingClientRect();
+      if (rect.height > 0 && originalAboutHeight.current === 0) {
+        originalAboutHeight.current = rect.height;
+      }
+      if (rect.width > 0 && originalAboutWidth.current === 0) {
+        originalAboutWidth.current = rect.width;
       }
 
       // Restaura a escala (mesmo se era string vazia)
@@ -109,7 +112,7 @@ export default function Index() {
 
   // Calcula escala do About para caber no viewport sem scroll
   useLayoutEffect(() => {
-    if (originalAboutHeight.current <= 0) return;
+    if (originalAboutHeight.current <= 0 || originalAboutWidth.current <= 0) return;
 
     const getRootTop = () => {
       const el = rootRef.current;
@@ -117,19 +120,33 @@ export default function Index() {
       return el.getBoundingClientRect().top;
     };
 
+    const getRootWidth = () => {
+      const el = rootRef.current;
+      if (!el) return window.innerWidth;
+      return el.getBoundingClientRect().width;
+    };
+
     const calculate = () => {
       const contentH = originalAboutHeight.current;
-      const rootTop = getRootTop();
-      const available = window.innerHeight - rootTop - heroHeight;
+      const contentW = originalAboutWidth.current;
 
-      if (available <= 0 || contentH <= 0) {
+      const rootTop = getRootTop();
+      const availableH = window.innerHeight - rootTop - heroHeight;
+
+      // margem de segurança lateral (evita “apertar” e parecer vertical)
+      const availableW = Math.max(0, getRootWidth() - 32);
+
+      if (availableH <= 0 || availableW <= 0 || contentH <= 0 || contentW <= 0) {
         setAboutScale(1);
         return;
       }
 
-      // Escala necessária, limitada entre 0.75 e 1
-      const rawScale = available / contentH;
-      const clampedScale = Math.min(1, Math.max(0.75, rawScale));
+      const heightScale = availableH / contentH;
+      const widthScale = availableW / contentW;
+
+      // Usa o mais restritivo (altura ou largura)
+      const rawScale = Math.min(heightScale, widthScale);
+      const clampedScale = Math.min(1, Math.max(0.65, rawScale));
       setAboutScale(clampedScale);
     };
 
