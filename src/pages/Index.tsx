@@ -85,15 +85,7 @@ export default function Index() {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl || !showAbout) return;
 
-    // Mede após o About estar visível
-    const measureOriginal = () => {
-      const parent = aboutEl.parentElement as HTMLDivElement | null;
-      if (!parent) return;
-
-      // Temporariamente remove a escala para medir o tamanho real
-      const previousTransform = parent.style.transform;
-      parent.style.transform = "scale(1)";
-
+    const timer = setTimeout(() => {
       const rect = aboutEl.getBoundingClientRect();
       if (rect.height > 0 && originalAboutHeight.current === 0) {
         originalAboutHeight.current = rect.height;
@@ -101,12 +93,8 @@ export default function Index() {
       if (rect.width > 0 && originalAboutWidth.current === 0) {
         originalAboutWidth.current = rect.width;
       }
+    }, 150);
 
-      // Restaura a escala (mesmo se era string vazia)
-      parent.style.transform = previousTransform;
-    };
-
-    const timer = setTimeout(measureOriginal, 150);
     return () => clearTimeout(timer);
   }, [showAbout]);
 
@@ -132,8 +120,6 @@ export default function Index() {
 
       const rootTop = getRootTop();
       const availableH = window.innerHeight - rootTop - heroHeight;
-
-      // margem de segurança lateral (evita “apertar” e parecer vertical)
       const availableW = Math.max(0, getRootWidth() - 32);
 
       if (availableH <= 0 || availableW <= 0 || contentH <= 0 || contentW <= 0) {
@@ -144,7 +130,6 @@ export default function Index() {
       const heightScale = availableH / contentH;
       const widthScale = availableW / contentW;
 
-      // Usa o mais restritivo (altura ou largura)
       const rawScale = Math.min(heightScale, widthScale);
       const clampedScale = Math.min(1, Math.max(0.65, rawScale));
       setAboutScale(clampedScale);
@@ -202,15 +187,31 @@ export default function Index() {
       </div>
 
       {/* About: ocupa o restante do viewport, centralizado verticalmente */}
-      <div
-        className="flex-1 min-h-0 flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden"
-      >
+      <div className="flex-1 min-h-0 flex items-center justify-center">
+        {/*
+          IMPORTANTE: transform: scale() não altera o layout box.
+          Para não “distorcer” o posicionamento interno (avatar, botões, listas) nem clipar,
+          criamos um "stage" com width/height já escaladas, e o conteúdo fica absoluto
+          com a escala aplicada.
+        */}
         <div
-          className="w-full origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
-          style={{ transform: `scale(${aboutScale})` }}
+          className="relative transition-[width,height] duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{
+            width: originalAboutWidth.current ? `${originalAboutWidth.current * aboutScale}px` : "auto",
+            height: originalAboutHeight.current ? `${originalAboutHeight.current * aboutScale}px` : "auto",
+          }}
         >
-          <div ref={aboutContentRef}>
-            <About isVisible={showAbout} />
+          <div
+            className="absolute inset-0 origin-top-left transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
+            style={{
+              width: originalAboutWidth.current ? `${originalAboutWidth.current}px` : "auto",
+              height: originalAboutHeight.current ? `${originalAboutHeight.current}px` : "auto",
+              transform: `scale(${aboutScale})`,
+            }}
+          >
+            <div ref={aboutContentRef}>
+              <About isVisible={showAbout} />
+            </div>
           </div>
         </div>
       </div>
