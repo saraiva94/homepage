@@ -28,7 +28,7 @@ export default function Index() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl" style={{ height: "clamp(520px, 78vh, 920px)" }}>
+        <div className="w-[80%] h-[90%]">
           <About />
         </div>
       </main>
