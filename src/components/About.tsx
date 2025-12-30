@@ -142,94 +142,54 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Hard Skills - 2/3 do espaço */}
               <section className="md:col-span-2">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Film className="w-4 h-4 text-purple-400 shrink-0" />
-                    <span className="text-sm">After Effects</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Film className="w-4 h-4 text-purple-400 shrink-0" />
-                    <span className="text-sm">Premiere Pro</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Code className="w-4 h-4 text-orange-400 shrink-0" />
-                    <span className="text-sm">HTML5 & CSS3</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <FileCode className="w-4 h-4 text-yellow-400 shrink-0" />
-                    <span className="text-sm">JavaScript</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <FileCode className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span className="text-sm">TypeScript</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
-                    <span className="text-sm">React</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
-                    <span className="text-sm">React Native</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
-                    <span className="text-sm">Next.js</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Server className="w-4 h-4 text-green-400 shrink-0" />
-                    <span className="text-sm">Node.js</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Cloud className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span className="text-sm">Azure</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Database className="w-4 h-4 text-blue-300 shrink-0" />
-                    <span className="text-sm">MySQL</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Database className="w-4 h-4 text-blue-300 shrink-0" />
-                    <span className="text-sm">SQLite</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Binary className="w-4 h-4 text-yellow-300 shrink-0" />
-                    <span className="text-sm">Python</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <GitBranch className="w-4 h-4 text-orange-500 shrink-0" />
-                    <span className="text-sm">Git & GitHub</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <FileSpreadsheet className="w-4 h-4 text-green-500 shrink-0" />
-                    <span className="text-sm">Excel</span>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {[
+                    { icon: Film, color: "text-purple-400", label: "After Effects" },
+                    { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
+                    { icon: Code, color: "text-orange-400", label: "HTML5 & CSS3" },
+                    { icon: FileCode, color: "text-yellow-400", label: "JavaScript" },
+                    { icon: FileCode, color: "text-blue-400", label: "TypeScript" },
+                    { icon: Atom, color: "text-cyan-400", label: "React" },
+                    { icon: Atom, color: "text-cyan-400", label: "React Native" },
+                    { icon: Atom, color: "text-cyan-400", label: "Next.js" },
+                    { icon: Server, color: "text-green-400", label: "Node.js" },
+                    { icon: Cloud, color: "text-blue-400", label: "Azure" },
+                    { icon: Database, color: "text-blue-300", label: "MySQL" },
+                    { icon: Database, color: "text-blue-300", label: "SQLite" },
+                    { icon: Binary, color: "text-yellow-300", label: "Python" },
+                    { icon: GitBranch, color: "text-orange-500", label: "Git & GitHub" },
+                    { icon: FileSpreadsheet, color: "text-green-500", label: "Excel" },
+                  ].map((skill, idx) => (
+                    <div
+                      key={idx}
+                      className="aspect-square flex flex-col items-center justify-center gap-2 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                    >
+                      <skill.icon className={`w-6 h-6 ${skill.color} shrink-0`} />
+                      <span className="text-xs text-center leading-tight">{skill.label}</span>
+                    </div>
+                  ))}
                 </div>
               </section>
 
               {/* Soft Skills - 1/3 do espaço */}
               <section className="md:col-span-1">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Soft skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <MessagesSquare className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span className="text-sm">Comunicação</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <ListChecks className="w-4 h-4 text-green-400 shrink-0" />
-                    <span className="text-sm">Organização</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Users className="w-4 h-4 text-purple-400 shrink-0" />
-                    <span className="text-sm">Trabalho em equipe</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Zap className="w-4 h-4 text-yellow-400 shrink-0" />
-                    <span className="text-sm">Proatividade</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <Lightbulb className="w-4 h-4 text-orange-400 shrink-0" />
-                    <span className="text-sm">Criatividade</span>
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
+                    { icon: ListChecks, color: "text-green-400", label: "Organização" },
+                    { icon: Users, color: "text-purple-400", label: "Trabalho em equipe" },
+                    { icon: Zap, color: "text-yellow-400", label: "Proatividade" },
+                    { icon: Lightbulb, color: "text-orange-400", label: "Criatividade" },
+                  ].map((skill, idx) => (
+                    <div
+                      key={idx}
+                      className="aspect-square flex flex-col items-center justify-center gap-2 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                    >
+                      <skill.icon className={`w-6 h-6 ${skill.color} shrink-0`} />
+                      <span className="text-xs text-center leading-tight">{skill.label}</span>
+                    </div>
+                  ))}
                 </div>
               </section>
             </div>
