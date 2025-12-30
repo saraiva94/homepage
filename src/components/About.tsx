@@ -30,17 +30,27 @@ interface AboutProps {
 
 export function About({ isVisible = true }: AboutProps) {
   const btnBase =
-    "mt-1 w-full inline-flex items-center justify-center gap-1.5 " +
-    "px-2 py-1.5 rounded-md font-medium text-white text-xs shadow-sm " +
+    "mt-1 w-full inline-flex items-center justify-center gap-[0.4vw] " +
+    "px-[0.5vw] py-[0.4vw] rounded-md font-medium text-white text-[clamp(10px,0.8vw,14px)] shadow-sm " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
     "transition-colors duration-300 ease-in-out " +
     "hover:shadow-md";
+
+  // CSS custom properties for responsive sizing
+  const cardStyle = {
+    '--skill-w': 'clamp(100px, 9vw, 160px)',
+    '--skill-h': 'clamp(50px, 4.5vw, 80px)',
+    '--skill-gap': 'clamp(2px, 0.25vw, 6px)',
+    '--icon-size': 'clamp(14px, 1.2vw, 22px)',
+    '--text-size': 'clamp(9px, 0.7vw, 13px)',
+  } as React.CSSProperties;
 
   return (
     <section
       className={`w-full h-full bg-transparent transition-opacity duration-1000 ease-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
+      style={cardStyle}
     >
       <div className="w-full h-full relative rounded-2xl overflow-hidden">
         {/* overlay glass */}
@@ -53,10 +63,10 @@ export function About({ isVisible = true }: AboutProps) {
                      pointer-events-none"
         />
 
-        {/* Conteúdo principal: distribuição original (imagem no topo, skills embaixo, avatar/botões à direita) */}
-        <div className="relative z-[1] h-full flex flex-col p-4 gap-2">
+        {/* Conteúdo principal */}
+        <div className="relative z-[1] h-full flex flex-col p-[clamp(8px,1vw,20px)] gap-[clamp(4px,0.5vw,12px)]">
           {/* Topo: imagem de background com avatar */}
-          <div className="relative flex-[0_0_45%] min-h-[180px] rounded-2xl overflow-hidden">
+          <div className="relative flex-[0_0_45%] min-h-[clamp(120px,15vw,220px)] rounded-2xl overflow-hidden">
             <img
               src={about2Img}
               alt="background"
@@ -68,7 +78,7 @@ export function About({ isVisible = true }: AboutProps) {
             <div
               className="absolute right-[clamp(0.5rem,2vw,1rem)] bottom-[clamp(0.5rem,2vw,1rem)] z-20 flex flex-col items-center pointer-events-auto"
               style={{
-                ['--avatar' as any]: 'clamp(120px, 12.5vw, 200px)',
+                ['--avatar' as any]: 'clamp(80px, 10vw, 180px)',
               }}
             >
               <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 border-white/40 overflow-hidden rounded-lg shadow-lg">
@@ -78,12 +88,12 @@ export function About({ isVisible = true }: AboutProps) {
           </div>
 
           {/* Botões horizontais abaixo da imagem */}
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-[clamp(4px,0.5vw,10px)] w-full">
             <Link
               to="/portfolio/edits"
               className={`${btnBase} flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
             >
-              <Clapperboard className="w-4 h-4" />
+              <Clapperboard style={{ width: 'clamp(12px, 1vw, 18px)', height: 'clamp(12px, 1vw, 18px)' }} />
               Portfólio Editor
             </Link>
 
@@ -91,7 +101,7 @@ export function About({ isVisible = true }: AboutProps) {
               to="/portfolio/dev"
               className={`${btnBase} flex-1 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
             >
-              <Code2 className="w-4 h-4" />
+              <Code2 style={{ width: 'clamp(12px, 1vw, 18px)', height: 'clamp(12px, 1vw, 18px)' }} />
               Portfólio Dev
             </Link>
 
@@ -99,7 +109,7 @@ export function About({ isVisible = true }: AboutProps) {
               href="https://wa.me/5521969381944"
               className={`${btnBase} flex-1 bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle style={{ width: 'clamp(12px, 1vw, 18px)', height: 'clamp(12px, 1vw, 18px)' }} />
               Whatsapp
             </a>
 
@@ -108,7 +118,7 @@ export function About({ isVisible = true }: AboutProps) {
               download="Curriculo_Swamiy_Saraiva.pdf"
               className={`${btnBase} flex-1 bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
             >
-              <FileText className="w-4 h-4" />
+              <FileText style={{ width: 'clamp(12px, 1vw, 18px)', height: 'clamp(12px, 1vw, 18px)' }} />
               Currículo
             </a>
 
@@ -116,30 +126,36 @@ export function About({ isVisible = true }: AboutProps) {
               href="https://github.com/Saraiva94"
               className={`${btnBase} flex-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
             >
-              <Github className="w-4 h-4 text-white" />
+              <Github style={{ width: 'clamp(12px, 1vw, 18px)', height: 'clamp(12px, 1vw, 18px)' }} className="text-white" />
               <span className="text-white">Github</span>
             </a>
           </div>
 
-          {/* Base: texto e skills (porção inferior do card) */}
-          <div className="relative z-0 flex-1 min-h-0 text-white overflow-y-auto pr-1">
-            <div className="text-white/90 leading-snug mb-4 text-center">
-              <span className="block text-2xl font-bold leading-tight md:hidden">
+          {/* Base: texto e skills */}
+          <div className="relative z-0 flex-1 min-h-0 text-white overflow-hidden pr-1">
+            <div className="text-white/90 leading-snug mb-[clamp(8px,1vw,20px)] text-center">
+              <span className="block text-[clamp(16px,1.6vw,28px)] font-bold leading-tight md:hidden">
                 Análise e<br />
                 desenvolvimento<br />
                 de sistemas (ADS)
               </span>
-              <span className="hidden md:block text-2xl font-bold">
+              <span className="hidden md:block text-[clamp(16px,1.6vw,28px)] font-bold">
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
-              <span className="block text-base">Faculdade Unigranrio</span>
+              <span className="block text-[clamp(12px,1vw,18px)]">Faculdade Unigranrio</span>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-[clamp(8px,1vw,20px)]">
               {/* Hard Skills - 2/3 do espaço */}
               <section className="flex-[2]">
-                <h3 className="text-xl font-bold mb-2 text-sky-400">Hard skills</h3>
-                <div className="grid grid-flow-col grid-rows-3 auto-cols-[144px] gap-1 content-start">
+                <h3 className="text-[clamp(14px,1.3vw,24px)] font-bold mb-[clamp(4px,0.5vw,12px)] text-sky-400">Hard skills</h3>
+                <div 
+                  className="grid grid-flow-col grid-rows-3 content-start"
+                  style={{ 
+                    gridAutoColumns: 'var(--skill-w)',
+                    gap: 'var(--skill-gap)'
+                  }}
+                >
                   {[
                     { icon: Film, color: "text-purple-400", label: "After Effects" },
                     { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
@@ -156,10 +172,14 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="w-[144px] h-[72px] flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      className="flex items-center justify-center gap-[clamp(4px,0.4vw,10px)] bg-white/10 backdrop-blur-sm px-[clamp(6px,0.6vw,14px)] py-[clamp(4px,0.4vw,10px)] rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      style={{ width: 'var(--skill-w)', height: 'var(--skill-h)' }}
                     >
-                      <skill.icon className={`w-5 h-5 ${skill.color} shrink-0`} />
-                      <span className="text-xs leading-tight">{skill.label}</span>
+                      <skill.icon 
+                        className={`${skill.color} shrink-0`} 
+                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)' }}
+                      />
+                      <span style={{ fontSize: 'var(--text-size)' }} className="leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
@@ -167,8 +187,14 @@ export function About({ isVisible = true }: AboutProps) {
 
               {/* Soft Skills - 1/3 do espaço */}
               <section className="flex-1">
-                <h3 className="text-xl font-bold mb-2 text-sky-400">Soft skills</h3>
-                <div className="grid grid-flow-col grid-rows-3 auto-cols-[144px] gap-1 content-start">
+                <h3 className="text-[clamp(14px,1.3vw,24px)] font-bold mb-[clamp(4px,0.5vw,12px)] text-sky-400">Soft skills</h3>
+                <div 
+                  className="grid grid-flow-col grid-rows-3 content-start"
+                  style={{ 
+                    gridAutoColumns: 'var(--skill-w)',
+                    gap: 'var(--skill-gap)'
+                  }}
+                >
                   {[
                     { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
                     { icon: ListChecks, color: "text-green-400", label: "Organização" },
@@ -178,10 +204,14 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="w-[144px] h-[72px] flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      className="flex items-center justify-center gap-[clamp(4px,0.4vw,10px)] bg-white/10 backdrop-blur-sm px-[clamp(6px,0.6vw,14px)] py-[clamp(4px,0.4vw,10px)] rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      style={{ width: 'var(--skill-w)', height: 'var(--skill-h)' }}
                     >
-                      <skill.icon className={`w-5 h-5 ${skill.color} shrink-0`} />
-                      <span className="text-xs leading-tight">{skill.label}</span>
+                      <skill.icon 
+                        className={`${skill.color} shrink-0`} 
+                        style={{ width: 'var(--icon-size)', height: 'var(--icon-size)' }}
+                      />
+                      <span style={{ fontSize: 'var(--text-size)' }} className="leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
