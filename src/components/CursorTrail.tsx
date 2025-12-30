@@ -7,8 +7,10 @@ export default function CursorTrail() {
     const COUNT = 40, SIZE = 30, STIFFNESS = 0.20, BLUR = 8;
 
     const circles: HTMLElement[] = [];
-    const coords = { x: innerWidth / 2, y: innerHeight / 2 };
+    // Inicializa fora da tela para evitar posicionamento incorreto no carregamento
+    const coords = { x: -100, y: -100 };
     const pos = Array.from({ length: COUNT }, () => ({ x: coords.x, y: coords.y }));
+    let hasUserInteracted = false;
 
     let huePhase = 0;
     let lastX = coords.x, lastY = coords.y;
@@ -35,6 +37,13 @@ export default function CursorTrail() {
     document.body.appendChild(frag);
 
     const feed = (x: number, y: number) => {
+      if (!hasUserInteracted) {
+        hasUserInteracted = true;
+        // Inicializa todas as posições para a primeira interação
+        pos.forEach(p => { p.x = x; p.y = y; });
+        lastX = x;
+        lastY = y;
+      }
       coords.x = x;
       coords.y = y;
       const dx = x - lastX, dy = y - lastY;
@@ -64,6 +73,12 @@ export default function CursorTrail() {
     window.addEventListener("touchstart", onTouchStart, { passive: true });
 
     function animate() {
+      // Só anima se o usuário interagiu
+      if (!hasUserInteracted) {
+        requestAnimationFrame(animate);
+        return;
+      }
+
       let x = coords.x, y = coords.y;
 
       const baseT = (Math.sin(huePhase) + 1) / 2;
