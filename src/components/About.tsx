@@ -150,10 +150,9 @@ export function About({ isVisible = true }: AboutProps) {
               <section className="flex-[2] flex flex-col min-h-0">
                 <h3 className="text-[clamp(12px,1.1vw,20px)] font-bold mb-[clamp(2px,0.3vw,8px)] text-sky-400 shrink-0">Hard skills</h3>
                 <div 
-                  className="grid grid-flow-col content-start flex-1 min-h-0"
+                  className="grid grid-flow-col grid-rows-3 content-start"
                   style={{ 
                     gridAutoColumns: 'var(--skill-w)',
-                    gridTemplateRows: 'repeat(auto-fill, var(--skill-h))',
                     gap: 'var(--skill-gap)'
                   }}
                 >
@@ -190,10 +189,9 @@ export function About({ isVisible = true }: AboutProps) {
               <section className="flex-1 flex flex-col min-h-0">
                 <h3 className="text-[clamp(12px,1.1vw,20px)] font-bold mb-[clamp(2px,0.3vw,8px)] text-sky-400 shrink-0">Soft skills</h3>
                 <div 
-                  className="grid grid-flow-col content-start flex-1 min-h-0"
+                  className="grid grid-flow-col grid-rows-3 content-start"
                   style={{ 
                     gridAutoColumns: 'var(--skill-w)',
-                    gridTemplateRows: 'repeat(auto-fill, var(--skill-h))',
                     gap: 'var(--skill-gap)'
                   }}
                 >
