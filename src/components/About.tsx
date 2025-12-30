@@ -142,7 +142,7 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Hard Skills - 2/3 do espaço */}
               <section className="md:col-span-2">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <div className="grid grid-cols-4 md:grid-cols-4 gap-1.5">
+                <div className="grid grid-cols-4 md:grid-cols-4 gap-0">
                   {[
                     { icon: Film, color: "text-purple-400", label: "After Effects" },
                     { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
@@ -174,7 +174,7 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Soft Skills - 1/3 do espaço */}
               <section className="md:col-span-1">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Soft skills</h3>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-0">
                   {[
                     { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
                     { icon: ListChecks, color: "text-green-400", label: "Organização" },
