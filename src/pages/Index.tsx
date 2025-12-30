@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useLayoutEffect } from "react";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import CursorTrail from "@/components/CursorTrail";
@@ -11,9 +11,12 @@ export default function Index() {
   const [showHero, setShowHero] = useState(false);
 
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
-  const [aboutContentHeight, setAboutContentHeight] = useState<number>(0);
   const [aboutScale, setAboutScale] = useState<number>(1);
   const [heroHeight, setHeroHeight] = useState<number>(0);
+  const [verticalOffset, setVerticalOffset] = useState<number>(0);
+  const [viewportHeight, setViewportHeight] = useState<number>(
+    typeof window !== "undefined" ? window.innerHeight : 800
+  );
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -45,8 +48,15 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mede o Hero quando ele aparece (para posicionar o About abaixo dele)
+  // Atualiza viewportHeight no resize
   useEffect(() => {
+    const handleResize = () => setViewportHeight(window.innerHeight);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Mede o Hero quando ele aparece
+  useLayoutEffect(() => {
     if (!showHero) {
       setHeroHeight(0);
       return;
@@ -61,55 +71,52 @@ export default function Index() {
     const ro = new ResizeObserver(() => updateHero());
     ro.observe(heroEl);
 
-    window.addEventListener("resize", updateHero);
-    return () => {
-      window.removeEventListener("resize", updateHero);
-      ro.disconnect();
-    };
+    return () => ro.disconnect();
   }, [showHero]);
 
-  // Mede o About e aplica escala para caber no viewport (máx. 20% de redução)
-  useEffect(() => {
+  // Calcula escala e offset do About
+  useLayoutEffect(() => {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl) return;
 
-    const update = () => {
-      const contentH = aboutEl.offsetHeight;
-      setAboutContentHeight(contentH);
+    const calculate = () => {
+      const contentH = aboutEl.scrollHeight;
+      if (contentH <= 0) return;
 
-      // Espaço disponível: viewport completo se Hero não visível, senão subtrai Hero
+      // Espaço disponível depende se o Hero está visível
       const currentHeroH = showHero ? heroHeight : 0;
-      const available = window.innerHeight - currentHeroH;
+      const available = viewportHeight - currentHeroH;
 
-      if (contentH <= 0 || available <= 0) {
+      if (available <= 0) {
         setAboutScale(1);
+        setVerticalOffset(0);
         return;
       }
 
+      // Calcula escala necessária (mínimo 0.8, máximo 1)
       const rawScale = available / contentH;
-      const clamped = Math.min(1, Math.max(0.8, rawScale));
-      setAboutScale(clamped);
+      const clampedScale = Math.min(1, Math.max(0.8, rawScale));
+      setAboutScale(clampedScale);
+
+      // Calcula altura escalada
+      const scaledH = contentH * clampedScale;
+
+      // Offset para centralizar verticalmente no espaço disponível
+      const offset = Math.max(0, (available - scaledH) / 2);
+      setVerticalOffset(offset);
     };
 
-    update();
+    calculate();
 
-    const ro = new ResizeObserver(() => update());
+    const ro = new ResizeObserver(() => calculate());
     ro.observe(aboutEl);
 
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("resize", update);
-      ro.disconnect();
-    };
-  }, [showHero, showAbout, heroHeight]);
+    return () => ro.disconnect();
+  }, [showHero, showAbout, heroHeight, viewportHeight]);
 
-  const scaledHeight = aboutContentHeight > 0 ? aboutContentHeight * aboutScale : undefined;
-
-  // Calcula posição vertical para centralizar quando Hero não está visível
-  const availableSpace = showHero ? window.innerHeight - heroHeight : window.innerHeight;
-  const verticalOffset = scaledHeight
-    ? Math.max(0, (availableSpace - scaledHeight) / 2)
-    : 0;
+  // Quando Hero aparece, o padding-top deve ser a altura do Hero (About fica logo abaixo)
+  // Quando Hero não aparece, usamos verticalOffset para centralizar
+  const paddingTop = showHero ? heroHeight : verticalOffset;
 
   return (
     <div
@@ -121,8 +128,8 @@ export default function Index() {
 
       {/* About: centralizado antes do Hero; quando o Hero entra, desce para ficar abaixo dele */}
       <div
-        className="h-full w-full flex justify-center transition-all duration-700 ease-out"
-        style={{ paddingTop: showHero ? heroHeight : verticalOffset }}
+        className="absolute inset-0 w-full flex justify-center transition-all duration-700 ease-out"
+        style={{ paddingTop }}
       >
         <div
           className="w-full origin-top transition-transform duration-700 ease-out will-change-transform"
