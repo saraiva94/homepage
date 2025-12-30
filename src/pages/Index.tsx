@@ -175,7 +175,7 @@ export default function Index() {
       
       {/* Hero: altura natural quando visível, 0 quando não */}
       <div
-        className="w-full shrink-0 overflow-hidden transition-all duration-700 ease-out"
+        className="w-full shrink-0 overflow-hidden transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ 
           maxHeight: showHero ? "200px" : "0px",
           opacity: showHero ? 1 : 0,
@@ -186,10 +186,10 @@ export default function Index() {
 
       {/* About: ocupa o restante do viewport, centralizado verticalmente */}
       <div
-        className="flex-1 min-h-0 flex items-center justify-center transition-all duration-700 ease-out overflow-hidden"
+        className="flex-1 min-h-0 flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden"
       >
         <div
-          className="w-full origin-center transition-transform duration-700 ease-out will-change-transform"
+          className="w-full origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
           style={{ transform: `scale(${aboutScale})` }}
         >
           <div ref={aboutContentRef}>
