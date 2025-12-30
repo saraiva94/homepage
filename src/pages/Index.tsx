@@ -5,9 +5,6 @@ import CursorTrail from "@/components/CursorTrail";
 import homepageBg from "@/assets/homepage-bg.png";
 import { preloadAllPortfolios } from "@/utils/preloadPortfolioFrames";
 import { useElementSize } from "@/hooks/useElementSize";
-
-const HERO_MAX_H = 200;
-
 export default function Index() {
   const [videosLoaded, setVideosLoaded] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -48,9 +45,6 @@ export default function Index() {
   // Medidas reais (layout) do conteúdo do About (offset* não muda com transform: scale)
   const { ref: aboutContentRef, size: aboutSize } = useElementSize<HTMLDivElement>(showAbout);
 
-  // Mede o Hero durante a animação para interpolar o preenchimento (pré e pós-navbar)
-  const { ref: heroRef, size: heroSize } = useElementSize<HTMLDivElement>(true);
-
   // Medida da área livre (o espaço real disponível depois do Hero aparecer)
   const { ref: aboutSlotRef, size: slotSize } = useElementSize<HTMLDivElement>(true);
 
@@ -74,12 +68,7 @@ export default function Index() {
 
       // 60% no layout horizontal, 80% no layout vertical
       const isVertical = availableH > availableW;
-      const fillEnd = isVertical ? 0.8 : 0.6;
-
-      // Antes do navbar entrar (Hero ~0px) = 100% do espaço livre;
-      // Conforme o navbar entra, interpolamos até o alvo (60%/80%).
-      const heroProgress = Math.min(1, Math.max(0, heroSize.h / HERO_MAX_H));
-      const fill = 1 + (fillEnd - 1) * heroProgress;
+      const fill = isVertical ? 0.8 : 0.6;
 
       const targetW = availableW * fill;
       const targetH = availableH * fill;
@@ -120,7 +109,7 @@ export default function Index() {
       vv?.removeEventListener("resize", calculate);
       vv?.removeEventListener("scroll", calculate);
     };
-  }, [aboutSize.h, aboutSize.w, slotSize.h, slotSize.w, heroSize.h]);
+  }, [aboutSize.h, aboutSize.w, slotSize.h, slotSize.w]);
 
   return (
     <div
@@ -131,7 +120,6 @@ export default function Index() {
 
       {/* Hero: altura natural quando visível, 0 quando não */}
       <div
-        ref={heroRef}
         className="w-full shrink-0 overflow-hidden transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           maxHeight: showHero ? "200px" : "0px",
@@ -142,10 +130,7 @@ export default function Index() {
       </div>
 
       {/* About: ocupa o restante do viewport, centralizado */}
-      <div
-        ref={aboutSlotRef}
-        className="flex-1 min-h-0 flex items-start justify-center pt-6"
-      >
+      <div ref={aboutSlotRef} className="flex-1 min-h-0 flex items-center justify-center">
         <div
           className="w-full max-w-6xl origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
           style={{ transform: `scale(${aboutScale})` }}
