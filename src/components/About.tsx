@@ -38,11 +38,11 @@ export function About({ isVisible = true }: AboutProps) {
 
   // CSS custom properties for responsive sizing
   const cardStyle = {
-    '--skill-w': 'clamp(100px, 9vw, 160px)',
-    '--skill-h': 'clamp(50px, 4.5vw, 80px)',
-    '--skill-gap': 'clamp(2px, 0.25vw, 6px)',
-    '--icon-size': 'clamp(14px, 1.2vw, 22px)',
-    '--text-size': 'clamp(9px, 0.7vw, 13px)',
+    '--skill-w': 'clamp(80px, 7vw, 140px)',
+    '--skill-h': 'clamp(36px, 3.2vw, 60px)',
+    '--skill-gap': 'clamp(2px, 0.2vw, 5px)',
+    '--icon-size': 'clamp(12px, 1vw, 18px)',
+    '--text-size': 'clamp(8px, 0.6vw, 12px)',
   } as React.CSSProperties;
 
   return (
@@ -132,27 +132,28 @@ export function About({ isVisible = true }: AboutProps) {
           </div>
 
           {/* Base: texto e skills */}
-          <div className="relative z-0 flex-1 min-h-0 text-white overflow-hidden pr-1">
-            <div className="text-white/90 leading-snug mb-[clamp(8px,1vw,20px)] text-center">
-              <span className="block text-[clamp(16px,1.6vw,28px)] font-bold leading-tight md:hidden">
+          <div className="relative z-0 flex-1 min-h-0 text-white overflow-hidden pr-1 flex flex-col">
+            <div className="text-white/90 leading-snug mb-[clamp(4px,0.5vw,12px)] text-center shrink-0">
+              <span className="block text-[clamp(14px,1.4vw,24px)] font-bold leading-tight md:hidden">
                 Análise e<br />
                 desenvolvimento<br />
                 de sistemas (ADS)
               </span>
-              <span className="hidden md:block text-[clamp(16px,1.6vw,28px)] font-bold">
+              <span className="hidden md:block text-[clamp(14px,1.4vw,24px)] font-bold">
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
-              <span className="block text-[clamp(12px,1vw,18px)]">Faculdade Unigranrio</span>
+              <span className="block text-[clamp(10px,0.85vw,16px)]">Faculdade Unigranrio</span>
             </div>
 
-            <div className="flex gap-[clamp(8px,1vw,20px)]">
+            <div className="flex gap-[clamp(6px,0.8vw,16px)] flex-1 min-h-0 overflow-hidden">
               {/* Hard Skills - 2/3 do espaço */}
-              <section className="flex-[2]">
-                <h3 className="text-[clamp(14px,1.3vw,24px)] font-bold mb-[clamp(4px,0.5vw,12px)] text-sky-400">Hard skills</h3>
+              <section className="flex-[2] flex flex-col min-h-0">
+                <h3 className="text-[clamp(12px,1.1vw,20px)] font-bold mb-[clamp(2px,0.3vw,8px)] text-sky-400 shrink-0">Hard skills</h3>
                 <div 
-                  className="grid grid-flow-col grid-rows-3 content-start"
+                  className="grid grid-flow-col content-start flex-1 min-h-0"
                   style={{ 
                     gridAutoColumns: 'var(--skill-w)',
+                    gridTemplateRows: 'repeat(auto-fill, var(--skill-h))',
                     gap: 'var(--skill-gap)'
                   }}
                 >
@@ -186,12 +187,13 @@ export function About({ isVisible = true }: AboutProps) {
               </section>
 
               {/* Soft Skills - 1/3 do espaço */}
-              <section className="flex-1">
-                <h3 className="text-[clamp(14px,1.3vw,24px)] font-bold mb-[clamp(4px,0.5vw,12px)] text-sky-400">Soft skills</h3>
+              <section className="flex-1 flex flex-col min-h-0">
+                <h3 className="text-[clamp(12px,1.1vw,20px)] font-bold mb-[clamp(2px,0.3vw,8px)] text-sky-400 shrink-0">Soft skills</h3>
                 <div 
-                  className="grid grid-flow-col grid-rows-3 content-start"
+                  className="grid grid-flow-col content-start flex-1 min-h-0"
                   style={{ 
                     gridAutoColumns: 'var(--skill-w)',
+                    gridTemplateRows: 'repeat(auto-fill, var(--skill-h))',
                     gap: 'var(--skill-gap)'
                   }}
                 >
