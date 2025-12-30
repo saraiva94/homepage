@@ -15,9 +15,8 @@ export default function Index() {
   const [aboutScale, setAboutScale] = useState<number>(1);
   const [heroHeight, setHeroHeight] = useState<number>(0);
 
-  // Armazena as dimensões originais do About (antes de qualquer escala)
-  const originalAboutHeight = useRef<number>(0);
-  const originalAboutWidth = useRef<number>(0);
+  // Dimensões reais do About (layout size; offsetWidth/offsetHeight não são afetados por transform)
+  const [aboutSize, setAboutSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -80,27 +79,33 @@ export default function Index() {
     };
   }, [showHero]);
 
-  // Mede as dimensões originais do About UMA VEZ (antes de aplicar escala)
+  // Mede as dimensões reais do About e mantém atualizado (sem depender de refs)
   useLayoutEffect(() => {
     const aboutEl = aboutContentRef.current;
     if (!aboutEl || !showAbout) return;
 
-    const timer = setTimeout(() => {
-      const rect = aboutEl.getBoundingClientRect();
-      if (rect.height > 0 && originalAboutHeight.current === 0) {
-        originalAboutHeight.current = rect.height;
-      }
-      if (rect.width > 0 && originalAboutWidth.current === 0) {
-        originalAboutWidth.current = rect.width;
-      }
-    }, 150);
+    const measure = () => {
+      // offset* = tamanho de layout, não muda com transform: scale()
+      const w = aboutEl.offsetWidth;
+      const h = aboutEl.offsetHeight;
+      if (w > 0 && h > 0) setAboutSize({ w, h });
+    };
 
-    return () => clearTimeout(timer);
+    measure();
+
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(aboutEl);
+
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
+    };
   }, [showAbout]);
 
-  // Calcula escala do About para caber no viewport sem scroll
+  // Calcula escala do About para caber no viewport sem overflow (sem alterar o layout interno)
   useLayoutEffect(() => {
-    if (originalAboutHeight.current <= 0 || originalAboutWidth.current <= 0) return;
+    if (aboutSize.w <= 0 || aboutSize.h <= 0) return;
 
     const getRootTop = () => {
       const el = rootRef.current;
@@ -115,14 +120,15 @@ export default function Index() {
     };
 
     const calculate = () => {
-      const contentH = originalAboutHeight.current;
-      const contentW = originalAboutWidth.current;
+      const contentH = aboutSize.h;
+      const contentW = aboutSize.w;
 
       const rootTop = getRootTop();
+      // espaço restante considerando o navbar (hero)
       const availableH = window.innerHeight - rootTop - heroHeight;
       const availableW = Math.max(0, getRootWidth() - 32);
 
-      if (availableH <= 0 || availableW <= 0 || contentH <= 0 || contentW <= 0) {
+      if (availableH <= 0 || availableW <= 0) {
         setAboutScale(1);
         return;
       }
@@ -130,9 +136,9 @@ export default function Index() {
       const heightScale = availableH / contentH;
       const widthScale = availableW / contentW;
 
-      // Mantém o layout “card horizontal” evitando comprimir demais (efeito “bastão”).
       const rawScale = Math.min(heightScale, widthScale);
-      const clampedScale = Math.min(1, Math.max(0.88, rawScale));
+      // Evita comprimir ao ponto de mudar percepção/”quebrar” o card
+      const clampedScale = Math.min(1, Math.max(0.85, rawScale));
       setAboutScale(clampedScale);
     };
 
@@ -143,20 +149,18 @@ export default function Index() {
     let rafId = 0;
     const tick = () => {
       calculate();
-      if (performance.now() - start < 2000) {
+      if (performance.now() - start < 1500) {
         rafId = requestAnimationFrame(tick);
       }
     };
     rafId = requestAnimationFrame(tick);
 
-    // Recalcula após mudanças
-    const timers = [setTimeout(calculate, 200), setTimeout(calculate, 700), setTimeout(calculate, 1200)];
+    const timers = [setTimeout(calculate, 200), setTimeout(calculate, 700), setTimeout(calculate, 1100)];
 
     const vv = window.visualViewport;
     vv?.addEventListener("resize", calculate);
     vv?.addEventListener("scroll", calculate);
     window.addEventListener("resize", calculate);
-    window.addEventListener("scroll", calculate, { passive: true });
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -164,9 +168,8 @@ export default function Index() {
       vv?.removeEventListener("resize", calculate);
       vv?.removeEventListener("scroll", calculate);
       window.removeEventListener("resize", calculate);
-      window.removeEventListener("scroll", calculate);
     };
-  }, [heroHeight, showAbout]);
+  }, [aboutSize.h, aboutSize.w, heroHeight]);
 
   return (
     <div
