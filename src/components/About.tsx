@@ -13,8 +13,6 @@ import {
   Cloud,
   Database,
   Binary,
-  GitBranch,
-  FileSpreadsheet,
   MessagesSquare,
   ListChecks,
   Users,
@@ -138,11 +136,11 @@ export function About({ isVisible = true }: AboutProps) {
               <span className="block text-base">Faculdade Unigranrio</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex gap-4">
               {/* Hard Skills - 2/3 do espaço */}
-              <section className="md:col-span-2">
-                <h3 className="text-xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <div className="grid grid-cols-4 md:grid-cols-4 gap-0">
+              <section className="flex-[2]">
+                <h3 className="text-xl font-bold mb-2 text-sky-400">Hard skills</h3>
+                <div className="grid grid-cols-4 gap-1">
                   {[
                     { icon: Film, color: "text-purple-400", label: "After Effects" },
                     { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
@@ -156,38 +154,36 @@ export function About({ isVisible = true }: AboutProps) {
                     { icon: Cloud, color: "text-blue-400", label: "Azure" },
                     { icon: Database, color: "text-blue-300", label: "MySQL" },
                     { icon: Database, color: "text-blue-300", label: "SQLite" },
-                    { icon: Binary, color: "text-yellow-300", label: "Python" },
-                    { icon: GitBranch, color: "text-orange-500", label: "Git & GitHub" },
-                    { icon: FileSpreadsheet, color: "text-green-500", label: "Excel" },
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="w-[72px] h-[72px] flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                     >
-                      <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
-                      <span className="text-[10px] text-center leading-tight">{skill.label}</span>
+                      <skill.icon className={`w-5 h-5 ${skill.color} shrink-0`} />
+                      <span className="text-[9px] text-center leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
               </section>
 
               {/* Soft Skills - 1/3 do espaço */}
-              <section className="md:col-span-1">
-                <h3 className="text-xl font-bold mb-3 text-sky-400">Soft skills</h3>
-                <div className="grid grid-cols-2 gap-0">
+              <section className="flex-1">
+                <h3 className="text-xl font-bold mb-2 text-sky-400">Soft skills</h3>
+                <div className="grid grid-cols-2 gap-1">
                   {[
                     { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
                     { icon: ListChecks, color: "text-green-400", label: "Organização" },
                     { icon: Users, color: "text-purple-400", label: "Trabalho em equipe" },
                     { icon: Zap, color: "text-yellow-400", label: "Proatividade" },
                     { icon: Lightbulb, color: "text-orange-400", label: "Criatividade" },
+                    { icon: Binary, color: "text-cyan-400", label: "Adaptabilidade" },
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="w-[72px] h-[72px] flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                     >
-                      <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
-                      <span className="text-[10px] text-center leading-tight">{skill.label}</span>
+                      <skill.icon className={`w-5 h-5 ${skill.color} shrink-0`} />
+                      <span className="text-[9px] text-center leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
