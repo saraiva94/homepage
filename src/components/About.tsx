@@ -71,7 +71,7 @@ export function About({ isVisible = true }: AboutProps) {
             <div
               className="absolute right-[clamp(0.5rem,2vw,1rem)] bottom-[clamp(0.5rem,2vw,1rem)] z-20 flex flex-col items-center pointer-events-auto"
               style={{
-                ['--avatar' as any]: 'clamp(96px, 10vw, 160px)',
+                ['--avatar' as any]: 'clamp(120px, 12.5vw, 200px)',
               }}
             >
               <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 border-white/40 overflow-hidden rounded-lg shadow-lg">
