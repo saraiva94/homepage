@@ -45,7 +45,7 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mede o Hero quando ele aparece
+  // Mede o Hero quando ele aparece (com delay para aguardar transição)
   useLayoutEffect(() => {
     const measure = () => {
       if (showHero) {
@@ -56,14 +56,18 @@ export default function Index() {
       }
     };
 
-    measure();
+    // Delay inicial para garantir que a transição CSS (700ms) complete
+    const initialDelay = showHero ? 800 : 100;
+    const timer1 = setTimeout(measure, initialDelay);
+    
+    // Segunda medição de segurança após transição completa
+    const timer2 = setTimeout(measure, 1000);
 
-    // Também mede após a transição terminar
-    const timer = setTimeout(measure, 750);
     window.addEventListener("resize", measure);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       window.removeEventListener("resize", measure);
     };
   }, [showHero]);
