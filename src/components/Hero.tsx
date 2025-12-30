@@ -63,7 +63,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   return (
     <section 
       data-hero
-      className={`relative isolate w-full overflow-hidden bg-black text-white transition-all duration-700 ease-out ${
+      className={`relative isolate w-full overflow-hidden bg-black text-white transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 -translate-y-full"
