@@ -130,8 +130,9 @@ export default function Index() {
       const heightScale = availableH / contentH;
       const widthScale = availableW / contentW;
 
+      // Mantém o layout “card horizontal” evitando comprimir demais (efeito “bastão”).
       const rawScale = Math.min(heightScale, widthScale);
-      const clampedScale = Math.min(1, Math.max(0.65, rawScale));
+      const clampedScale = Math.min(1, Math.max(0.88, rawScale));
       setAboutScale(clampedScale);
     };
 
@@ -174,11 +175,11 @@ export default function Index() {
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
-      
+
       {/* Hero: altura natural quando visível, 0 quando não */}
       <div
         className="w-full shrink-0 overflow-hidden transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-        style={{ 
+        style={{
           maxHeight: showHero ? "200px" : "0px",
           opacity: showHero ? 1 : 0,
         }}
@@ -186,32 +187,14 @@ export default function Index() {
         <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
       </div>
 
-      {/* About: ocupa o restante do viewport, centralizado verticalmente */}
+      {/* About: ocupa o restante do viewport, centralizado, sem colapsar layout */}
       <div className="flex-1 min-h-0 flex items-center justify-center">
-        {/*
-          IMPORTANTE: transform: scale() não altera o layout box.
-          Para não “distorcer” o posicionamento interno (avatar, botões, listas) nem clipar,
-          criamos um "stage" com width/height já escaladas, e o conteúdo fica absoluto
-          com a escala aplicada.
-        */}
         <div
-          className="relative transition-[width,height] duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-          style={{
-            width: originalAboutWidth.current ? `${originalAboutWidth.current * aboutScale}px` : "auto",
-            height: originalAboutHeight.current ? `${originalAboutHeight.current * aboutScale}px` : "auto",
-          }}
+          className="inline-block origin-center transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
+          style={{ transform: `scale(${aboutScale})` }}
         >
-          <div
-            className="absolute inset-0 origin-top-left transition-transform duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform"
-            style={{
-              width: originalAboutWidth.current ? `${originalAboutWidth.current}px` : "auto",
-              height: originalAboutHeight.current ? `${originalAboutHeight.current}px` : "auto",
-              transform: `scale(${aboutScale})`,
-            }}
-          >
-            <div ref={aboutContentRef}>
-              <About isVisible={showAbout} />
-            </div>
+          <div ref={aboutContentRef}>
+            <About isVisible={showAbout} />
           </div>
         </div>
       </div>
