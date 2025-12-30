@@ -162,7 +162,7 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-md border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                      className="w-[72px] h-[72px] flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                     >
                       <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
                       <span className="text-[10px] text-center leading-tight">{skill.label}</span>
@@ -184,7 +184,7 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-md border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                      className="w-[72px] h-[72px] flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                     >
                       <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
                       <span className="text-[10px] text-center leading-tight">{skill.label}</span>
