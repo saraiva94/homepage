@@ -25,6 +25,7 @@ import {
   SiPython,
   SiGit,
   SiGithub,
+  SiSupabase,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
 import { FileSpreadsheet } from "lucide-react";
@@ -176,19 +177,25 @@ export function About({ isVisible = true }: AboutProps) {
                   }}
                 >
                   {[
+                    // Edição de vídeo
                     { icon: SiAdobeaftereffects, color: "#9999FF", label: "After Effects" },
                     { icon: SiAdobepremierepro, color: "#9999FF", label: "Premiere Pro" },
+                    // Frontend
                     { icon: SiHtml5, color: "#E34F26", label: "HTML5 & CSS3" },
                     { icon: SiJavascript, color: "#F7DF1E", label: "JavaScript" },
                     { icon: SiTypescript, color: "#3178C6", label: "TypeScript" },
                     { icon: SiReact, color: "#61DAFB", label: "React" },
                     { icon: SiReact, color: "#61DAFB", label: "React Native" },
                     { icon: SiNextdotjs, color: "#FFFFFF", label: "Next.js" },
+                    // Backend & Cloud
                     { icon: SiNodedotjs, color: "#339933", label: "Node.js" },
+                    { icon: SiPython, color: "#3776AB", label: "Python" },
                     { icon: VscAzure, color: "#0078D4", label: "Azure" },
+                    // Banco de dados
                     { icon: SiMysql, color: "#4479A1", label: "MySQL" },
                     { icon: SiSqlite, color: "#003B57", label: "SQLite" },
-                    { icon: SiPython, color: "#3776AB", label: "Python" },
+                    { icon: SiSupabase, color: "#3ECF8E", label: "Supabase" },
+                    // Ferramentas
                     { icon: SiGit, color: "#F05032", label: "Git" },
                     { icon: SiGithub, color: "#FFFFFF", label: "GitHub" },
                     { icon: FileSpreadsheet, color: "#217346", label: "Excel" },
