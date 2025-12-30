@@ -138,67 +138,99 @@ export function About({ isVisible = true }: AboutProps) {
               <span className="block text-base">Faculdade Unigranrio</span>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2">
-              <section>
-                <h3 className="text-2xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <ul className="space-y-1">
-                  <li className="flex items-center gap-2">
-                    <Film className="w-4 h-4 text-purple-400" /> After effects
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Film className="w-4 h-4 text-purple-400" /> Premiere pro
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Code className="w-4 h-4 text-orange-400" /> HTML5 e CSS3 (Tailwind)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <FileCode className="w-4 h-4 text-yellow-400" /> JavaScript | TypeScript
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Atom className="w-4 h-4 text-cyan-400" /> React | React Native | Next.js
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-green-400" /> Node.js (APIs, SSR)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Cloud className="w-4 h-4 text-blue-400" /> Cloud Computing: Microsoft Azure
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Database className="w-4 h-4 text-blue-300" /> SQL: MySQL | SQLite
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Binary className="w-4 h-4 text-yellow-300" /> Python (análise de dados,
-                    integração de IA)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <GitBranch className="w-4 h-4 text-orange-500" /> Versionamento: Git, GitHub,
-                    Git Bash
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4 text-green-500" /> Excel
-                  </li>
-                </ul>
+            <div className="grid grid-cols-3 gap-4">
+              {/* Hard Skills - 2/3 do espaço */}
+              <section className="col-span-2">
+                <h3 className="text-xl font-bold mb-3 text-sky-400">Hard skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Film className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="text-sm">After Effects</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Film className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="text-sm">Premiere Pro</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Code className="w-4 h-4 text-orange-400 shrink-0" />
+                    <span className="text-sm">HTML5 & CSS3</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <FileCode className="w-4 h-4 text-yellow-400 shrink-0" />
+                    <span className="text-sm">JavaScript</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <FileCode className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-sm">TypeScript</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="text-sm">React</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="text-sm">React Native</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Atom className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="text-sm">Next.js</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Server className="w-4 h-4 text-green-400 shrink-0" />
+                    <span className="text-sm">Node.js</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Cloud className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-sm">Azure</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Database className="w-4 h-4 text-blue-300 shrink-0" />
+                    <span className="text-sm">MySQL</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Database className="w-4 h-4 text-blue-300 shrink-0" />
+                    <span className="text-sm">SQLite</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Binary className="w-4 h-4 text-yellow-300 shrink-0" />
+                    <span className="text-sm">Python</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <GitBranch className="w-4 h-4 text-orange-500 shrink-0" />
+                    <span className="text-sm">Git & GitHub</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <FileSpreadsheet className="w-4 h-4 text-green-500 shrink-0" />
+                    <span className="text-sm">Excel</span>
+                  </div>
+                </div>
               </section>
 
-              <section className="flex flex-col md:items-center">
-                <h3 className="text-2xl font-bold mb-3 text-sky-400 md:text-center">Soft skills</h3>
-                <ul className="space-y-1">
-                  <li className="flex items-center gap-2">
-                    <MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-purple-400" /> Trabalho em equipe
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-400" /> Proatividade
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-orange-400" /> Visão criativa
-                  </li>
-                </ul>
+              {/* Soft Skills - 1/3 do espaço */}
+              <section className="col-span-1">
+                <h3 className="text-xl font-bold mb-3 text-sky-400">Soft skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <MessagesSquare className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-sm">Comunicação</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <ListChecks className="w-4 h-4 text-green-400 shrink-0" />
+                    <span className="text-sm">Organização</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Users className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="text-sm">Trabalho em equipe</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Zap className="w-4 h-4 text-yellow-400 shrink-0" />
+                    <span className="text-sm">Proatividade</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/20">
+                    <Lightbulb className="w-4 h-4 text-orange-400 shrink-0" />
+                    <span className="text-sm">Criatividade</span>
+                  </div>
+                </div>
               </section>
             </div>
           </div>
