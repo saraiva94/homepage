@@ -14,6 +14,7 @@ import {
 import {
   SiAdobeaftereffects,
   SiAdobepremierepro,
+  SiAdobecreativecloud,
   SiHtml5,
   SiJavascript,
   SiTypescript,
@@ -177,7 +178,8 @@ export function About({ isVisible = true }: AboutProps) {
                   }}
                 >
                   {[
-                    // Edição de vídeo
+                    // Edição de vídeo / Design
+                    { icon: SiAdobecreativecloud, color: "#DA1F26", label: "Creative Cloud" },
                     { icon: SiAdobeaftereffects, color: "#9999FF", label: "After Effects" },
                     { icon: SiAdobepremierepro, color: "#9999FF", label: "Premiere Pro" },
                     // Frontend
