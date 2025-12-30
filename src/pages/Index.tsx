@@ -10,10 +10,12 @@ export default function Index() {
   const [showAbout, setShowAbout] = useState(false);
   const [showHero, setShowHero] = useState(false);
 
-  const aboutWrapperRef = useRef<HTMLDivElement | null>(null);
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
   const [aboutScale, setAboutScale] = useState<number>(1);
   const [heroHeight, setHeroHeight] = useState<number>(0);
+  
+  // Armazena a altura original do About (antes de qualquer escala)
+  const originalAboutHeight = useRef<number>(0);
 
   const handleVideosLoaded = useCallback(() => {
     setVideosLoaded(true);
@@ -45,86 +47,123 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mede o Hero quando ele aparece (com delay para aguardar transição)
+  // Mede o Hero continuamente
   useLayoutEffect(() => {
     const measure = () => {
       if (showHero) {
         const heroEl = document.querySelector<HTMLElement>("[data-hero]");
-        setHeroHeight(heroEl?.offsetHeight ?? 0);
+        if (heroEl) {
+          setHeroHeight(heroEl.offsetHeight);
+        }
       } else {
         setHeroHeight(0);
       }
     };
 
-    // Delay inicial para garantir que a transição CSS (700ms) complete
-    const initialDelay = showHero ? 800 : 100;
-    const timer1 = setTimeout(measure, initialDelay);
-    
-    // Segunda medição de segurança após transição completa
-    const timer2 = setTimeout(measure, 1000);
+    // Mede imediatamente
+    measure();
+
+    // Mede novamente após transições
+    const timers = [
+      setTimeout(measure, 100),
+      setTimeout(measure, 400),
+      setTimeout(measure, 800),
+    ];
 
     window.addEventListener("resize", measure);
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
+      timers.forEach(clearTimeout);
       window.removeEventListener("resize", measure);
     };
   }, [showHero]);
 
-  // Calcula escala do About para caber no viewport sem scroll
+  // Mede a altura original do About UMA VEZ (antes de aplicar escala)
   useLayoutEffect(() => {
     const aboutEl = aboutContentRef.current;
-    if (!aboutEl) return;
+    if (!aboutEl || !showAbout) return;
+
+    // Mede após o About estar visível
+    const measureOriginal = () => {
+      // Temporariamente remove a escala para medir o tamanho real
+      const currentTransform = aboutEl.parentElement?.style.transform;
+      if (aboutEl.parentElement) {
+        aboutEl.parentElement.style.transform = "scale(1)";
+      }
+      
+      // Força reflow e mede
+      const height = aboutEl.getBoundingClientRect().height;
+      if (height > 0 && originalAboutHeight.current === 0) {
+        originalAboutHeight.current = height;
+      }
+      
+      // Restaura a escala
+      if (aboutEl.parentElement && currentTransform) {
+        aboutEl.parentElement.style.transform = currentTransform;
+      }
+    };
+
+    const timer = setTimeout(measureOriginal, 150);
+    return () => clearTimeout(timer);
+  }, [showAbout]);
+
+  // Calcula escala do About para caber no viewport sem scroll
+  useLayoutEffect(() => {
+    if (originalAboutHeight.current <= 0) return;
 
     const calculate = () => {
-      const contentH = aboutEl.scrollHeight;
-      if (contentH <= 0) return;
-
-      // Espaço disponível = viewport - altura do hero (se visível)
+      const contentH = originalAboutHeight.current;
       const available = window.innerHeight - heroHeight;
-      if (available <= 0) {
+
+      if (available <= 0 || contentH <= 0) {
         setAboutScale(1);
         return;
       }
 
-      // Escala necessária, limitada entre 0.8 e 1
+      // Escala necessária, limitada entre 0.75 e 1
       const rawScale = available / contentH;
-      setAboutScale(Math.min(1, Math.max(0.8, rawScale)));
+      const clampedScale = Math.min(1, Math.max(0.75, rawScale));
+      setAboutScale(clampedScale);
     };
 
     calculate();
 
-    const ro = new ResizeObserver(calculate);
-    ro.observe(aboutEl);
+    // Recalcula após mudanças
+    const timers = [
+      setTimeout(calculate, 100),
+      setTimeout(calculate, 500),
+      setTimeout(calculate, 900),
+    ];
+
     window.addEventListener("resize", calculate);
 
     return () => {
-      ro.disconnect();
+      timers.forEach(clearTimeout);
       window.removeEventListener("resize", calculate);
     };
   }, [heroHeight, showAbout]);
 
   return (
     <div
-      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed"
+      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
       <CursorTrail />
       
-      {/* Hero: quando não visível, fica fora do fluxo (height 0) */}
+      {/* Hero: altura natural quando visível, 0 quando não */}
       <div
-        className="w-full overflow-hidden transition-all duration-700 ease-out"
-        style={{ height: showHero ? heroHeight || "auto" : 0 }}
+        className="w-full shrink-0 overflow-hidden transition-all duration-700 ease-out"
+        style={{ 
+          maxHeight: showHero ? "200px" : "0px",
+          opacity: showHero ? 1 : 0,
+        }}
       >
         <Hero onVideosLoaded={handleVideosLoaded} isVisible={showHero} />
       </div>
 
       {/* About: ocupa o restante do viewport, centralizado verticalmente */}
       <div
-        ref={aboutWrapperRef}
-        className="flex items-center justify-center transition-all duration-700 ease-out"
-        style={{ height: `calc(100vh - ${heroHeight}px)` }}
+        className="flex-1 min-h-0 flex items-center justify-center transition-all duration-700 ease-out overflow-hidden"
       >
         <div
           className="w-full origin-center transition-transform duration-700 ease-out will-change-transform"
