@@ -33,186 +33,170 @@ interface AboutProps {
 
 export function About({ isVisible = true }: AboutProps) {
   const btnBase =
-    "mt-2 w-[var(--avatar)] inline-flex items-center justify-center gap-2 " +
-    "px-4 py-2 rounded-md font-semibold text-white shadow-sm " +
+    "mt-1 w-full inline-flex items-center justify-center gap-1.5 " +
+    "px-2 py-1.5 rounded-md font-medium text-white text-xs shadow-sm " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
     "transition-colors duration-300 ease-in-out " +
-    "motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out " +
-    "hover:-translate-y-0.5 hover:shadow-md";
+    "hover:shadow-md";
 
   return (
     <section
-      className={`py-6 bg-transparent transition-opacity duration-1000 ease-out ${
+      className={`w-full h-full bg-transparent transition-opacity duration-1000 ease-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="container mx-auto px-4">
-        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] pb-[calc(var(--avatar)+1rem)] overflow-hidden">
-          {/* overlay glass */}
-          <div
-            aria-hidden
-            className="absolute inset-0 z-0 rounded-3xl
-                       bg-black/20 backdrop-blur-sm backdrop-saturate-150
-                       border border-gray-400/50 ring-1 ring-gray-300/30
-                       shadow-[0_8px_30px_rgba(150,150,150,0.15)]
-                       pointer-events-none"
-          />
+      <div className="w-full h-full relative rounded-2xl overflow-hidden">
+        {/* overlay glass */}
+        <div
+          aria-hidden
+          className="absolute inset-0 z-0 rounded-2xl
+                     bg-black/25 backdrop-blur-sm backdrop-saturate-150
+                     border border-gray-400/50 ring-1 ring-gray-300/30
+                     shadow-[0_8px_30px_rgba(150,150,150,0.15)]
+                     pointer-events-none"
+        />
 
-          {/* bloco imagem de fundo */}
-          <div className="relative z-[1]">
-            <div className="relative w-full h-[400px] rounded-3xl overflow-hidden">
-              <img
-                src={about2Img}
-                alt="background"
-                className="absolute inset-0 w-full h-full object-cover object-[50%_68%] origin-[50%_68%]
-                           transition-transform duration-500 will-change-transform hover:scale-[1.08]"
-              />
-            </div>
+        {/* Conteúdo principal: layout horizontal */}
+        <div className="relative z-[1] h-full flex flex-row p-3 gap-3">
+          {/* Coluna esquerda: imagem de fundo com avatar/botões */}
+          <div className="relative w-[40%] h-full rounded-xl overflow-hidden flex-shrink-0">
+            <img
+              src={about2Img}
+              alt="background"
+              className="absolute inset-0 w-full h-full object-cover object-[50%_68%]
+                         transition-transform duration-500 will-change-transform hover:scale-[1.05]"
+            />
 
-            {/* avatar + botões */}
-            <div
-              className="
-                absolute
-                right-[clamp(0.5rem,2vw,1rem)]
-                bottom-4
-                z-20 flex flex-col items-center pointer-events-auto
-              "
-            >
+            {/* avatar + botões no canto inferior direito da imagem */}
+            <div className="absolute right-2 bottom-2 z-20 flex flex-col items-center pointer-events-auto">
               {/* avatar */}
-              <div className="relative w-[var(--avatar)] h-[var(--avatar)] border-4 overflow-hidden rounded-lg">
+              <div className="w-16 h-16 md:w-20 md:h-20 border-2 border-white/50 overflow-hidden rounded-lg shadow-lg">
                 <img src={about1Img} alt="eu" className="w-full h-full object-cover" />
               </div>
 
               {/* Portfólio Editor */}
               <Link
                 to="/portfolio/edits"
-                className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
+                className={`${btnBase} bg-blue-600 hover:bg-blue-700`}
               >
-                <Clapperboard className="w-4 h-4" />
-                Portfólio Editor
+                <Clapperboard className="w-3 h-3" />
+                Editor
               </Link>
 
               {/* Portfólio Desenvolvedor */}
               <Link
                 to="/portfolio/dev"
-                className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
+                className={`${btnBase} bg-purple-600 hover:bg-purple-700`}
               >
-                <Code2 className="w-4 h-4" />
-                Portfólio Dev
+                <Code2 className="w-3 h-3" />
+                Dev
               </Link>
 
-              {/* WhatsApp (verde) */}
+              {/* WhatsApp */}
               <a
                 href="https://wa.me/5521969381944"
-                className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
+                className={`${btnBase} bg-green-500 hover:bg-green-600`}
               >
-                <MessageCircle className="w-4 h-4" />
-                Whatsapp
+                <MessageCircle className="w-3 h-3" />
+                WhatsApp
               </a>
 
-              {/* Currículo (vermelho) */}
+              {/* Currículo */}
               <a
                 href="/Curriculo_Swamiy_Saraiva.pdf"
                 download="Curriculo_Swamiy_Saraiva.pdf"
-                className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
+                className={`${btnBase} bg-red-500 hover:bg-red-600`}
               >
-                <FileText className="w-4 h-4" />
-                Currículo
+                <FileText className="w-3 h-3" />
+                CV
               </a>
 
-              {/* GitHub (preto) */}
+              {/* GitHub */}
               <a
                 href="https://github.com/Saraiva94"
-                className={`${btnBase} bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
+                className={`${btnBase} bg-gray-800 hover:bg-gray-900`}
               >
-                <Github className="w-4 h-4 text-white" />
-                <span className="text-white">Github</span>
+                <Github className="w-3 h-3" />
+                GitHub
               </a>
             </div>
           </div>
 
-          {/* TEXTO */}
-          <div className="relative z-0 mt-8 text-white">
-            <div className="text-white/90 leading-snug mb-6 text-center">
-              <span className="block text-2xl font-bold leading-tight md:hidden">
-                Análise e<br />
-                desenvolvimento<br />
-                de sistemas (ADS)
+          {/* Coluna direita: texto e skills */}
+          <div className="flex-1 min-w-0 flex flex-col text-white overflow-y-auto pr-1">
+            {/* Título */}
+            <div className="text-white/90 leading-snug mb-3 text-center">
+              <span className="block text-lg md:text-xl font-bold">
+                Análise e Desenvolvimento de Sistemas
               </span>
-              <span className="hidden md:block text-2xl font-bold">
-                Análise e Desenvolvimento de Sistemas (ADS)
-              </span>
-              <span className="block text-base">Faculdade Unigranrio</span>
+              <span className="block text-sm text-white/70">Faculdade Unigranrio</span>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2">
+            {/* Grid de skills */}
+            <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
               {/* Hard skills */}
-              <section>
-                <h3 className="text-2xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <ul className="space-y-1">
-                  <li className="flex items-center gap-2">
-                    <Film className="w-4 h-4 text-purple-400" /> After effects
+              <section className="overflow-y-auto">
+                <h3 className="text-base font-bold mb-2 text-sky-400">Hard skills</h3>
+                <ul className="space-y-0.5 text-xs">
+                  <li className="flex items-center gap-1.5">
+                    <Film className="w-3 h-3 text-purple-400 flex-shrink-0" /> After Effects
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Film className="w-4 h-4 text-purple-400" /> Premiere pro
+                  <li className="flex items-center gap-1.5">
+                    <Film className="w-3 h-3 text-purple-400 flex-shrink-0" /> Premiere Pro
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Code className="w-4 h-4 text-orange-400" /> HTML5 e CSS3 (Tailwind)
+                  <li className="flex items-center gap-1.5">
+                    <Code className="w-3 h-3 text-orange-400 flex-shrink-0" /> HTML5 / CSS3
                   </li>
-                  <li className="flex items-center gap-2">
-                    <FileCode className="w-4 h-4 text-yellow-400" /> JavaScript | TypeScript
+                  <li className="flex items-center gap-1.5">
+                    <FileCode className="w-3 h-3 text-yellow-400 flex-shrink-0" /> JS / TS
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Atom className="w-4 h-4 text-cyan-400" /> React | React Native | Next.js
+                  <li className="flex items-center gap-1.5">
+                    <Atom className="w-3 h-3 text-cyan-400 flex-shrink-0" /> React / Next.js
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-green-400" /> Node.js (APIs, SSR)
+                  <li className="flex items-center gap-1.5">
+                    <Server className="w-3 h-3 text-green-400 flex-shrink-0" /> Node.js
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Cloud className="w-4 h-4 text-blue-400" /> Cloud Computing: Microsoft Azure
+                  <li className="flex items-center gap-1.5">
+                    <Cloud className="w-3 h-3 text-blue-400 flex-shrink-0" /> Azure
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Database className="w-4 h-4 text-blue-300" /> SQL: MySQL | SQLite
+                  <li className="flex items-center gap-1.5">
+                    <Database className="w-3 h-3 text-blue-300 flex-shrink-0" /> SQL
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Binary className="w-4 h-4 text-yellow-300" /> Python (análise de dados,
-                    integração de IA)
+                  <li className="flex items-center gap-1.5">
+                    <Binary className="w-3 h-3 text-yellow-300 flex-shrink-0" /> Python
                   </li>
-                  <li className="flex items-center gap-2">
-                    <GitBranch className="w-4 h-4 text-orange-500" /> Versionamento: Git, GitHub,
-                    Git Bash
+                  <li className="flex items-center gap-1.5">
+                    <GitBranch className="w-3 h-3 text-orange-500 flex-shrink-0" /> Git
                   </li>
-                  <li className="flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4 text-green-500" /> Excel
+                  <li className="flex items-center gap-1.5">
+                    <FileSpreadsheet className="w-3 h-3 text-green-500 flex-shrink-0" /> Excel
                   </li>
                 </ul>
               </section>
 
               {/* Soft skills */}
-              <section className="flex flex-col md:items-center">
-                <h3 className="text-2xl font-bold mb-3 text-sky-400 md:text-center">Soft skills</h3>
-                <ul className="space-y-1">
-                  <li className="flex items-center gap-2">
-                    <MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação
+              <section className="overflow-y-auto">
+                <h3 className="text-base font-bold mb-2 text-sky-400">Soft skills</h3>
+                <ul className="space-y-0.5 text-xs">
+                  <li className="flex items-center gap-1.5">
+                    <MessagesSquare className="w-3 h-3 text-blue-400 flex-shrink-0" /> Comunicação
                   </li>
-                  <li className="flex items-center gap-2">
-                    <ListChecks className="w-4 h-4 text-green-400" /> Organização exemplar
+                  <li className="flex items-center gap-1.5">
+                    <ListChecks className="w-3 h-3 text-green-400 flex-shrink-0" /> Organização
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-purple-400" /> Trabalho em equipe
+                  <li className="flex items-center gap-1.5">
+                    <Users className="w-3 h-3 text-purple-400 flex-shrink-0" /> Trabalho em equipe
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-400" /> Proatividade
+                  <li className="flex items-center gap-1.5">
+                    <Zap className="w-3 h-3 text-yellow-400 flex-shrink-0" /> Proatividade
                   </li>
-                  <li className="flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-orange-400" /> Visão criativa
+                  <li className="flex items-center gap-1.5">
+                    <Lightbulb className="w-3 h-3 text-orange-400 flex-shrink-0" /> Visão criativa
                   </li>
                 </ul>
               </section>
             </div>
           </div>
-
-          <div className="clear-both" />
         </div>
       </div>
     </section>
