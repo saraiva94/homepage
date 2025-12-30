@@ -38,17 +38,17 @@ export function About({ isVisible = true }: AboutProps) {
 
   // CSS custom properties for responsive sizing - scales with viewport
   const cardStyle = {
-    '--skill-w': 'clamp(72px, 6.5vw, 130px)',
-    '--skill-h': 'clamp(32px, 2.8vw, 55px)',
-    '--skill-gap': 'clamp(2px, 0.2vw, 4px)',
-    '--icon-size': 'clamp(10px, 0.9vw, 16px)',
-    '--text-size': 'clamp(7px, 0.55vw, 11px)',
-    '--padding': 'clamp(6px, 0.8vw, 16px)',
-    '--title-size': 'clamp(12px, 1.2vw, 22px)',
-    '--subtitle-size': 'clamp(9px, 0.75vw, 14px)',
-    '--btn-size': 'clamp(9px, 0.7vw, 13px)',
-    '--btn-icon': 'clamp(10px, 0.9vw, 16px)',
-    '--avatar': 'clamp(60px, 8vw, 150px)',
+    '--skill-w': 'clamp(100px, 9vw, 160px)',
+    '--skill-h': 'clamp(50px, 4.5vw, 80px)',
+    '--skill-gap': 'clamp(2px, 0.25vw, 6px)',
+    '--icon-size': 'clamp(14px, 1.2vw, 22px)',
+    '--text-size': 'clamp(9px, 0.7vw, 13px)',
+    '--padding': 'clamp(8px, 1vw, 20px)',
+    '--title-size': 'clamp(14px, 1.4vw, 28px)',
+    '--subtitle-size': 'clamp(12px, 1vw, 18px)',
+    '--btn-size': 'clamp(10px, 0.8vw, 14px)',
+    '--btn-icon': 'clamp(12px, 1vw, 18px)',
+    '--avatar': 'clamp(80px, 10vw, 180px)',
   } as React.CSSProperties;
 
   return (
