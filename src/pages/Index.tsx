@@ -10,10 +10,11 @@ export default function Index() {
   const [showAbout, setShowAbout] = useState(false);
   const [showHero, setShowHero] = useState(false);
 
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
   const [aboutScale, setAboutScale] = useState<number>(1);
   const [heroHeight, setHeroHeight] = useState<number>(0);
-  
+
   // Armazena a altura original do About (antes de qualquer escala)
   const originalAboutHeight = useRef<number>(0);
 
@@ -110,9 +111,16 @@ export default function Index() {
   useLayoutEffect(() => {
     if (originalAboutHeight.current <= 0) return;
 
+    const getRootTop = () => {
+      const el = rootRef.current;
+      if (!el) return 0;
+      return el.getBoundingClientRect().top;
+    };
+
     const calculate = () => {
       const contentH = originalAboutHeight.current;
-      const available = window.innerHeight - heroHeight;
+      const rootTop = getRootTop();
+      const available = window.innerHeight - rootTop - heroHeight;
 
       if (available <= 0 || contentH <= 0) {
         setAboutScale(1);
@@ -127,23 +135,39 @@ export default function Index() {
 
     calculate();
 
-    // Recalcula após mudanças
-    const timers = [
-      setTimeout(calculate, 100),
-      setTimeout(calculate, 500),
-      setTimeout(calculate, 900),
-    ];
+    // Recalcula durante a entrada do navbar/CLS (curto período)
+    const start = performance.now();
+    let rafId = 0;
+    const tick = () => {
+      calculate();
+      if (performance.now() - start < 2000) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+    rafId = requestAnimationFrame(tick);
 
+    // Recalcula após mudanças
+    const timers = [setTimeout(calculate, 200), setTimeout(calculate, 700), setTimeout(calculate, 1200)];
+
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", calculate);
+    vv?.addEventListener("scroll", calculate);
     window.addEventListener("resize", calculate);
+    window.addEventListener("scroll", calculate, { passive: true });
 
     return () => {
+      cancelAnimationFrame(rafId);
       timers.forEach(clearTimeout);
+      vv?.removeEventListener("resize", calculate);
+      vv?.removeEventListener("scroll", calculate);
       window.removeEventListener("resize", calculate);
+      window.removeEventListener("scroll", calculate);
     };
   }, [heroHeight, showAbout]);
 
   return (
     <div
+      ref={rootRef}
       className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
       style={{ backgroundImage: `url(${homepageBg})` }}
     >
