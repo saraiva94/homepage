@@ -142,7 +142,7 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Hard Skills - 2/3 do espaço */}
               <section className="md:col-span-2">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Hard skills</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 md:grid-cols-4 gap-1.5">
                   {[
                     { icon: Film, color: "text-purple-400", label: "After Effects" },
                     { icon: Film, color: "text-purple-400", label: "Premiere Pro" },
@@ -162,10 +162,10 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="aspect-square flex flex-col items-center justify-center gap-2 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-md border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                     >
-                      <skill.icon className={`w-6 h-6 ${skill.color} shrink-0`} />
-                      <span className="text-xs text-center leading-tight">{skill.label}</span>
+                      <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
+                      <span className="text-[10px] text-center leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
@@ -174,7 +174,7 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Soft Skills - 1/3 do espaço */}
               <section className="md:col-span-1">
                 <h3 className="text-xl font-bold mb-3 text-sky-400">Soft skills</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { icon: MessagesSquare, color: "text-blue-400", label: "Comunicação" },
                     { icon: ListChecks, color: "text-green-400", label: "Organização" },
@@ -184,10 +184,10 @@ export function About({ isVisible = true }: AboutProps) {
                   ].map((skill, idx) => (
                     <div
                       key={idx}
-                      className="aspect-square flex flex-col items-center justify-center gap-2 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                      className="aspect-square flex flex-col items-center justify-center gap-1 bg-white/10 backdrop-blur-sm p-1 rounded-md border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                     >
-                      <skill.icon className={`w-6 h-6 ${skill.color} shrink-0`} />
-                      <span className="text-xs text-center leading-tight">{skill.label}</span>
+                      <skill.icon className={`w-4 h-4 ${skill.color} shrink-0`} />
+                      <span className="text-[10px] text-center leading-tight">{skill.label}</span>
                     </div>
                   ))}
                 </div>
