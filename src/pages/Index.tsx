@@ -85,22 +85,21 @@ export default function Index() {
 
     // Mede após o About estar visível
     const measureOriginal = () => {
+      const parent = aboutEl.parentElement as HTMLDivElement | null;
+      if (!parent) return;
+
       // Temporariamente remove a escala para medir o tamanho real
-      const currentTransform = aboutEl.parentElement?.style.transform;
-      if (aboutEl.parentElement) {
-        aboutEl.parentElement.style.transform = "scale(1)";
-      }
-      
+      const previousTransform = parent.style.transform;
+      parent.style.transform = "scale(1)";
+
       // Força reflow e mede
       const height = aboutEl.getBoundingClientRect().height;
       if (height > 0 && originalAboutHeight.current === 0) {
         originalAboutHeight.current = height;
       }
-      
-      // Restaura a escala
-      if (aboutEl.parentElement && currentTransform) {
-        aboutEl.parentElement.style.transform = currentTransform;
-      }
+
+      // Restaura a escala (mesmo se era string vazia)
+      parent.style.transform = previousTransform;
     };
 
     const timer = setTimeout(measureOriginal, 150);

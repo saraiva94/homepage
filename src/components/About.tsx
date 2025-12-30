@@ -42,12 +42,12 @@ export function About({ isVisible = true }: AboutProps) {
 
   return (
     <section
-      className={`py-6 bg-transparent mb-6 md:mb-10 transition-opacity duration-1000 ease-out ${
+      className={`py-6 bg-transparent transition-opacity duration-1000 ease-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] overflow-hidden">
+        <div className="relative rounded-3xl p-4 [--avatar:clamp(120px,28vw,240px)] pb-[calc(var(--avatar)+1rem)] overflow-hidden">
           {/* overlay glass */}
           <div
             aria-hidden
@@ -74,7 +74,7 @@ export function About({ isVisible = true }: AboutProps) {
               className="
                 absolute
                 right-[clamp(0.5rem,2vw,1rem)]
-                bottom-[calc(-1*var(--avatar))]
+                bottom-4
                 z-20 flex flex-col items-center pointer-events-auto
               "
             >
@@ -145,8 +145,8 @@ export function About({ isVisible = true }: AboutProps) {
               <span className="block text-base">Faculdade Unigranrio</span>
             </div>
 
-            <div className="relative">
-              {/* Hard skills - à esquerda */}
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* Hard skills */}
               <section>
                 <h3 className="text-2xl font-bold mb-3 text-sky-400">Hard skills</h3>
                 <ul className="space-y-1">
@@ -188,9 +188,9 @@ export function About({ isVisible = true }: AboutProps) {
                 </ul>
               </section>
 
-              {/* Soft skills - centralizado horizontalmente no card */}
-              <section className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                <h3 className="text-2xl font-bold mb-3 text-sky-400 text-center">Soft skills</h3>
+              {/* Soft skills */}
+              <section className="flex flex-col md:items-center">
+                <h3 className="text-2xl font-bold mb-3 text-sky-400 md:text-center">Soft skills</h3>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2">
                     <MessagesSquare className="w-4 h-4 text-blue-400" /> Boa comunicação
