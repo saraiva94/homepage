@@ -42,8 +42,11 @@ export default function Index() {
 
   return (
     <div
-      className="h-screen overflow-hidden relative bg-cover bg-center bg-fixed flex flex-col"
-      style={{ backgroundImage: `url(${homepageBg})` }}
+      className="w-full min-h-screen max-h-screen overflow-hidden relative bg-cover bg-center bg-no-repeat flex flex-col"
+      style={{ 
+        backgroundImage: `url(${homepageBg})`,
+        height: '100dvh',
+      }}
     >
       <CursorTrail />
 
