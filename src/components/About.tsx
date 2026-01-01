@@ -84,21 +84,47 @@ export function About({ isVisible = true }: AboutProps) {
         {/* Conteúdo principal */}
         <div className="relative z-[1] h-full flex flex-col p-[var(--padding)] gap-[var(--skill-gap)]">
           {/* Topo: imagem de background com avatar */}
-          <div className="relative flex-[0_0_42%] min-h-0 rounded-2xl overflow-hidden">
+          <div
+            className="relative shrink-0 rounded-2xl overflow-hidden"
+            style={{ height: "clamp(220px, 36vh, 420px)" }}
+          >
             <img
               src={about2Img}
               alt="background"
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                console.error("[About] Falha ao carregar background.jpg", about2Img);
+                // fallback visual para não ficar "sumido"
+                e.currentTarget.style.opacity = "0";
+                (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
+                  "bg-white/5"
+                );
+              }}
               className="absolute inset-0 w-full h-full object-cover object-[50%_68%] origin-[50%_68%]
                          transition-transform duration-500 will-change-transform hover:scale-[1.08]"
             />
 
             {/* avatar (direita) */}
             <div className="absolute right-[var(--padding)] bottom-[var(--padding)] z-20 flex flex-col items-center pointer-events-auto">
-              <div 
+              <div
                 className="relative border-[3px] border-white/40 overflow-hidden rounded-lg shadow-lg"
-                style={{ width: 'var(--avatar)', height: 'var(--avatar)' }}
+                style={{ width: "var(--avatar)", height: "var(--avatar)" }}
               >
-                <img src={about1Img} alt="foto do Swamiy" className="w-full h-full object-cover" />
+                <img
+                  src={about1Img}
+                  alt="foto do Swamiy"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    console.error("[About] Falha ao carregar eu.png", about1Img);
+                    e.currentTarget.style.display = "none";
+                    (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
+                      "bg-white/10"
+                    );
+                  }}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
