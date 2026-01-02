@@ -196,11 +196,12 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Hard Skills - 2/3 do espaço */}
               <section className="flex-[2] flex flex-col min-h-0">
                 <h3 className="font-bold text-sky-400 shrink-0" style={{ fontSize: 'var(--title-size)', marginBottom: 'var(--skill-gap)' }}>Hard skills</h3>
-                <div 
-                  className="grid grid-flow-col grid-rows-3 content-start"
-                  style={{ 
-                    gridAutoColumns: 'var(--skill-w)',
-                    gap: 'var(--skill-gap)'
+                <div
+                  className="grid flex-1 min-h-0 overflow-auto content-start"
+                  style={{
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(var(--skill-w), 1fr))',
+                    gap: 'var(--skill-gap)',
+                    paddingRight: 'var(--skill-gap)',
                   }}
                 >
                   {[
@@ -231,10 +232,10 @@ export function About({ isVisible = true }: AboutProps) {
                     <div
                       key={idx}
                       className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
-                      style={{ width: 'var(--skill-w)', height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
+                      style={{ height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
                     >
-                      <skill.icon 
-                        className="shrink-0" 
+                      <skill.icon
+                        className="shrink-0"
                         style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
                       <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
@@ -246,11 +247,12 @@ export function About({ isVisible = true }: AboutProps) {
               {/* Soft Skills - 1/3 do espaço */}
               <section className="flex-1 flex flex-col min-h-0">
                 <h3 className="font-bold text-sky-400 shrink-0" style={{ fontSize: 'var(--title-size)', marginBottom: 'var(--skill-gap)' }}>Soft skills</h3>
-                <div 
-                  className="grid grid-flow-col grid-rows-3 content-start"
-                  style={{ 
-                    gridAutoColumns: 'var(--skill-w)',
-                    gap: 'var(--skill-gap)'
+                <div
+                  className="grid flex-1 min-h-0 overflow-auto content-start"
+                  style={{
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(var(--skill-w), 1fr))',
+                    gap: 'var(--skill-gap)',
+                    paddingRight: 'var(--skill-gap)',
                   }}
                 >
                   {[
@@ -263,10 +265,10 @@ export function About({ isVisible = true }: AboutProps) {
                     <div
                       key={idx}
                       className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
-                      style={{ width: 'var(--skill-w)', height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
+                      style={{ height: 'var(--skill-h)', gap: 'var(--skill-gap)', padding: 'var(--skill-gap)' }}
                     >
-                      <skill.icon 
-                        className="shrink-0" 
+                      <skill.icon
+                        className="shrink-0"
                         style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
                       <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
