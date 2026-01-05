@@ -95,12 +95,8 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
         ))}
       </div>
 
-      {/* Conteúdo - só aparece quando os 4 vídeos estão prontos */}
-      <div
-        className={`relative z-20 container mx-auto px-4 py-px transition-opacity duration-700 ease-out ${
-          allVideosReady ? "opacity-100" : "opacity-0"
-        }`}
-      >
+      {/* Conteúdo - aparece instantaneamente */}
+      <div className="relative z-20 container mx-auto px-4 py-px">
         <div className="relative pb-[5px] md:pb-[6px]">
           {/* Linha principal */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-1">
