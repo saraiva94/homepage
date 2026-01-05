@@ -14,17 +14,20 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   const [loadedCount, setLoadedCount] = useState(0);
   const hasNotified = useRef(false);
 
+  // Todos os 4 vídeos prontos → mostra o conteúdo com fade
+  const allVideosReady = loadedCount >= 4;
+
   const handleVideoCanPlay = useCallback(() => {
     setLoadedCount((prev) => prev + 1);
   }, []);
 
   // Notifica quando todos os 4 vídeos estão carregados
   useEffect(() => {
-    if (loadedCount >= 4 && !hasNotified.current) {
+    if (allVideosReady && !hasNotified.current) {
       hasNotified.current = true;
       onVideosLoaded?.();
     }
-  }, [loadedCount, onVideosLoaded]);
+  }, [allVideosReady, onVideosLoaded]);
 
   const syncAndPlay = useCallback(() => {
     const videos = videoRefs.current.filter(Boolean) as HTMLVideoElement[];
@@ -70,12 +73,16 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
       }`}
     >
       {/* Vídeo de fundo - grid duplicado otimizado */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2">
+      <div
+        className={`absolute inset-0 z-0 pointer-events-none overflow-hidden grid grid-cols-2 grid-rows-2 transition-opacity duration-700 ease-out ${
+          allVideosReady ? "opacity-80" : "opacity-0"
+        }`}
+      >
         {[0, 1, 2, 3].map((index) => (
           <video
             key={index}
             ref={setVideoRef(index)}
-            className="w-full h-full object-cover object-center opacity-80"
+            className="w-full h-full object-cover object-center"
             muted
             playsInline
             loop
@@ -88,8 +95,12 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
         ))}
       </div>
 
-      {/* Conteúdo */}
-      <div className="relative z-20 container mx-auto px-4 py-px">
+      {/* Conteúdo - só aparece quando os 4 vídeos estão prontos */}
+      <div
+        className={`relative z-20 container mx-auto px-4 py-px transition-opacity duration-700 ease-out ${
+          allVideosReady ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <div className="relative pb-[5px] md:pb-[6px]">
           {/* Linha principal */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-1">

@@ -29,6 +29,7 @@ import {
   SiGit,
   SiGithub,
   SiSupabase,
+  SiBun,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
 import { FileSpreadsheet } from "lucide-react";
@@ -92,13 +93,13 @@ export function About({ isVisible = true }: AboutProps) {
       style={cardStyle}
     >
       <div className="w-full h-full relative rounded-2xl overflow-hidden">
-        {/* overlay glass */}
+        {/* overlay glass - removido ring-1 que causava linha branca piscando */}
         <div
           aria-hidden
           className="absolute inset-0 z-0 rounded-2xl
                      bg-black/25 backdrop-blur-sm backdrop-saturate-150
-                     border border-gray-400/50 ring-1 ring-gray-300/30
-                     shadow-[0_8px_30px_rgba(150,150,150,0.15)]
+                     border border-white/10
+                     shadow-[0_8px_30px_rgba(0,0,0,0.25)]
                      pointer-events-none"
         />
 
@@ -253,6 +254,7 @@ export function About({ isVisible = true }: AboutProps) {
                         { icon: SiNextdotjs, color: "#FFFFFF", label: "Next.js" },
                         // Backend & Cloud
                         { icon: SiNodedotjs, color: "#339933", label: "Node.js" },
+                        { icon: SiBun, color: "#FBF0DF", label: "Bun.js" },
                         { icon: SiPython, color: "#3776AB", label: "Python" },
                         { icon: VscAzure, color: "#0078D4", label: "Azure" },
                         // Banco de dados
