@@ -43,7 +43,7 @@ export default function Index() {
       <main className="flex-1 flex items-center justify-center p-4">
         <div
           className="w-[80%] max-w-6xl"
-          style={{ height: "clamp(520px, 78vh, 920px)" }}
+          style={{ height: "clamp(560px, 86vh, 920px)" }}
         >
           <About isVisible={heroReady} />
         </div>

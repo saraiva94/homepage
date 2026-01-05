@@ -42,7 +42,7 @@ interface AboutProps {
 
 export function About({ isVisible = true }: AboutProps) {
   const btnBase =
-    "mt-1 w-full inline-flex items-center justify-center " +
+    "w-full inline-flex items-center justify-center " +
     "rounded-md font-medium text-white shadow-sm " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
     "transition-colors duration-300 ease-in-out " +
@@ -50,18 +50,20 @@ export function About({ isVisible = true }: AboutProps) {
 
   // CSS custom properties for responsive sizing - scales with viewport
   // Objetivo: fazer os cards caberem SEM barras de rolagem (reduzindo tamanho conforme necessário)
+  // Nota: usamos "vh" nas alturas pra reagir ao espaço vertical disponível.
   const cardStyle = {
-    "--skill-w": "clamp(72px, 6.2vw, 150px)",
-    "--skill-h": "clamp(34px, 3.2vw, 70px)",
-    "--skill-gap": "clamp(2px, 0.18vw, 6px)",
-    "--icon-size": "clamp(12px, 1.05vw, 20px)",
-    "--text-size": "clamp(8px, 0.62vw, 12px)",
-    "--padding": "clamp(8px, 0.9vw, 18px)",
-    "--title-size": "clamp(13px, 1.25vw, 26px)",
-    "--subtitle-size": "clamp(11px, 0.95vw, 16px)",
-    "--btn-size": "clamp(10px, 0.8vw, 14px)",
-    "--btn-icon": "clamp(12px, 1vw, 18px)",
-    "--avatar": "clamp(76px, 9vw, 170px)",
+    "--skill-w": "clamp(44px, 4.8vw, 118px)",
+    "--skill-h": "clamp(18px, 1.6vh, 46px)",
+    "--skill-gap": "clamp(2px, 0.14vw, 4px)",
+    "--icon-size": "clamp(10px, 0.9vw, 16px)",
+    "--text-size": "clamp(7px, 0.56vw, 10px)",
+    "--padding": "clamp(6px, 0.6vw, 10px)",
+    "--section-gap": "clamp(4px, 0.45vw, 8px)",
+    "--title-size": "clamp(11px, 1.0vw, 20px)",
+    "--subtitle-size": "clamp(10px, 0.8vw, 13px)",
+    "--btn-size": "clamp(9px, 0.68vw, 12px)",
+    "--btn-icon": "clamp(11px, 0.86vw, 15px)",
+    "--avatar": "clamp(52px, 6.2vw, 130px)",
   } as React.CSSProperties;
 
   return (
@@ -87,7 +89,7 @@ export function About({ isVisible = true }: AboutProps) {
           {/* Topo: imagem de background com avatar */}
           <div
             className="relative shrink-0 rounded-2xl overflow-hidden"
-            style={{ height: "clamp(220px, 36vh, 420px)" }}
+            style={{ height: "clamp(110px, 16vh, 220px)" }}
           >
             <img
               src={about2Img}
@@ -193,7 +195,7 @@ export function About({ isVisible = true }: AboutProps) {
               <span className="block" style={{ fontSize: 'var(--subtitle-size)' }}>Faculdade Unigranrio</span>
             </div>
 
-            <div className="flex flex-1 min-h-0 overflow-hidden" style={{ gap: 'var(--padding)' }}>
+            <div className="flex flex-1 min-h-0 overflow-hidden" style={{ gap: 'var(--section-gap)' }}>
               {/* Hard Skills - 2/3 do espaço */}
               <section className="flex-[2] flex flex-col min-h-0">
                 <h3 className="font-bold text-sky-400 shrink-0" style={{ fontSize: 'var(--title-size)', marginBottom: 'var(--skill-gap)' }}>Hard skills</h3>
@@ -239,7 +241,7 @@ export function About({ isVisible = true }: AboutProps) {
                         className="shrink-0"
                         style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
-                      <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
+                      <span className="leading-tight truncate" style={{ fontSize: 'var(--text-size)', maxWidth: '9ch' }}>{skill.label}</span>
                     </div>
                   ))}
                 </div>
@@ -272,7 +274,7 @@ export function About({ isVisible = true }: AboutProps) {
                         className="shrink-0"
                         style={{ width: 'var(--icon-size)', height: 'var(--icon-size)', color: skill.color }}
                       />
-                      <span className="leading-tight" style={{ fontSize: 'var(--text-size)' }}>{skill.label}</span>
+                      <span className="leading-tight truncate" style={{ fontSize: 'var(--text-size)', maxWidth: '10ch' }}>{skill.label}</span>
                     </div>
                   ))}
                 </div>
