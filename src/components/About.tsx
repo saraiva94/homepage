@@ -49,18 +49,19 @@ export function About({ isVisible = true }: AboutProps) {
     "hover:shadow-md";
 
   // CSS custom properties for responsive sizing - scales with viewport
+  // Objetivo: fazer os cards caberem SEM barras de rolagem (reduzindo tamanho conforme necessário)
   const cardStyle = {
-    '--skill-w': 'clamp(100px, 9vw, 160px)',
-    '--skill-h': 'clamp(50px, 4.5vw, 80px)',
-    '--skill-gap': 'clamp(2px, 0.25vw, 6px)',
-    '--icon-size': 'clamp(14px, 1.2vw, 22px)',
-    '--text-size': 'clamp(9px, 0.7vw, 13px)',
-    '--padding': 'clamp(8px, 1vw, 20px)',
-    '--title-size': 'clamp(14px, 1.4vw, 28px)',
-    '--subtitle-size': 'clamp(12px, 1vw, 18px)',
-    '--btn-size': 'clamp(10px, 0.8vw, 14px)',
-    '--btn-icon': 'clamp(12px, 1vw, 18px)',
-    '--avatar': 'clamp(80px, 10vw, 180px)',
+    "--skill-w": "clamp(72px, 6.2vw, 150px)",
+    "--skill-h": "clamp(34px, 3.2vw, 70px)",
+    "--skill-gap": "clamp(2px, 0.18vw, 6px)",
+    "--icon-size": "clamp(12px, 1.05vw, 20px)",
+    "--text-size": "clamp(8px, 0.62vw, 12px)",
+    "--padding": "clamp(8px, 0.9vw, 18px)",
+    "--title-size": "clamp(13px, 1.25vw, 26px)",
+    "--subtitle-size": "clamp(11px, 0.95vw, 16px)",
+    "--btn-size": "clamp(10px, 0.8vw, 14px)",
+    "--btn-icon": "clamp(12px, 1vw, 18px)",
+    "--avatar": "clamp(76px, 9vw, 170px)",
   } as React.CSSProperties;
 
   return (
@@ -197,11 +198,11 @@ export function About({ isVisible = true }: AboutProps) {
               <section className="flex-[2] flex flex-col min-h-0">
                 <h3 className="font-bold text-sky-400 shrink-0" style={{ fontSize: 'var(--title-size)', marginBottom: 'var(--skill-gap)' }}>Hard skills</h3>
                 <div
-                  className="grid flex-1 min-h-0 overflow-auto content-start"
+                  className="grid flex-1 min-h-0 overflow-hidden content-start"
                   style={{
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(var(--skill-w), 1fr))',
-                    gap: 'var(--skill-gap)',
-                    paddingRight: 'var(--skill-gap)',
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(min(var(--skill-w), 100%), 1fr))",
+                    gap: "var(--skill-gap)",
                   }}
                 >
                   {[
@@ -248,11 +249,11 @@ export function About({ isVisible = true }: AboutProps) {
               <section className="flex-1 flex flex-col min-h-0">
                 <h3 className="font-bold text-sky-400 shrink-0" style={{ fontSize: 'var(--title-size)', marginBottom: 'var(--skill-gap)' }}>Soft skills</h3>
                 <div
-                  className="grid flex-1 min-h-0 overflow-auto content-start"
+                  className="grid flex-1 min-h-0 overflow-hidden content-start"
                   style={{
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(var(--skill-w), 1fr))',
-                    gap: 'var(--skill-gap)',
-                    paddingRight: 'var(--skill-gap)',
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(min(var(--skill-w), 100%), 1fr))",
+                    gap: "var(--skill-gap)",
                   }}
                 >
                   {[
