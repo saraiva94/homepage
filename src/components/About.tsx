@@ -62,13 +62,15 @@ const defaultSoftSkills = [
 export function About({ isVisible = true }: AboutProps) {
   const [hardSkills, setHardSkills] = useState<Skill[]>([]);
   const [softSkills, setSoftSkills] = useState<Skill[]>([]);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [, setLoaded] = useState(false);
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      const [hardResult, softResult] = await Promise.all([
+    const fetchData = async () => {
+      const [hardResult, softResult, settingsResult] = await Promise.all([
         supabase.from("hard_skills").select("*").order("display_order"),
         supabase.from("soft_skills").select("*").order("display_order"),
+        supabase.from("site_settings").select("resume_url").eq("id", "main").single(),
       ]);
 
       if (hardResult.data && hardResult.data.length > 0) {
@@ -77,10 +79,13 @@ export function About({ isVisible = true }: AboutProps) {
       if (softResult.data && softResult.data.length > 0) {
         setSoftSkills(softResult.data);
       }
+      if (settingsResult.data?.resume_url) {
+        setResumeUrl(settingsResult.data.resume_url);
+      }
       setLoaded(true);
     };
 
-    fetchSkills();
+    fetchData();
   }, []);
 
   // Use skills do banco ou fallback para defaults
@@ -238,7 +243,7 @@ export function About({ isVisible = true }: AboutProps) {
             </a>
 
             <a
-              href="/Curriculo_Swamiy_Saraiva.pdf"
+              href={resumeUrl || "/Curriculo_Swamiy_Saraiva.pdf"}
               download="Curriculo_Swamiy_Saraiva.pdf"
               className={`${btnBase} flex-1 bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}

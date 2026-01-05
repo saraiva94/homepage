@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/backend/client";
-import { Trash2, Film, Code2, LogOut, Plus, X, Check, Home, Wrench, Heart } from "lucide-react";
+import { Trash2, Film, Code2, LogOut, Plus, X, Check, Home, Wrench, Heart, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SkillsManager } from "@/components/admin/SkillsManager";
+import { ResumeManager } from "@/components/admin/ResumeManager";
 
 type PortfolioType = "editor" | "dev";
-type AdminSection = "videos" | "skills";
+type AdminSection = "videos" | "skills" | "resume";
 
 interface Video {
   id: string;
@@ -251,6 +252,17 @@ export default function AdminDashboard() {
             <Wrench className="w-5 h-5" />
             Gerenciar Skills
           </button>
+          <button
+            onClick={() => setActiveSection("resume")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+              activeSection === "resume"
+                ? "bg-gradient-to-r from-red-600 to-orange-600 text-white"
+                : "bg-white/10 text-white/60 hover:bg-white/20"
+            }`}
+          >
+            <FileText className="w-5 h-5" />
+            Currículo
+          </button>
         </div>
 
         {/* Videos Section */}
@@ -330,6 +342,9 @@ export default function AdminDashboard() {
             <SkillsManager key={activeSkillTab} type={activeSkillTab} />
           </>
         )}
+
+        {/* Resume Section */}
+        {activeSection === "resume" && <ResumeManager />}
       </div>
     </div>
   );
