@@ -1,49 +1,92 @@
 import { Link } from "react-router-dom";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import {
   Clapperboard,
   Code2,
   FileText,
   Github,
   MessageCircle,
-  MessagesSquare,
-  ListChecks,
-  Users,
-  Zap,
-  Lightbulb,
 } from "lucide-react";
 import { useFitScale } from "@/hooks/useFitScale";
-import {
-  SiAdobeaftereffects,
-  SiAdobepremierepro,
-  SiAdobecreativecloud,
-  SiHtml5,
-  SiJavascript,
-  SiTypescript,
-  SiReact,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiMysql,
-  SiSqlite,
-  SiPython,
-  SiGit,
-  SiGithub,
-  SiSupabase,
-  SiBun,
-} from "react-icons/si";
-import { VscAzure } from "react-icons/vsc";
-import { FileSpreadsheet } from "lucide-react";
+import { supabase } from "@/integrations/backend/client";
+import { getIconByKey } from "@/lib/skillIconsCatalog";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
 
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
 
+interface Skill {
+  id: string;
+  name: string;
+  icon_key: string;
+  icon_color: string;
+  display_order: number;
+}
+
 interface AboutProps {
   isVisible?: boolean;
 }
 
+// Default skills (fallback se não houver no banco)
+const defaultHardSkills = [
+  { icon_key: "adobe-cc", icon_color: "#DA1F26", name: "Creative Cloud" },
+  { icon_key: "after-effects", icon_color: "#9999FF", name: "After Effects" },
+  { icon_key: "premiere-pro", icon_color: "#9999FF", name: "Premiere Pro" },
+  { icon_key: "html5", icon_color: "#E34F26", name: "HTML5 & CSS3" },
+  { icon_key: "javascript", icon_color: "#F7DF1E", name: "JavaScript" },
+  { icon_key: "typescript", icon_color: "#3178C6", name: "TypeScript" },
+  { icon_key: "react", icon_color: "#61DAFB", name: "React" },
+  { icon_key: "react-native", icon_color: "#61DAFB", name: "React Native" },
+  { icon_key: "nextjs", icon_color: "#FFFFFF", name: "Next.js" },
+  { icon_key: "nodejs", icon_color: "#339933", name: "Node.js" },
+  { icon_key: "bunjs", icon_color: "#FBF0DF", name: "Bun.js" },
+  { icon_key: "python", icon_color: "#3776AB", name: "Python" },
+  { icon_key: "azure", icon_color: "#0078D4", name: "Azure" },
+  { icon_key: "mysql", icon_color: "#4479A1", name: "MySQL" },
+  { icon_key: "sqlite", icon_color: "#003B57", name: "SQLite" },
+  { icon_key: "supabase", icon_color: "#3ECF8E", name: "Supabase" },
+  { icon_key: "git", icon_color: "#F05032", name: "Git" },
+  { icon_key: "github", icon_color: "#FFFFFF", name: "GitHub" },
+  { icon_key: "excel", icon_color: "#217346", name: "Excel" },
+];
+
+const defaultSoftSkills = [
+  { icon_key: "communication", icon_color: "#60A5FA", name: "Comunicação" },
+  { icon_key: "organization", icon_color: "#4ADE80", name: "Organização" },
+  { icon_key: "teamwork", icon_color: "#C084FC", name: "Trabalho em equipe" },
+  { icon_key: "proactivity", icon_color: "#FACC15", name: "Proatividade" },
+  { icon_key: "creativity", icon_color: "#FB923C", name: "Criatividade" },
+];
+
 export function About({ isVisible = true }: AboutProps) {
+  const [hardSkills, setHardSkills] = useState<Skill[]>([]);
+  const [softSkills, setSoftSkills] = useState<Skill[]>([]);
+  const [, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const [hardResult, softResult] = await Promise.all([
+        supabase.from("hard_skills").select("*").order("display_order"),
+        supabase.from("soft_skills").select("*").order("display_order"),
+      ]);
+
+      if (hardResult.data && hardResult.data.length > 0) {
+        setHardSkills(hardResult.data);
+      }
+      if (softResult.data && softResult.data.length > 0) {
+        setSoftSkills(softResult.data);
+      }
+      setLoaded(true);
+    };
+
+    fetchSkills();
+  }, []);
+
+  // Use skills do banco ou fallback para defaults
+  const displayHardSkills = hardSkills.length > 0 ? hardSkills : defaultHardSkills.map((s, i) => ({ ...s, id: `default-hard-${i}`, display_order: i }));
+  const displaySoftSkills = softSkills.length > 0 ? softSkills : defaultSoftSkills.map((s, i) => ({ ...s, id: `default-soft-${i}`, display_order: i }));
+
   const btnBase =
     "w-full inline-flex items-center justify-center " +
     "rounded-md font-medium text-white shadow-sm " +
@@ -51,8 +94,6 @@ export function About({ isVisible = true }: AboutProps) {
     "transition-colors duration-300 ease-in-out " +
     "hover:shadow-md";
 
-  // CSS custom properties for responsive sizing
-  // Objetivo: manter a UI “cheia” e coerente, e reduzir só quando necessário.
   const cardStyle = {
     "--skill-min": "clamp(92px, 7.6vw, 150px)",
     "--skill-h": "clamp(34px, 3.2vh, 70px)",
@@ -85,6 +126,23 @@ export function About({ isVisible = true }: AboutProps) {
     [scale]
   );
 
+  const renderSkillIcon = (iconKey: string, color: string, category: "hard" | "soft") => {
+    const catalogItem = getIconByKey(iconKey, category);
+    if (!catalogItem) return null;
+
+    const IconComponent = catalogItem.icon;
+    return (
+      <IconComponent
+        className="shrink-0"
+        style={{
+          width: "var(--icon-size)",
+          height: "var(--icon-size)",
+          color,
+        }}
+      />
+    );
+  };
+
   return (
     <section
       className={`w-full h-full bg-transparent transition-opacity duration-1000 ease-out ${
@@ -93,7 +151,7 @@ export function About({ isVisible = true }: AboutProps) {
       style={cardStyle}
     >
       <div className="w-full h-full relative rounded-2xl overflow-hidden">
-        {/* overlay glass - removido ring-1 que causava linha branca piscando */}
+        {/* overlay glass */}
         <div
           aria-hidden
           className="absolute inset-0 z-0 rounded-2xl
@@ -117,7 +175,6 @@ export function About({ isVisible = true }: AboutProps) {
               decoding="async"
               onError={(e) => {
                 console.error("[About] Falha ao carregar background.jpg", about2Img);
-                // fallback visual para não ficar "sumido"
                 e.currentTarget.style.opacity = "0";
                 (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
                   "bg-white/5"
@@ -240,34 +297,9 @@ export function About({ isVisible = true }: AboutProps) {
                         gap: "var(--skill-gap)",
                       }}
                     >
-                      {[
-                        // Edição de vídeo / Design
-                        { icon: SiAdobecreativecloud, color: "#DA1F26", label: "Creative Cloud" },
-                        { icon: SiAdobeaftereffects, color: "#9999FF", label: "After Effects" },
-                        { icon: SiAdobepremierepro, color: "#9999FF", label: "Premiere Pro" },
-                        // Frontend
-                        { icon: SiHtml5, color: "#E34F26", label: "HTML5 & CSS3" },
-                        { icon: SiJavascript, color: "#F7DF1E", label: "JavaScript" },
-                        { icon: SiTypescript, color: "#3178C6", label: "TypeScript" },
-                        { icon: SiReact, color: "#61DAFB", label: "React" },
-                        { icon: SiReact, color: "#61DAFB", label: "React Native" },
-                        { icon: SiNextdotjs, color: "#FFFFFF", label: "Next.js" },
-                        // Backend & Cloud
-                        { icon: SiNodedotjs, color: "#339933", label: "Node.js" },
-                        { icon: SiBun, color: "#FBF0DF", label: "Bun.js" },
-                        { icon: SiPython, color: "#3776AB", label: "Python" },
-                        { icon: VscAzure, color: "#0078D4", label: "Azure" },
-                        // Banco de dados
-                        { icon: SiMysql, color: "#4479A1", label: "MySQL" },
-                        { icon: SiSqlite, color: "#003B57", label: "SQLite" },
-                        { icon: SiSupabase, color: "#3ECF8E", label: "Supabase" },
-                        // Ferramentas
-                        { icon: SiGit, color: "#F05032", label: "Git" },
-                        { icon: SiGithub, color: "#FFFFFF", label: "GitHub" },
-                        { icon: FileSpreadsheet, color: "#217346", label: "Excel" },
-                      ].map((skill, idx) => (
+                      {displayHardSkills.map((skill) => (
                         <div
-                          key={idx}
+                          key={skill.id}
                           className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                           style={{
                             height: "var(--skill-h)",
@@ -275,14 +307,7 @@ export function About({ isVisible = true }: AboutProps) {
                             padding: "var(--skill-gap)",
                           }}
                         >
-                          <skill.icon
-                            className="shrink-0"
-                            style={{
-                              width: "var(--icon-size)",
-                              height: "var(--icon-size)",
-                              color: skill.color,
-                            }}
-                          />
+                          {renderSkillIcon(skill.icon_key, skill.icon_color, "hard")}
                           <span
                             className="leading-tight truncate"
                             style={{
@@ -290,7 +315,7 @@ export function About({ isVisible = true }: AboutProps) {
                               maxWidth: "16ch",
                             }}
                           >
-                            {skill.label}
+                            {skill.name}
                           </span>
                         </div>
                       ))}
@@ -316,15 +341,9 @@ export function About({ isVisible = true }: AboutProps) {
                         gap: "var(--skill-gap)",
                       }}
                     >
-                      {[
-                        { icon: MessagesSquare, color: "#60A5FA", label: "Comunicação" },
-                        { icon: ListChecks, color: "#4ADE80", label: "Organização" },
-                        { icon: Users, color: "#C084FC", label: "Trabalho em equipe" },
-                        { icon: Zap, color: "#FACC15", label: "Proatividade" },
-                        { icon: Lightbulb, color: "#FB923C", label: "Criatividade" },
-                      ].map((skill, idx) => (
+                      {displaySoftSkills.map((skill) => (
                         <div
-                          key={idx}
+                          key={skill.id}
                           className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
                           style={{
                             height: "var(--skill-h)",
@@ -332,14 +351,7 @@ export function About({ isVisible = true }: AboutProps) {
                             padding: "var(--skill-gap)",
                           }}
                         >
-                          <skill.icon
-                            className="shrink-0"
-                            style={{
-                              width: "var(--icon-size)",
-                              height: "var(--icon-size)",
-                              color: skill.color,
-                            }}
-                          />
+                          {renderSkillIcon(skill.icon_key, skill.icon_color, "soft")}
                           <span
                             className="leading-tight truncate"
                             style={{
@@ -347,7 +359,7 @@ export function About({ isVisible = true }: AboutProps) {
                               maxWidth: "18ch",
                             }}
                           >
-                            {skill.label}
+                            {skill.name}
                           </span>
                         </div>
                       ))}

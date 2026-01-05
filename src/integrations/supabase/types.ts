@@ -35,6 +35,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hard_skills: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon_color: string
+          icon_key: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon_color?: string
+          icon_key: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon_color?: string
+          icon_key?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_videos: {
         Row: {
           created_at: string | null
@@ -59,6 +89,36 @@ export type Database = {
           portfolio_type?: string
           updated_at?: string | null
           video_url?: string
+        }
+        Relationships: []
+      }
+      soft_skills: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon_color: string
+          icon_key: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon_color?: string
+          icon_key: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon_color?: string
+          icon_key?: string
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
