@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/backend/client";
-import { Trash2, Film, Code2, LogOut, Plus, X, Check, Home } from "lucide-react";
+import { Trash2, Film, Code2, LogOut, Plus, X, Check, Home, Wrench, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SkillsManager } from "@/components/admin/SkillsManager";
 
 type PortfolioType = "editor" | "dev";
+type AdminSection = "videos" | "skills";
 
 interface Video {
   id: string;
@@ -15,7 +17,9 @@ interface Video {
 const TOTAL_SLOTS = 8;
 
 export default function AdminDashboard() {
+  const [activeSection, setActiveSection] = useState<AdminSection>("videos");
   const [activeTab, setActiveTab] = useState<PortfolioType>("editor");
+  const [activeSkillTab, setActiveSkillTab] = useState<"hard" | "soft">("hard");
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<number | null>(null);
@@ -28,8 +32,10 @@ export default function AdminDashboard() {
       navigate("/login");
       return;
     }
-    fetchVideos();
-  }, [activeTab, navigate]);
+    if (activeSection === "videos") {
+      fetchVideos();
+    }
+  }, [activeTab, activeSection, navigate]);
 
   const fetchVideos = async () => {
     setLoading(true);
@@ -84,7 +90,6 @@ export default function AdminDashboard() {
 
   const handleDelete = async (video: Video) => {
     try {
-      // Only try to delete from storage if it's a Supabase storage URL
       if (video.video_url.includes('supabase.co/storage')) {
         try {
           const url = new URL(video.video_url);
@@ -96,7 +101,6 @@ export default function AdminDashboard() {
           }
         } catch (storageErr) {
           console.warn("Could not delete from storage:", storageErr);
-          // Continue to delete from database even if storage delete fails
         }
       }
 
@@ -222,49 +226,110 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Section Tabs */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-4 mb-6">
           <button
-            onClick={() => setActiveTab("editor")}
+            onClick={() => setActiveSection("videos")}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === "editor"
-                ? "bg-blue-600 text-white"
+              activeSection === "videos"
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                 : "bg-white/10 text-white/60 hover:bg-white/20"
             }`}
           >
             <Film className="w-5 h-5" />
-            Portfólio Editor
+            Vídeos do Portfólio
           </button>
           <button
-            onClick={() => setActiveTab("dev")}
+            onClick={() => setActiveSection("skills")}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === "dev"
-                ? "bg-purple-600 text-white"
+              activeSection === "skills"
+                ? "bg-gradient-to-r from-green-600 to-teal-600 text-white"
                 : "bg-white/10 text-white/60 hover:bg-white/20"
             }`}
           >
-            <Code2 className="w-5 h-5" />
-            Portfólio Dev
+            <Wrench className="w-5 h-5" />
+            Gerenciar Skills
           </button>
         </div>
 
-        {/* Video Grid */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">
-              {activeTab === "editor" ? "Portfólio Editor" : "Portfólio Dev"} ({videos.length}/{TOTAL_SLOTS})
-            </h2>
-          </div>
-
-          {loading ? (
-            <div className="text-white/60 text-center py-12">Carregando...</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {renderSlots()}
+        {/* Videos Section */}
+        {activeSection === "videos" && (
+          <>
+            <div className="flex gap-4 mb-8">
+              <button
+                onClick={() => setActiveTab("editor")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+                  activeTab === "editor"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                <Film className="w-5 h-5" />
+                Portfólio Editor
+              </button>
+              <button
+                onClick={() => setActiveTab("dev")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+                  activeTab === "dev"
+                    ? "bg-purple-600 text-white"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                <Code2 className="w-5 h-5" />
+                Portfólio Dev
+              </button>
             </div>
-          )}
-        </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-white">
+                  {activeTab === "editor" ? "Portfólio Editor" : "Portfólio Dev"} ({videos.length}/{TOTAL_SLOTS})
+                </h2>
+              </div>
+
+              {loading ? (
+                <div className="text-white/60 text-center py-12">Carregando...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {renderSlots()}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Skills Section */}
+        {activeSection === "skills" && (
+          <>
+            <div className="flex gap-4 mb-8">
+              <button
+                onClick={() => setActiveSkillTab("hard")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+                  activeSkillTab === "hard"
+                    ? "bg-sky-600 text-white"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                <Wrench className="w-5 h-5" />
+                Hard Skills
+              </button>
+              <button
+                onClick={() => setActiveSkillTab("soft")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+                  activeSkillTab === "soft"
+                    ? "bg-pink-600 text-white"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                <Heart className="w-5 h-5" />
+                Soft Skills
+              </button>
+            </div>
+
+            <SkillsManager key={activeSkillTab} type={activeSkillTab} />
+          </>
+        )}
       </div>
     </div>
   );
