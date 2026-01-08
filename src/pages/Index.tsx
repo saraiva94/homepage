@@ -21,6 +21,9 @@ import CursorTrail from "@/components/CursorTrail";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CyberpunkBackground } from "@/components/CyberpunkBackground";
 import { useOptimizedPreload, getCacheInfo } from "@/hooks/useOptimizedPreload";
+import stacksImgRaw from "@/assets/stacks.png";
+
+const stacksImg = stacksImgRaw as unknown as string;
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -118,23 +121,65 @@ export default function Index() {
 
   /**
    * ========================================
-   * RENDER: HOMEPAGE (só fundo + About card)
+   * RENDER: HOMEPAGE
    * ========================================
    */
   return (
-    <div className="w-full min-h-[100dvh] overflow-x-hidden relative bg-black flex items-center justify-center">
-      {/* Fundo cyberpunk interativo (mesmo do loading) */}
+    <div className="w-full min-h-[100dvh] overflow-x-hidden relative bg-black flex flex-col">
+      {/* Fundo cyberpunk interativo */}
       <CyberpunkBackground className="z-0" />
       
       <CursorTrail />
 
-      {/* Card principal centralizado */}
-      <main className="relative z-10 p-2 sm:p-4 w-full flex items-center justify-center">
+      {/* Header com Command Lines / Timelines */}
+      <header 
+        className={`relative z-10 w-full py-6 md:py-8 transition-all duration-700 ease-out ${
+          contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+            
+            {/* Command Lines - Esquerda */}
+            <div className="flex-1 flex justify-center md:justify-start md:-mr-6 lg:-mr-12 xl:-mr-16 order-1 md:order-1">
+              <span
+                className="glitch text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
+                data-text="Command Lines"
+              >
+                Command Lines
+              </span>
+            </div>
+
+            {/* Imagem das stacks - Centro */}
+            <div className="flex-shrink-0 flex items-center justify-center order-first md:order-2">
+              <img
+                src={stacksImg}
+                alt="Tech Stack"
+                className="w-full h-auto max-w-[100px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[200px] xl:max-w-[240px] object-contain select-none pointer-events-none"
+                loading="eager"
+              />
+            </div>
+
+            {/* Timelines - Direita */}
+            <div className="flex-1 flex justify-center md:justify-end md:-ml-8 lg:-ml-20 xl:-ml-28 order-2 md:order-3">
+              <span
+                className="glitch text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
+                data-text="Timelines"
+              >
+                Timelines
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Card principal */}
+      <main className="flex-1 relative z-10 p-2 sm:p-4 flex items-center justify-center">
         <div
-          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl transition-all duration-700 ease-out ${
+          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl transition-all duration-700 ease-out delay-150 ${
             contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ height: "clamp(480px, 75vh, 920px)" }}
+          style={{ height: "clamp(420px, 70vh, 850px)" }}
         >
           <About isVisible={contentReady} />
         </div>
