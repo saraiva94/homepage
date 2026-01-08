@@ -1,13 +1,18 @@
 /**
  * ========================================
- * INDEX.TSX - COM LOADING SCREEN CYBERPUNK
+ * INDEX.TSX - COM PRELOAD DE PORTFOLIOS
  * ========================================
  * 
- * FLUXO:
- * 1. Loading Screen aparece primeiro
- * 2. Preload de recursos críticos acontece
- * 3. Loading completa → Hero + About aparecem
- * 4. Preload de portfolios em background
+ * FLUXO OTIMIZADO:
+ * 1. Loading Screen (2-3s)
+ * 2. Homepage aparece
+ * 3. ENQUANTO usuário está vendo homepage:
+ *    → Frames do Dev preload em background
+ *    → Frames do Edits preload em background
+ * 4. Quando usuário clica em portfolio:
+ *    → Frames JÁ ESTÃO prontos!
+ *    → Sem barra de loading
+ *    → Experiência instantânea
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -16,12 +21,38 @@ import { About } from "@/components/About";
 import CursorTrail from "@/components/CursorTrail";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import homepageBg from "@/assets/homepage-bg.png";
-import { preloadAllPortfolios } from "@/utils/preloadPortfolioFrames";
+import { useOptimizedPreload, getCacheInfo } from "@/hooks/useOptimizedPreload";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [heroReady, setHeroReady] = useState(false);
   const [resourcesLoaded, setResourcesLoaded] = useState(false);
+
+  /**
+   * ========================================
+   * PRELOAD DE FRAMES DO DEV (BACKGROUND)
+   * ========================================
+   */
+  const devPreload = useOptimizedPreload({
+    totalFrames: 261,
+    portfolioType: 'dev',
+    batchSize: 15,
+    autoStart: false,
+    silent: true,
+  });
+
+  /**
+   * ========================================
+   * PRELOAD DE FRAMES DO EDITS (BACKGROUND)
+   * ========================================
+   */
+  const editsPreload = useOptimizedPreload({
+    totalFrames: 300,
+    portfolioType: 'edits',
+    batchSize: 15,
+    autoStart: false,
+    silent: true,
+  });
 
   /**
    * ========================================
@@ -31,13 +62,8 @@ export default function Index() {
   useEffect(() => {
     const preloadCriticalResources = async () => {
       try {
-        // Lista de recursos críticos para preload
-        const criticalResources = [
-          // Background da homepage
-          homepageBg,
-        ];
+        const criticalResources = [homepageBg];
 
-        // Preload de imagens críticas
         const imagePromises = criticalResources.map((src) => {
           return new Promise((resolve, reject) => {
             const img = new Image();
@@ -47,14 +73,11 @@ export default function Index() {
           });
         });
 
-        // Aguarda todas as imagens críticas
         await Promise.all(imagePromises);
-        
         console.log('[Index] Recursos críticos carregados');
         setResourcesLoaded(true);
       } catch (error) {
         console.error('[Index] Erro ao carregar recursos:', error);
-        // Continua mesmo com erro (não trava a aplicação)
         setResourcesLoaded(true);
       }
     };
@@ -68,7 +91,6 @@ export default function Index() {
    * ========================================
    */
   const handleLoadingComplete = useCallback(() => {
-    // Só esconde loading quando recursos estão prontos
     if (resourcesLoaded) {
       setIsLoading(false);
     }
@@ -89,13 +111,12 @@ export default function Index() {
    * ========================================
    */
   useEffect(() => {
-    // Se após 4 segundos o Hero ainda não carregou, mostra mesmo assim
     const fallbackTimer = setTimeout(() => {
       if (!heroReady) {
         console.warn('[Index] Hero fallback triggered');
         setHeroReady(true);
       }
-    }, 4000);
+    }, 3000);
 
     return () => clearTimeout(fallbackTimer);
   }, [heroReady]);
@@ -103,19 +124,47 @@ export default function Index() {
   /**
    * ========================================
    * PRELOAD DE PORTFOLIOS (BACKGROUND)
+   * Inicia DEPOIS que homepage está visível
    * ========================================
    */
   useEffect(() => {
-    // Só inicia preload de portfolios depois que o loading terminou
-    if (!isLoading) {
+    if (!isLoading && heroReady) {
+      // Aguarda 1.5s para não competir com animações da homepage
       const timer = setTimeout(() => {
-        console.log('[Index] Iniciando preload de portfolios...');
-        preloadAllPortfolios();
-      }, 1000); // Delay de 1s para não competir com renderização
+        console.log('[Index] 🎬 Iniciando preload de portfolios em background...');
+        
+        // Inicia preload do Dev primeiro (mais comum)
+        devPreload.loadFrames();
+        
+        // Depois de 3s, inicia o Edits
+        setTimeout(() => {
+          editsPreload.loadFrames();
+        }, 3000);
+
+      }, 1500);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading]);
+  }, [isLoading, heroReady]);
+
+  /**
+   * ========================================
+   * STATUS DO PRELOAD (DEBUG)
+   * ========================================
+   */
+  useEffect(() => {
+    // Log do progresso a cada 5 segundos (debug)
+    const statusInterval = setInterval(() => {
+      const cacheInfo = getCacheInfo();
+      const totalCached = Object.values(cacheInfo).reduce((a, b) => a + b, 0);
+      
+      if (totalCached > 0) {
+        console.log('[Index] 📊 Cache status:', cacheInfo);
+      }
+    }, 5000);
+
+    return () => clearInterval(statusInterval);
+  }, []);
 
   /**
    * ========================================
@@ -126,7 +175,7 @@ export default function Index() {
     return (
       <LoadingScreen 
         onComplete={handleLoadingComplete}
-        minDuration={2500} // 2.5 segundos mínimo
+        minDuration={2500}
       />
     );
   }
@@ -143,10 +192,8 @@ export default function Index() {
         backgroundImage: `url(${homepageBg})`,
       }}
     >
-      {/* Cursor Trail (efeito cyberpunk) */}
       <CursorTrail />
 
-      {/* Header: Hero Section */}
       <header className="w-full shrink-0">
         <Hero 
           onVideosLoaded={handleHeroVideosLoaded}
@@ -154,7 +201,6 @@ export default function Index() {
         />
       </header>
 
-      {/* Main: About Section */}
       <main className="flex-1 flex items-center justify-center p-2 sm:p-4">
         <div
           className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl"
@@ -163,6 +209,14 @@ export default function Index() {
           <About isVisible={heroReady} />
         </div>
       </main>
+
+      {/* Debug info (remover em produção) */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 left-4 bg-black/80 backdrop-blur-sm border border-cyan-500/30 rounded px-3 py-2 text-xs font-mono text-cyan-400 z-50">
+          <div>Dev: {devPreload.loadedFrames}/261 ({devPreload.progress.toFixed(0)}%)</div>
+          <div>Edits: {editsPreload.loadedFrames}/300 ({editsPreload.progress.toFixed(0)}%)</div>
+        </div>
+      )}
     </div>
   );
 }
