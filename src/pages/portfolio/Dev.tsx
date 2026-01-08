@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/backend/client";
 import { getCachedFrames, useOptimizedPreload } from "@/hooks/useOptimizedPreload";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const loadGSAP = () => import('gsap');
 const loadScrollTrigger = () => import('gsap/ScrollTrigger');
@@ -30,20 +31,12 @@ interface Video {
   display_order: number;
 }
 
-const LoadingScreen = () => (
-  <div className="w-screen h-screen bg-black flex flex-col items-center justify-center gap-6">
-    <div className="relative">
-      <div className="w-16 h-16 border-4 border-cyan-400/20 border-t-cyan-400 rounded-full animate-spin" />
-    </div>
-    <p className="text-cyan-400 text-lg font-medium font-mono">Carregando Portfolio Dev</p>
-  </div>
-);
-
 export default function DevPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [gsapLoaded, setGsapLoaded] = useState(false);
   const [framesReady, setFramesReady] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -58,7 +51,7 @@ export default function DevPage() {
   const lenisRef = useRef<any>(null);
   const gsapRef = useRef<any>(null);
 
-  const { loadFrames } = useOptimizedPreload({
+  const { loadFrames, progress: preloadProgress } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
     portfolioType: 'dev',
     batchSize: 20,
@@ -342,8 +335,27 @@ export default function DevPage() {
     };
   }, [gsapLoaded, framesReady, videos.length]);
 
-  if (isLoadingVideos || !gsapLoaded || !framesReady) {
-    return <LoadingScreen />;
+  // Calcula progresso total (videos + gsap + frames)
+  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesReady;
+  
+  // Atualiza progresso baseado nos estados
+  useEffect(() => {
+    let progress = 0;
+    if (!isLoadingVideos) progress += 20;
+    if (gsapLoaded) progress += 20;
+    if (framesReady) progress += 60;
+    else progress += (preloadProgress * 0.6);
+    setLoadingProgress(Math.min(progress, 100));
+  }, [isLoadingVideos, gsapLoaded, framesReady, preloadProgress]);
+
+  if (!isFullyLoaded) {
+    return (
+      <LoadingScreen 
+        progress={loadingProgress}
+        title="DEV"
+        subtitle="PORTFOLIO"
+      />
+    );
   }
 
   if (videos.length === 0) {
