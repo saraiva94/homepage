@@ -18,7 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useFitScale } from "@/hooks/useFitScale";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import { getIconByKey } from "@/lib/skillIconsCatalog";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
