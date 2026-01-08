@@ -99,11 +99,11 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
       <div className="relative z-20 container mx-auto px-4 py-px">
         <div className="relative pb-[5px] md:pb-[6px]">
           {/* Linha principal */}
-          <div className="flex flex-col md:flex-row items-center justify-between mb-1">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-1 md:gap-0 mb-1">
             {/* Command Lines - Esquerda */}
-            <div className="flex-1 flex justify-start md:-mr-16 lg:-mr-20">
+            <div className="flex-1 flex justify-center md:justify-start md:-mr-8 lg:-mr-16 xl:-mr-20 order-1 md:order-1">
               <span
-                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white font-mono"
+                className="glitch text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white font-mono whitespace-nowrap"
                 data-text="Command Lines"
               >
                 Command Lines
@@ -111,18 +111,18 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
             </div>
 
             {/* Imagem das stacks - Centro */}
-            <div className="flex-shrink-0 flex items-center justify-center">
+            <div className="flex-shrink-0 flex items-center justify-center order-first md:order-2">
               <img
                 src={stacksImg}
                 alt="Stacks"
-                className="w-full h-auto max-w-[182px] md:max-w-[224px] lg:max-w-[266px] xl:max-w-[308px] object-contain select-none pointer-events-none"
+                className="w-full h-auto max-w-[140px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-[250px] xl:max-w-[308px] object-contain select-none pointer-events-none"
               />
             </div>
 
             {/* Timelines - Direita */}
-            <div className="flex-1 flex justify-end md:-ml-28 lg:-ml-36">
+            <div className="flex-1 flex justify-center md:justify-end md:-ml-12 lg:-ml-28 xl:-ml-36 order-2 md:order-3">
               <span
-                className="glitch text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white font-mono"
+                className="glitch text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white font-mono whitespace-nowrap"
                 data-text="Timelines"
               >
                 Timelines

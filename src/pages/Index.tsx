@@ -40,10 +40,10 @@ export default function Index() {
         <Hero onVideosLoaded={handleHeroVideosLoaded} />
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-4">
+      <main className="flex-1 flex items-center justify-center p-2 sm:p-4">
         <div
-          className="w-[80%] max-w-6xl"
-          style={{ height: "clamp(520px, 78vh, 920px)" }}
+          className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl"
+          style={{ height: "clamp(480px, 75vh, 920px)" }}
         >
           <About isVisible={heroReady} />
         </div>
