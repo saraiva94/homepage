@@ -20,7 +20,7 @@ import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import CursorTrail from "@/components/CursorTrail";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import homepageBg from "@/assets/homepage-bg.png";
+import { CyberpunkBackground } from "@/components/CyberpunkBackground";
 import { useOptimizedPreload, getCacheInfo } from "@/hooks/useOptimizedPreload";
 
 export default function Index() {
@@ -56,33 +56,12 @@ export default function Index() {
 
   /**
    * ========================================
-   * PRELOAD DE RECURSOS CRÍTICOS
+   * RECURSOS PRONTOS
    * ========================================
    */
   useEffect(() => {
-    const preloadCriticalResources = async () => {
-      try {
-        const criticalResources = [homepageBg];
-
-        const imagePromises = criticalResources.map((src) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = src;
-          });
-        });
-
-        await Promise.all(imagePromises);
-        console.log('[Index] Recursos críticos carregados');
-        setResourcesLoaded(true);
-      } catch (error) {
-        console.error('[Index] Erro ao carregar recursos:', error);
-        setResourcesLoaded(true);
-      }
-    };
-
-    preloadCriticalResources();
+    // Com o fundo cyberpunk, não há recursos críticos externos para carregar
+    setResourcesLoaded(true);
   }, []);
 
   /**
@@ -186,22 +165,20 @@ export default function Index() {
    * ========================================
    */
   return (
-    <div
-      className="w-full min-h-[100dvh] overflow-x-hidden relative bg-cover bg-center bg-no-repeat flex flex-col"
-      style={{
-        backgroundImage: `url(${homepageBg})`,
-      }}
-    >
+    <div className="w-full min-h-[100dvh] overflow-x-hidden relative bg-black flex flex-col">
+      {/* Fundo cyberpunk interativo */}
+      <CyberpunkBackground className="z-0" />
+      
       <CursorTrail />
 
-      <header className="w-full shrink-0">
+      <header className="w-full shrink-0 relative z-10">
         <Hero 
           onVideosLoaded={handleHeroVideosLoaded}
           isVisible={!isLoading} 
         />
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-2 sm:p-4">
+      <main className="flex-1 flex items-center justify-center p-2 sm:p-4 relative z-10">
         <div
           className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl"
           style={{ height: "clamp(480px, 75vh, 920px)" }}
@@ -209,14 +186,6 @@ export default function Index() {
           <About isVisible={heroReady} />
         </div>
       </main>
-
-      {/* Debug info (remover em produção) */}
-      {import.meta.env.DEV && (
-        <div className="fixed bottom-4 left-4 bg-black/80 backdrop-blur-sm border border-cyan-500/30 rounded px-3 py-2 text-xs font-mono text-cyan-400 z-50">
-          <div>Dev: {devPreload.loadedFrames}/261 ({devPreload.progress.toFixed(0)}%)</div>
-          <div>Edits: {editsPreload.loadedFrames}/300 ({editsPreload.progress.toFixed(0)}%)</div>
-        </div>
-      )}
     </div>
   );
 }
