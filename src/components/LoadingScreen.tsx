@@ -12,21 +12,43 @@
 import { useEffect, useState } from 'react';
 
 interface LoadingScreenProps {
-  onComplete: () => void;
-  minDuration?: number; // Tempo mínimo de exibição (ms)
+  onComplete?: () => void;
+  minDuration?: number;
+  progress?: number; // Se fornecido, usa progresso externo
+  title?: string; // Título customizado (ex: "PORTFOLIO DEV")
+  subtitle?: string; // Subtítulo customizado
 }
 
-export function LoadingScreen({ onComplete, minDuration = 2000 }: LoadingScreenProps) {
-  const [progress, setProgress] = useState(0);
+export function LoadingScreen({ 
+  onComplete, 
+  minDuration = 2000,
+  progress: externalProgress,
+  title = 'SWAMIY',
+  subtitle = 'PORTFOLIO'
+}: LoadingScreenProps) {
+  const [internalProgress, setInternalProgress] = useState(0);
   const [displayText, setDisplayText] = useState('INITIALIZING SYSTEM...');
   const [isComplete, setIsComplete] = useState(false);
 
+  // Usa progresso externo se fornecido, senão usa interno
+  const progress = externalProgress !== undefined ? externalProgress : internalProgress;
+
   useEffect(() => {
+    // Se progresso externo, não anima internamente
+    if (externalProgress !== undefined) {
+      if (externalProgress >= 100 && !isComplete) {
+        setIsComplete(true);
+        setTimeout(() => {
+          onComplete?.();
+        }, 500);
+      }
+      return;
+    }
+
     const startTime = Date.now();
     let animationFrame: number;
     let textInterval: ReturnType<typeof setInterval>;
 
-    // Textos do loading (estilo cyberpunk)
     const loadingTexts = [
       'INITIALIZING SYSTEM...',
       'LOADING NEURAL NETWORK...',
@@ -40,18 +62,14 @@ export function LoadingScreen({ onComplete, minDuration = 2000 }: LoadingScreenP
 
     let textIndex = 0;
 
-    // Animação de progresso
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const naturalProgress = Math.min((elapsed / minDuration) * 100, 100);
-      
-      // Adiciona variação para parecer mais orgânico
       const variance = Math.random() * 2;
       const newProgress = Math.min(naturalProgress + variance, 100);
       
-      setProgress(newProgress);
+      setInternalProgress(newProgress);
 
-      // Troca texto baseado no progresso
       const progressTextIndex = Math.floor((newProgress / 100) * (loadingTexts.length - 1));
       if (progressTextIndex !== textIndex && progressTextIndex < loadingTexts.length) {
         textIndex = progressTextIndex;
@@ -63,15 +81,13 @@ export function LoadingScreen({ onComplete, minDuration = 2000 }: LoadingScreenP
       } else {
         setIsComplete(true);
         setTimeout(() => {
-          onComplete();
-        }, 500); // Delay antes de desaparecer
+          onComplete?.();
+        }, 500);
       }
     };
 
-    // Inicia animação
     animationFrame = requestAnimationFrame(animate);
 
-    // Efeito de glitch no texto
     textInterval = setInterval(() => {
       if (Math.random() > 0.9) {
         const glitchChars = '!@#$%^&*()_+{}|:<>?~';
@@ -93,7 +109,7 @@ export function LoadingScreen({ onComplete, minDuration = 2000 }: LoadingScreenP
       cancelAnimationFrame(animationFrame);
       clearInterval(textInterval);
     };
-  }, [onComplete, minDuration]);
+  }, [onComplete, minDuration, externalProgress, isComplete]);
 
   return (
     <div 
@@ -131,11 +147,11 @@ export function LoadingScreen({ onComplete, minDuration = 2000 }: LoadingScreenP
       {/* Logo/Título */}
       <div className="relative z-10 mb-12">
         <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse-slow tracking-wider font-mono">
-          SWAMIY
+          {title}
         </h1>
         <div className="flex items-center justify-center gap-2 mt-2">
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-cyan-400" />
-          <p className="text-cyan-400 text-sm font-mono tracking-[0.3em]">PORTFOLIO</p>
+          <p className="text-cyan-400 text-sm font-mono tracking-[0.3em]">{subtitle}</p>
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-cyan-400" />
         </div>
       </div>

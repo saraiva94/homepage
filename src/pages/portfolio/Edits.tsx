@@ -5,17 +5,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
-import { getCachedImages, preloadPortfolioFrames } from "@/utils/preloadPortfolioFrames";
+import { getCachedFrames, useOptimizedPreload } from "@/hooks/useOptimizedPreload";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-// ============= CONSTANTES CONFIGURÁVEIS (sunset_timeline) =============
-const TOTAL_FRAMES = 300; // 300 - 1 + 1
-
+const TOTAL_FRAMES = 300;
 const PERSPECTIVE_PX = 1000;
 const MAX_VIDEOS = 8;
 
-// ============= HELPERS =============
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
 interface Video {
@@ -26,7 +24,9 @@ interface Video {
 
 export default function EditsPage() {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(true);
+  const [framesReady, setFramesReady] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -38,6 +38,14 @@ export default function EditsPage() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+
+  const { loadFrames, progress: preloadProgress } = useOptimizedPreload({
+    totalFrames: TOTAL_FRAMES,
+    portfolioType: 'edits',
+    batchSize: 20,
+    autoStart: false,
+    silent: true,
+  });
 
   // Fetch videos from database
   useEffect(() => {
@@ -54,7 +62,7 @@ export default function EditsPage() {
       } else {
         setVideos(data || []);
       }
-      setIsLoading(false);
+      setIsLoadingVideos(false);
     };
 
     fetchVideos();
@@ -125,30 +133,36 @@ export default function EditsPage() {
 
   // ============= PRELOAD + INIT =============
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoadingVideos) return;
 
     const initImages = async () => {
       // Tenta usar imagens do cache primeiro
-      let cachedImages = getCachedImages("edits");
+      const cachedImages = getCachedFrames('edits', TOTAL_FRAMES);
       
-      if (cachedImages) {
-        console.log(`[Edits] Usando ${cachedImages.length} frames do cache`);
+      if (cachedImages && cachedImages.length > 0) {
+        console.log(`[Edits] ✅ Usando ${cachedImages.length} frames do cache`);
         imagesRef.current = cachedImages;
+        setFramesReady(true);
       } else {
-        // Se não tem cache, aguarda o preload
-        console.log(`[Edits] Cache não encontrado, carregando frames...`);
-        const images = await preloadPortfolioFrames("edits");
+        // Se não tem cache, carrega frames
+        console.log(`[Edits] ⏳ Cache vazio, carregando frames...`);
+        const images = await loadFrames();
         imagesRef.current = images;
-        console.log(`[Edits] Loaded ${images.length} frames`);
+        setFramesReady(true);
       }
-
-      setupCanvas();
-      stateRef.current.frame = 0;
-      render();
-      initScroll();
     };
 
     initImages();
+  }, [isLoadingVideos, loadFrames]);
+
+  // Init scroll quando frames estiverem prontos
+  useEffect(() => {
+    if (!framesReady || videos.length === 0) return;
+
+    setupCanvas();
+    stateRef.current.frame = 0;
+    render();
+    initScroll();
 
     let resizeTimer: number;
     const onResize = () => {
@@ -168,7 +182,7 @@ export default function EditsPage() {
       }
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, [isLoading, videos.length]);
+  }, [framesReady, videos.length]);
 
   // ============= SCROLLTRIGGER =============
   function initScroll(): void {
@@ -286,11 +300,24 @@ export default function EditsPage() {
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }
 
-  if (isLoading) {
+  // Calcula progresso total
+  const isFullyLoaded = !isLoadingVideos && framesReady;
+  
+  useEffect(() => {
+    let progress = 0;
+    if (!isLoadingVideos) progress += 30;
+    if (framesReady) progress += 70;
+    else progress += (preloadProgress * 0.7);
+    setLoadingProgress(Math.min(progress, 100));
+  }, [isLoadingVideos, framesReady, preloadProgress]);
+
+  if (!isFullyLoaded) {
     return (
-      <div className="w-screen h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
-      </div>
+      <LoadingScreen 
+        progress={loadingProgress}
+        title="EDITS"
+        subtitle="PORTFOLIO"
+      />
     );
   }
 
