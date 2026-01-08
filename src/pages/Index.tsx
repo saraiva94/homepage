@@ -125,7 +125,7 @@ export default function Index() {
    * ========================================
    */
   return (
-    <div className="w-full min-h-[100dvh] overflow-x-hidden relative bg-black flex flex-col">
+    <div className="w-full h-[100dvh] overflow-hidden relative bg-black flex flex-col">
       {/* Fundo cyberpunk interativo */}
       <CyberpunkBackground className="z-0" />
       
@@ -133,12 +133,12 @@ export default function Index() {
 
       {/* Header com Command Lines / Timelines */}
       <header 
-        className={`relative z-10 w-full py-6 md:py-8 transition-all duration-700 ease-out ${
+        className={`relative z-10 w-full py-4 md:py-6 shrink-0 transition-all duration-700 ease-out ${
           contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
             
             {/* Command Lines - Esquerda */}
             <div className="flex-1 flex justify-center md:justify-start md:-mr-6 lg:-mr-12 xl:-mr-16 order-1 md:order-1">
@@ -155,7 +155,7 @@ export default function Index() {
               <img
                 src={stacksImg}
                 alt="Tech Stack"
-                className="w-full h-auto max-w-[100px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[200px] xl:max-w-[240px] object-contain select-none pointer-events-none"
+                className="w-full h-auto max-w-[80px] sm:max-w-[100px] md:max-w-[140px] lg:max-w-[180px] xl:max-w-[220px] object-contain select-none pointer-events-none"
                 loading="eager"
               />
             </div>
@@ -173,13 +173,13 @@ export default function Index() {
         </div>
       </header>
 
-      {/* Card principal */}
-      <main className="flex-1 relative z-10 p-2 sm:p-4 flex items-center justify-center">
+      {/* Card principal - centralizado verticalmente no espaço restante */}
+      <main className="flex-1 relative z-10 px-2 sm:px-4 flex items-center justify-center">
         <div
           className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl transition-all duration-700 ease-out delay-150 ${
             contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ height: "clamp(420px, 70vh, 850px)" }}
+          style={{ height: "clamp(400px, calc(100vh - 180px), 800px)" }}
         >
           <About isVisible={contentReady} />
         </div>
