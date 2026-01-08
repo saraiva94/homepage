@@ -193,9 +193,9 @@ export function LoadingScreen({
             </div>
 
             {/* Grid overlay */}
-            <div className="absolute inset-0 grid grid-cols-20 pointer-events-none">
+            <div className="absolute inset-0 flex pointer-events-none">
               {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="border-r border-cyan-900/50" />
+                <div key={i} className="flex-1 border-r border-cyan-900/50 last:border-r-0" />
               ))}
             </div>
           </div>
