@@ -40,6 +40,7 @@ export default function DevPage() {
   const scrollTriggerRef = useRef<any>(null);
   const lenisRef = useRef<any>(null);
   const gsapRef = useRef<any>(null);
+  const scrollTriggerClassRef = useRef<any>(null);
 
   const { images, isLoading: isLoadingFrames, progress, loadedFrames, loadFrames } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
@@ -57,10 +58,13 @@ export default function DevPage() {
   useEffect(() => {
     Promise.all([loadGSAP(), loadScrollTrigger(), loadScrollToPlugin(), loadLenis()]).then(([g, st, sp, l]) => {
       const gsap = g.gsap || g.default;
-      gsap.registerPlugin(st.ScrollTrigger || st.default, sp.ScrollToPlugin || sp.default);
+      const ScrollTrigger = st.ScrollTrigger || st.default;
+      const ScrollToPlugin = sp.ScrollToPlugin || sp.default;
+      gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
       gsapRef.current = gsap;
+      scrollTriggerClassRef.current = ScrollTrigger;
       const lenis = new (l.default)({ smoothWheel: true, lerp: 0.1 });
-      lenis.on("scroll", (st.ScrollTrigger || st.default).update);
+      lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add((t: number) => lenis.raf(t * 1000));
       lenisRef.current = lenis;
       setGsapLoaded(true);
@@ -96,7 +100,9 @@ export default function DevPage() {
     stateRef.current.frame = 0;
     render();
 
-    const gsap = gsapRef.current, ST = gsap.ScrollTrigger;
+    const gsap = gsapRef.current;
+    const ST = scrollTriggerClassRef.current;
+    if (!ST) return;
     const scrollEnd = window.innerHeight * (1 + videos.length + 0.5);
     scrollTriggerRef.current = ST.create({
       trigger: containerRef.current, start: "top top", end: `+=${scrollEnd}`, pin: true, scrub: 1,
