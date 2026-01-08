@@ -100,18 +100,18 @@ export function About({ isVisible = true }: AboutProps) {
     "hover:shadow-md";
 
   const cardStyle = {
-    "--skill-min": "clamp(92px, 7.6vw, 150px)",
-    "--skill-h": "clamp(34px, 3.2vh, 70px)",
-    "--skill-gap": "clamp(4px, 0.35vw, 10px)",
-    "--icon-size": "clamp(14px, 1.2vw, 22px)",
-    "--text-size": "clamp(9px, 0.75vw, 13px)",
-    "--padding": "clamp(10px, 1vw, 18px)",
-    "--section-gap": "clamp(10px, 1.2vw, 18px)",
-    "--title-size": "clamp(14px, 1.35vw, 26px)",
-    "--subtitle-size": "clamp(12px, 1vw, 16px)",
-    "--btn-size": "clamp(10px, 0.85vw, 14px)",
-    "--btn-icon": "clamp(13px, 1.05vw, 18px)",
-    "--avatar": "clamp(76px, 9vw, 170px)",
+    "--skill-min": "clamp(80px, 7.6vw, 150px)",
+    "--skill-h": "clamp(32px, 3.2vh, 70px)",
+    "--skill-gap": "clamp(3px, 0.35vw, 10px)",
+    "--icon-size": "clamp(12px, 1.2vw, 22px)",
+    "--text-size": "clamp(8px, 0.75vw, 13px)",
+    "--padding": "clamp(8px, 1vw, 18px)",
+    "--section-gap": "clamp(8px, 1.2vw, 18px)",
+    "--title-size": "clamp(12px, 1.35vw, 26px)",
+    "--subtitle-size": "clamp(10px, 1vw, 16px)",
+    "--btn-size": "clamp(9px, 0.85vw, 14px)",
+    "--btn-icon": "clamp(12px, 1.05vw, 18px)",
+    "--avatar": "clamp(60px, 9vw, 170px)",
   } as React.CSSProperties;
 
   const skillsViewportRef = useRef<HTMLDivElement | null>(null);
@@ -213,11 +213,14 @@ export function About({ isVisible = true }: AboutProps) {
             </div>
           </div>
 
-          {/* Botões horizontais abaixo da imagem */}
-          <div className="flex w-full shrink-0" style={{ gap: 'var(--skill-gap)' }}>
+          {/* Botões - grid responsivo: 2 colunas em mobile, row em desktop */}
+          <div 
+            className="grid grid-cols-2 sm:grid-cols-3 md:flex w-full shrink-0" 
+            style={{ gap: 'var(--skill-gap)' }}
+          >
             <Link
               to="/portfolio/edits"
-              className={`${btnBase} flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400`}
+              className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
               <Clapperboard style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
@@ -226,7 +229,7 @@ export function About({ isVisible = true }: AboutProps) {
 
             <Link
               to="/portfolio/dev"
-              className={`${btnBase} flex-1 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400`}
+              className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
               <Code2 style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
@@ -235,7 +238,7 @@ export function About({ isVisible = true }: AboutProps) {
 
             <a
               href="https://wa.me/5521969381944"
-              className={`${btnBase} flex-1 bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300`}
+              className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
               <MessageCircle style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
@@ -245,7 +248,7 @@ export function About({ isVisible = true }: AboutProps) {
             <a
               href={resumeUrl || "/Curriculo_Swamiy_Saraiva.pdf"}
               download="Curriculo_Swamiy_Saraiva.pdf"
-              className={`${btnBase} flex-1 bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400`}
+              className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
               <FileText style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
@@ -254,7 +257,7 @@ export function About({ isVisible = true }: AboutProps) {
 
             <a
               href="https://github.com/Saraiva94"
-              className={`${btnBase} flex-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700`}
+              className={`${btnBase} col-span-2 sm:col-span-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
               <Github style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} className="text-white" />

@@ -325,12 +325,12 @@ export default function EditsPage() {
         {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-8 z-30"
+          className="absolute left-1/2 top-4 sm:top-8 z-30"
           style={{ transform: "translate(-50%, 0)" }}
         >
           <Link
             to="/"
-            className="relative px-6 py-3 text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            className="relative px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
             style={{
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
             }}
@@ -342,13 +342,13 @@ export default function EditsPage() {
         {/* Scroll instruction */}
         <div
           ref={scrollHintRef}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-none"
+          className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none px-4"
         >
-          <span className="text-white text-base font-semibold tracking-wider uppercase px-6 py-2 bg-black/60 backdrop-blur-sm rounded-full border border-white/30">
+          <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase px-4 sm:px-6 py-1.5 sm:py-2 bg-black/60 backdrop-blur-sm rounded-full border border-white/30 text-center">
             Role para ver o conteúdo
           </span>
           <svg
-            className="w-8 h-8 text-white animate-bounce"
+            className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce"
             fill="none"
             stroke="currentColor"
             strokeWidth={2.5}
@@ -365,14 +365,14 @@ export default function EditsPage() {
             ref={(el) => {
               videoRefs.current[idx] = el;
             }}
-            className="absolute inset-0 flex items-center justify-center z-20 px-4"
+            className="absolute inset-0 flex items-center justify-center z-20 px-2 sm:px-4"
             style={{ transform: "translateY(100%)", opacity: 0 }}
           >
-            <div className="w-full max-w-[1000px]">
+            <div className="w-full max-w-[95vw] sm:max-w-[90vw] md:max-w-[1000px]">
               <video
                 controls
                 playsInline
-                className="w-full aspect-video max-h-[80dvh] rounded-2xl border border-white/20 shadow-2xl object-contain"
+                className="w-full aspect-video max-h-[70dvh] sm:max-h-[80dvh] rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
               >
                 <source src={video.video_url} type="video/mp4" />
               </video>
@@ -383,12 +383,12 @@ export default function EditsPage() {
         {/* Botões Homepage e Voltar ao início - aparecem ao fim */}
         <div
           ref={endButtonRef}
-          className="absolute inset-0 flex items-center justify-center z-30 gap-4"
+          className="absolute inset-0 flex flex-col sm:flex-row items-center justify-center z-30 gap-3 sm:gap-4 px-4"
           style={{ opacity: 0, pointerEvents: "none" }}
         >
           <Link
             to="/"
-            className="relative px-8 py-4 text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto"
+            className="relative px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto w-full sm:w-auto text-center"
             style={{
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
             }}
@@ -403,7 +403,7 @@ export default function EditsPage() {
                 ease: "power2.inOut",
               });
             }}
-            className="relative px-8 py-4 text-xl font-bold bg-white/20 text-white rounded-full hover:bg-white/30 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto"
+            className="relative px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-xl font-bold bg-white/20 text-white rounded-full hover:bg-white/30 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto w-full sm:w-auto text-center"
           >
             Voltar ao início
           </button>
