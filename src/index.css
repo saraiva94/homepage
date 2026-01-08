@@ -495,3 +495,127 @@ body {
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
 }
+
+/* ========================================
+   ANIMAÇÃO SCAN LINE (LOADING BAR)
+   ======================================== */
+@keyframes scan-line {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 2s linear infinite;
+}
+
+/* ========================================
+   ANIMAÇÃO FLOAT (PARTÍCULAS)
+   ======================================== */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+.animate-float {
+  animation: float linear infinite;
+}
+
+/* ========================================
+   ANIMAÇÃO PULSE SLOW (LOGO)
+   ======================================== */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* Text shadow para efeito cyberpunk */
+.glitch-text {
+  position: relative;
+  text-shadow: 
+    0 0 10px rgba(6, 182, 212, 0.8),
+    0 0 20px rgba(6, 182, 212, 0.6),
+    0 0 30px rgba(6, 182, 212, 0.4),
+    0 0 40px rgba(6, 182, 212, 0.2);
+}
+
+/* ========================================
+   GRID UTILITY (LOADING SCREEN)
+   ======================================== */
+.grid-cols-20 {
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR (CYBERPUNK)
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+  border-left: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    rgba(139, 92, 246, 0.8),
+    rgba(6, 182, 212, 0.8)
+  );
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    rgba(139, 92, 246, 1),
+    rgba(6, 182, 212, 1)
+  );
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.8) #000;
+}
+
+/* ========================================
+   SELECTION COLOR (CYBERPUNK)
+   ======================================== */
+::selection {
+  background: rgba(6, 182, 212, 0.3);
+  color: #fff;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+}
+
+::-moz-selection {
+  background: rgba(6, 182, 212, 0.3);
+  color: #fff;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+}

@@ -1,16 +1,23 @@
 /**
- * Hero Component - Versão Otimizada
+ * ========================================
+ * HERO.TSX - VERSÃO CORRIGIDA
+ * ========================================
  * 
- * Otimizações:
- * - Vídeo único (não 4x)
- * - Lazy loading com IntersectionObserver
- * - Preload="none" até necessário
+ * CORREÇÕES:
+ * 1. Vídeo carrega e toca automaticamente
+ * 2. Fallback com gradient se vídeo falhar
+ * 3. IntersectionObserver funcional
+ * 4. Preload otimizado
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import stacksImgRaw from "@/assets/stacks.png";
 
 const stacksImg = stacksImgRaw as unknown as string;
+
+// URL do vídeo (ajuste se necessário)
+const BINARY_VIDEO_URL = "/binary.mp4";
+const VIDEO_POSTER_URL = "/frames/video-poster.jpg"; // Fallback image
 
 interface HeroProps {
   onVideosLoaded?: () => void;
@@ -22,10 +29,14 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const hasNotified = useRef(false);
 
   /**
-   * IntersectionObserver - Carrega vídeo apenas quando Hero está visível
+   * ========================================
+   * INTERSECTION OBSERVER
+   * Detecta quando Hero está visível
+   * ========================================
    */
   useEffect(() => {
     if (!containerRef.current) return;
@@ -34,6 +45,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !shouldLoadVideo) {
+            console.log('[Hero] Visível - iniciando carregamento do vídeo');
             setShouldLoadVideo(true);
           }
         });
@@ -47,9 +59,12 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   }, [shouldLoadVideo]);
 
   /**
-   * Video Loading Handler
+   * ========================================
+   * VIDEO LOADING HANDLER
+   * ========================================
    */
   const handleVideoCanPlay = useCallback(() => {
+    console.log('[Hero] Vídeo pronto para tocar');
     setVideoLoaded(true);
     
     if (!hasNotified.current) {
@@ -59,10 +74,29 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   }, [onVideosLoaded]);
 
   /**
-   * Video Playback
+   * ========================================
+   * VIDEO ERROR HANDLER
+   * ========================================
+   */
+  const handleVideoError = useCallback((e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.error('[Hero] Erro ao carregar vídeo:', e);
+    setVideoError(true);
+    
+    // Notifica mesmo com erro para não travar a UI
+    if (!hasNotified.current) {
+      hasNotified.current = true;
+      onVideosLoaded?.();
+    }
+  }, [onVideosLoaded]);
+
+  /**
+   * ========================================
+   * VIDEO PLAYBACK
+   * Garante que vídeo toque automaticamente
+   * ========================================
    */
   useEffect(() => {
-    if (!videoRef.current || !videoLoaded) return;
+    if (!videoRef.current || !videoLoaded || videoError) return;
 
     const video = videoRef.current;
     
@@ -70,21 +104,34 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
       try {
         video.muted = true;
         video.playsInline = true;
+        video.loop = true;
+        
         await video.play();
+        console.log('[Hero] Vídeo tocando');
       } catch (error) {
-        console.warn('[Hero] Video autoplay prevented:', error);
+        console.warn('[Hero] Autoplay bloqueado:', error);
+        // Tenta reproduzir no próximo click do usuário
+        const playOnInteraction = () => {
+          video.play().catch(() => {});
+          document.removeEventListener('click', playOnInteraction);
+        };
+        document.addEventListener('click', playOnInteraction);
       }
     };
 
     playVideo();
-  }, [videoLoaded]);
+  }, [videoLoaded, videoError]);
 
   /**
-   * Fallback Timeout - Se vídeo não carregar, mostra conteúdo mesmo assim
+   * ========================================
+   * FALLBACK TIMEOUT
+   * Se vídeo não carregar em 3s, notifica mesmo assim
+   * ========================================
    */
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (!hasNotified.current) {
+        console.warn('[Hero] Fallback - notificando sem vídeo');
         hasNotified.current = true;
         setVideoLoaded(true);
         onVideosLoaded?.();
@@ -103,39 +150,60 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
           ? "opacity-100 translate-y-0"
           : "opacity-0 -translate-y-full"
       }`}
+      style={{ minHeight: 'clamp(200px, 30vh, 400px)' }}
     >
-      {/* Vídeo de Fundo - Otimizado (1 vídeo, lazy loading) */}
+      {/* ========================================
+          VÍDEO DE FUNDO OU GRADIENT FALLBACK
+          ======================================== */}
       <div
         className={`absolute inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${
-          videoLoaded ? "opacity-80" : "opacity-0"
+          videoLoaded && !videoError ? "opacity-80" : "opacity-0"
         }`}
       >
-        {shouldLoadVideo && (
+        {shouldLoadVideo && !videoError && (
           <video
             ref={videoRef}
             className="w-full h-full object-cover object-center"
             muted
             playsInline
             loop
-            preload="none"
+            preload="auto"
+            poster={VIDEO_POSTER_URL}
             aria-hidden="true"
             onCanPlay={handleVideoCanPlay}
+            onError={handleVideoError}
+            onLoadedData={() => console.log('[Hero] Vídeo data carregada')}
           >
-            <source src="/binary.mp4" type="video/mp4" />
+            <source src={BINARY_VIDEO_URL} type="video/mp4" />
+            Seu navegador não suporta vídeo HTML5.
           </video>
         )}
-
-        {/* Gradient overlay */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"
-          aria-hidden="true"
-        />
       </div>
 
-      {/* Conteúdo - Crítico (sempre visível) */}
-      <div className="relative z-20 container mx-auto px-4 py-px">
-        <div className="relative pb-[5px] md:pb-[6px]">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-1 md:gap-0 mb-1">
+      {/* Gradient de fundo (sempre presente como fallback) */}
+      <div 
+        className={`absolute inset-0 z-[1] pointer-events-none transition-opacity duration-1000 ${
+          videoLoaded && !videoError ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 50%, rgba(0, 0, 0, 1) 100%)'
+        }}
+      />
+
+      {/* Overlay para melhor legibilidade */}
+      <div 
+        className="absolute inset-0 z-[2] bg-gradient-to-b from-black/40 via-transparent to-black/60"
+        aria-hidden="true"
+      />
+
+      {/* ========================================
+          CONTEÚDO - CRÍTICO (SEMPRE VISÍVEL)
+          ======================================== */}
+      <div className="relative z-20 container mx-auto px-4 py-6 md:py-8">
+        <div className="relative">
+          
+          {/* Linha principal com logo e textos */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             
             {/* Command Lines - Esquerda */}
             <div className="flex-1 flex justify-center md:justify-start md:-mr-6 lg:-mr-12 xl:-mr-16 order-1 md:order-1">
@@ -151,7 +219,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
             <div className="flex-shrink-0 flex items-center justify-center order-first md:order-2">
               <img
                 src={stacksImg}
-                alt="Tech Stack Icons - Adobe Premiere, VS Code, After Effects"
+                alt="Tech Stack - Adobe Premiere, VS Code, After Effects"
                 className="w-full h-auto max-w-[120px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[280px] object-contain select-none pointer-events-none"
                 loading="eager"
                 decoding="async"
@@ -173,10 +241,25 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
         </div>
       </div>
 
-      {/* Loading Indicator */}
-      {!videoLoaded && shouldLoadVideo && (
+      {/* ========================================
+          LOADING INDICATOR
+          Mostra enquanto vídeo carrega
+          ======================================== */}
+      {!videoLoaded && shouldLoadVideo && !videoError && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
+            <p className="text-cyan-400 text-sm font-mono">Carregando vídeo...</p>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================
+          ERROR MESSAGE (DEBUG)
+          ======================================== */}
+      {videoError && (
+        <div className="absolute bottom-4 right-4 z-30 bg-red-900/80 backdrop-blur-sm border border-red-500 rounded px-3 py-2 text-xs font-mono text-red-200">
+          <span>⚠️ Vídeo não disponível - usando fallback</span>
         </div>
       )}
     </section>
