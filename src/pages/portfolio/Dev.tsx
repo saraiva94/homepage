@@ -12,14 +12,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
 import { getCachedFrames, useOptimizedPreload } from "@/hooks/useOptimizedPreload";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
-const loadGSAP = () => import('gsap');
-const loadScrollTrigger = () => import('gsap/ScrollTrigger');
-const loadScrollToPlugin = () => import('gsap/ScrollToPlugin');
-const loadLenis = () => import('lenis');
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const TOTAL_FRAMES = 261;
 const PERSPECTIVE_PX = 1000;
@@ -50,8 +51,9 @@ export default function DevPage() {
   const scrollTriggerRef = useRef<any>(null);
   const lenisRef = useRef<any>(null);
   const gsapRef = useRef<any>(null);
+  const scrollTriggerApiRef = useRef<any>(null);
 
-  const { loadFrames, progress: preloadProgress } = useOptimizedPreload({
+  const { loadFrames, progress: preloadProgress, images: preloadedImages } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
     portfolioType: 'dev',
     batchSize: 20,
@@ -60,25 +62,32 @@ export default function DevPage() {
   });
 
   useEffect(() => {
+    if (preloadedImages.length > 0) {
+      imagesRef.current = preloadedImages;
+      setFramesReady(true);
+    }
+  }, [preloadedImages]);
+
+  useEffect(() => {
     const initFrames = async () => {
       const cachedFrames = getCachedFrames('dev', TOTAL_FRAMES);
-      
+
       if (cachedFrames && cachedFrames.length > 0) {
         console.log(`[Dev] ✅ Usando ${cachedFrames.length} frames do cache`);
         imagesRef.current = cachedFrames;
         setFramesReady(true);
-      } else {
-        console.log('[Dev] ⏳ Cache vazio, carregando frames...');
-        const loadedFrames = await loadFrames();
-        imagesRef.current = loadedFrames;
-        setFramesReady(true);
+        return;
       }
+
+      console.log('[Dev] ⏳ Cache vazio, carregando frames...');
+      // dispara preload em background; o effect acima libera a página assim que chegar o 1º frame
+      loadFrames();
     };
 
-    if (!isLoadingVideos && videos.length > 0) {
+    if (!isLoadingVideos) {
       initFrames();
     }
-  }, [isLoadingVideos, videos.length, loadFrames]);
+  }, [isLoadingVideos, loadFrames]);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -103,44 +112,20 @@ export default function DevPage() {
   }, []);
 
   useEffect(() => {
-    const loadDependencies = async () => {
-      try {
-        const [gsapModule, scrollTriggerModule, scrollToModule, lenisModule] = await Promise.all([
-          loadGSAP(),
-          loadScrollTrigger(),
-          loadScrollToPlugin(),
-          loadLenis(),
-        ]);
+    // ============= LENIS + SCROLLTRIGGER =============
+    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf((time as number) * 1000));
+    gsap.ticker.lagSmoothing(0);
 
-        const gsap = gsapModule.gsap || gsapModule.default;
-        const ScrollTrigger = scrollTriggerModule.ScrollTrigger || scrollTriggerModule.default;
-        const ScrollToPlugin = scrollToModule.ScrollToPlugin || scrollToModule.default;
-        const Lenis = lenisModule.default;
-
-        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-        gsapRef.current = gsap;
-
-        const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
-        lenis.on("scroll", ScrollTrigger.update);
-        gsap.ticker.add((time: number) => lenis.raf(time * 1000));
-        gsap.ticker.lagSmoothing(0);
-        lenisRef.current = lenis;
-
-        setGsapLoaded(true);
-      } catch (error) {
-        console.error("[Dev] Error loading dependencies:", error);
-      }
-    };
-
-    loadDependencies();
+    lenisRef.current = lenis;
+    gsapRef.current = gsap;
+    scrollTriggerApiRef.current = ScrollTrigger;
+    setGsapLoaded(true);
 
     return () => {
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-      }
-      if (gsapRef.current) {
-        gsapRef.current.ticker.lagSmoothing(500, 33);
-      }
+      lenis.destroy();
+      gsap.ticker.lagSmoothing(500, 33);
     };
   }, []);
 
@@ -205,9 +190,9 @@ export default function DevPage() {
     const initScroll = () => {
       const container = containerRef.current;
       const gsap = gsapRef.current;
-      if (!container || !gsap) return;
+      const ScrollTrigger = scrollTriggerApiRef.current;
+      if (!container || !gsap || !ScrollTrigger) return;
 
-      const ScrollTrigger = gsap.ScrollTrigger;
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
       }

@@ -190,6 +190,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
           ...prev,
           loadedFrames: allImages.length,
           progress: (allImages.length / totalFrames) * 100,
+          images: [...allImages],
         }));
 
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -214,6 +215,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
           ...prev,
           loadedFrames: allImages.length,
           progress: (allImages.length / totalFrames) * 100,
+          images: [...allImages],
         }));
 
         await new Promise(resolve => setTimeout(resolve, 20));
@@ -237,6 +239,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
           ...prev,
           loadedFrames: allImages.length,
           progress: (allImages.length / totalFrames) * 100,
+          images: [...allImages],
         }));
 
         await new Promise(resolve => setTimeout(resolve, 50));
