@@ -4,13 +4,13 @@
  * ========================================
  * 
  * Fundo cyberpunk com:
- * - Grid animado (linhas verticais e horizontais)
- * - Partículas flutuantes
+ * - Background original com opacidade
+ * - Partículas flutuantes brilhantes
  * - Cores cyberpunk (roxo, azul, ciano, rosa)
- * - Efeitos sutis e não intrusivos
  */
 
 import { memo } from 'react';
+import homepageBg from "@/assets/homepage-bg.png";
 
 interface CyberpunkBackgroundProps {
   className?: string;
@@ -21,49 +21,18 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
 }: CyberpunkBackgroundProps) {
   return (
     <div className={`fixed inset-0 overflow-hidden pointer-events-none ${className}`}>
-      {/* Base gradient com azul e rosa */}
+      {/* Background original com 40% opacidade */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.3) 0%, rgba(236, 72, 153, 0.2) 30%, rgba(139, 92, 246, 0.15) 50%, rgba(0, 0, 0, 0.98) 85%)'
+          backgroundImage: `url(${homepageBg})`,
         }}
       />
 
-      {/* Grid de linhas verticais - MAIS LINHAS com cores azul/rosa/ciano */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 50 }).map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute top-0 bottom-0 w-px"
-            style={{
-              left: `${(i / 50) * 100}%`,
-              background: i % 3 === 0 
-                ? 'linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.5) 50%, transparent)'
-                : i % 3 === 1
-                  ? 'linear-gradient(to bottom, transparent, rgba(236, 72, 153, 0.4) 50%, transparent)'
-                  : 'linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.45) 50%, transparent)',
-              animation: `pulse 4s ease-in-out ${i * 0.1}s infinite`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Grid de linhas horizontais com cores azul/rosa */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 25 }).map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute left-0 right-0 h-px"
-            style={{
-              top: `${(i / 25) * 100}%`,
-              background: i % 2 === 0
-                ? 'linear-gradient(to right, transparent, rgba(59, 130, 246, 0.4) 50%, transparent)'
-                : 'linear-gradient(to right, transparent, rgba(236, 72, 153, 0.35) 50%, transparent)',
-              animation: `pulse 5s ease-in-out ${i * 0.15}s infinite`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Overlay escuro para contraste */}
+      <div 
+        className="absolute inset-0 bg-black/50"
+      />
 
       {/* Partículas flutuantes - 400 partículas com brilho intenso */}
       <div className="absolute inset-0">
@@ -103,45 +72,29 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
         })}
       </div>
 
-      {/* Efeito de scan line */}
-      <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(59, 130, 246, 0.8) 2px, rgba(59, 130, 246, 0.8) 4px)',
-        }}
-      />
-
       {/* Glow corners - Azul e Rosa */}
       <div 
-        className="absolute top-0 left-0 w-[500px] h-[500px] opacity-60"
+        className="absolute top-0 left-0 w-[500px] h-[500px] opacity-40"
         style={{
-          background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.6) 0%, transparent 50%)'
+          background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.5) 0%, transparent 50%)'
         }}
       />
       <div 
-        className="absolute bottom-0 right-0 w-[500px] h-[500px] opacity-60"
+        className="absolute bottom-0 right-0 w-[500px] h-[500px] opacity-40"
         style={{
-          background: 'radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.5) 0%, transparent 50%)'
+          background: 'radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.4) 0%, transparent 50%)'
         }}
       />
       <div 
-        className="absolute top-0 right-0 w-80 h-80 opacity-40"
+        className="absolute top-0 right-0 w-80 h-80 opacity-30"
         style={{
-          background: 'radial-gradient(circle at top right, rgba(6, 182, 212, 0.5) 0%, transparent 50%)'
+          background: 'radial-gradient(circle at top right, rgba(6, 182, 212, 0.4) 0%, transparent 50%)'
         }}
       />
       <div 
-        className="absolute bottom-0 left-0 w-80 h-80 opacity-40"
+        className="absolute bottom-0 left-0 w-80 h-80 opacity-30"
         style={{
-          background: 'radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.5) 0%, transparent 50%)'
-        }}
-      />
-
-      {/* Central glow azul/rosa */}
-      <div 
-        className="absolute inset-0 opacity-25"
-        style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, rgba(236, 72, 153, 0.1) 30%, transparent 60%)'
+          background: 'radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.4) 0%, transparent 50%)'
         }}
       />
 
@@ -149,7 +102,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
       <div 
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, transparent 55%, rgba(0, 0, 0, 0.5) 100%)'
+          background: 'radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.6) 100%)'
         }}
       />
     </div>
