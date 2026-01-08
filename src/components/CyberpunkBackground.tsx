@@ -21,9 +21,9 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
 }: CyberpunkBackgroundProps) {
   return (
     <div className={`fixed inset-0 overflow-hidden pointer-events-none ${className}`}>
-      {/* Background original com 40% opacidade */}
+      {/* Background original com 70% opacidade */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{
           backgroundImage: `url(${homepageBg})`,
         }}
@@ -31,10 +31,10 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
 
       {/* Overlay escuro para contraste */}
       <div 
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/30"
       />
 
-      {/* Partículas flutuantes - 400 partículas com brilho intenso */}
+      {/* Partículas flutuantes - 400 partículas com brilho intenso e direções aleatórias */}
       <div className="absolute inset-0">
         {Array.from({ length: 400 }).map((_, i) => {
           const colors = [
@@ -48,11 +48,12 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
           const size = i % 10 === 0 ? 5 : i % 7 === 0 ? 4 : i % 5 === 0 ? 3 : i % 3 === 0 ? 2 : 1;
           const hasGlow = i % 4 === 0;
           const hasIntenseGlow = i % 10 === 0;
+          const floatDirection = (i % 6) + 1; // 1-6 para diferentes direções
           
           return (
             <div
               key={`p-${i}`}
-              className="absolute rounded-full animate-float"
+              className={`absolute rounded-full animate-float-${floatDirection}`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -65,7 +66,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
                     ? `0 0 ${size * 2}px ${color}, 0 0 ${size * 4}px ${color}` 
                     : `0 0 ${size}px ${color}`,
                 animationDelay: `${Math.random() * 10}s`,
-                animationDuration: `${2 + Math.random() * 6}s`,
+                animationDuration: `${4 + Math.random() * 6}s`,
               }}
             />
           );

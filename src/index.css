@@ -513,28 +513,56 @@ body {
 }
 
 /* ========================================
-   ANIMAÇÃO FLOAT (PARTÍCULAS)
+   ANIMAÇÃO FLOAT (PARTÍCULAS) - DIREÇÕES ALEATÓRIAS
    ======================================== */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(20px);
-    opacity: 0;
-  }
+@keyframes float-1 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(50px, -80px); opacity: 0; }
 }
 
-.animate-float {
-  animation: float linear infinite;
+@keyframes float-2 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(-60px, -60px); opacity: 0; }
 }
+
+@keyframes float-3 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(40px, 70px); opacity: 0; }
+}
+
+@keyframes float-4 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(-70px, 50px); opacity: 0; }
+}
+
+@keyframes float-5 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(30px, -100px); opacity: 0; }
+}
+
+@keyframes float-6 {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(-40px, -90px); opacity: 0; }
+}
+
+.animate-float-1 { animation: float-1 ease-in-out infinite; }
+.animate-float-2 { animation: float-2 ease-in-out infinite; }
+.animate-float-3 { animation: float-3 ease-in-out infinite; }
+.animate-float-4 { animation: float-4 ease-in-out infinite; }
+.animate-float-5 { animation: float-5 ease-in-out infinite; }
+.animate-float-6 { animation: float-6 ease-in-out infinite; }
 
 /* ========================================
    ANIMAÇÃO PULSE SLOW (LOGO)
