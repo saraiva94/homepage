@@ -1,22 +1,23 @@
 /**
- * Hook: useOptimizedPreload
+ * ========================================
+ * useOptimizedPreload.ts - VERSÃO CORRIGIDA
+ * ========================================
  * 
- * Gerenciador inteligente de preload de frames
- * Features:
- * - Progressive loading (carrega em lotes)
- * - Priority queue (frames visíveis primeiro)
- * - Memory management
- * - Network-aware (detecta conexão lenta)
+ * CORREÇÕES:
+ * - Melhor error handling
+ * - Estado inicial mais robusto
+ * - Preload em background (sem UI)
+ * - Cache persistente
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface PreloadOptions {
   totalFrames: number;
   portfolioType: 'dev' | 'edits';
   batchSize?: number;
-  priority?: 'high' | 'normal' | 'low';
-  enableCache?: boolean;
+  autoStart?: boolean;
+  silent?: boolean;
 }
 
 interface PreloadState {
@@ -25,13 +26,16 @@ interface PreloadState {
   progress: number;
   error: string | null;
   images: HTMLImageElement[];
+  isComplete: boolean;
 }
 
-// Cache global para evitar recarregar frames
+// Cache global para frames
 const FRAME_CACHE = new Map<string, HTMLImageElement[]>();
 
 // Detecta conexão lenta
 const isSlowConnection = (): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  
   if ('connection' in navigator) {
     const conn = (navigator as any).connection;
     return conn?.effectiveType === 'slow-2g' || 
@@ -41,7 +45,7 @@ const isSlowConnection = (): boolean => {
   return false;
 };
 
-// Configurações dos frames de cada portfolio
+// Configuração dos portfolios
 const PORTFOLIO_CONFIG = {
   dev: {
     frameStart: 14,
@@ -69,13 +73,18 @@ const getFrameUrl = (type: 'dev' | 'edits', frameIndex: number): string => {
   return encodeURI(`${config.dir}/${filename}`);
 };
 
+/**
+ * ========================================
+ * HOOK PRINCIPAL
+ * ========================================
+ */
 export function useOptimizedPreload(options: PreloadOptions) {
   const {
     totalFrames,
     portfolioType,
-    batchSize = 10,
-    priority = 'normal',
-    enableCache = true,
+    batchSize = 15,
+    autoStart = false,
+    silent = false,
   } = options;
 
   const [state, setState] = useState<PreloadState>({
@@ -84,72 +93,93 @@ export function useOptimizedPreload(options: PreloadOptions) {
     progress: 0,
     error: null,
     images: [],
+    isComplete: false,
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const isSlowNetworkRef = useRef(isSlowConnection());
+  const hasStartedRef = useRef(false);
 
-  /**
-   * Carrega um batch de frames
-   */
   const loadBatch = useCallback(
     async (frameNumbers: number[]): Promise<HTMLImageElement[]> => {
       const promises = frameNumbers.map((frameNum) => {
         return new Promise<HTMLImageElement>((resolve, reject) => {
           const img = new Image();
           
-          img.onload = () => resolve(img);
-          img.onerror = () => reject(new Error(`Failed to load frame ${frameNum}`));
+          const timeout = setTimeout(() => {
+            reject(new Error(`Timeout loading frame ${frameNum}`));
+          }, 10000);
+          
+          img.onload = () => {
+            clearTimeout(timeout);
+            resolve(img);
+          };
+          
+          img.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error(`Failed to load frame ${frameNum}`));
+          };
           
           img.loading = 'lazy';
           img.decoding = 'async';
-          
           img.src = getFrameUrl(portfolioType, frameNum);
         });
       });
 
-      return Promise.all(promises);
+      try {
+        return await Promise.all(promises);
+      } catch {
+        const results = await Promise.allSettled(promises);
+        return results
+          .filter((result): result is PromiseFulfilledResult<HTMLImageElement> => 
+            result.status === 'fulfilled'
+          )
+          .map(result => result.value);
+      }
     },
     [portfolioType]
   );
 
-  /**
-   * Carrega frames progressivamente
-   */
-  const loadFramesProgressively = useCallback(async () => {
+  const loadFrames = useCallback(async () => {
+    if (hasStartedRef.current) {
+      if (!silent) console.log(`[Preload ${portfolioType}] Já está carregando`);
+      return state.images.length > 0 ? state.images : [];
+    }
+
     const cacheKey = `${portfolioType}-${totalFrames}`;
-    
-    // Verifica cache primeiro
-    if (enableCache && FRAME_CACHE.has(cacheKey)) {
+    if (FRAME_CACHE.has(cacheKey)) {
       const cachedImages = FRAME_CACHE.get(cacheKey)!;
+      if (!silent) console.log(`[Preload ${portfolioType}] Usando ${cachedImages.length} frames do cache`);
+      
       setState({
         loadedFrames: cachedImages.length,
         isLoading: false,
         progress: 100,
         error: null,
         images: cachedImages,
+        isComplete: true,
       });
+      
       return cachedImages;
     }
 
+    hasStartedRef.current = true;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     abortControllerRef.current = new AbortController();
 
     const allImages: HTMLImageElement[] = [];
     const adjustedBatchSize = isSlowNetworkRef.current ? Math.floor(batchSize / 2) : batchSize;
 
-    try {
-      // Estratégia de carregamento em 3 fases
-      const phase1Frames = 30; // Primeiros 30 frames (hero)
-      const phase2Frames = Math.floor(totalFrames * 0.5);
-      const phase3Frames = totalFrames;
+    if (!silent) console.log(`[Preload ${portfolioType}] Iniciando carregamento de ${totalFrames} frames`);
 
-      // FASE 1: Critical frames (imediato)
-      for (let i = 0; i < phase1Frames; i += adjustedBatchSize) {
+    try {
+      // FASE 1: Critical frames (primeiros 30)
+      const phase1End = Math.min(30, totalFrames);
+      for (let i = 0; i < phase1End; i += adjustedBatchSize) {
         if (abortControllerRef.current?.signal.aborted) break;
 
         const batch = Array.from(
-          { length: Math.min(adjustedBatchSize, phase1Frames - i) },
+          { length: Math.min(adjustedBatchSize, phase1End - i) },
           (_, idx) => i + idx
         );
 
@@ -165,14 +195,15 @@ export function useOptimizedPreload(options: PreloadOptions) {
         await new Promise(resolve => setTimeout(resolve, 10));
       }
 
-      // FASE 2: Secondary frames
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // FASE 2: Secondary frames (próximos 50%)
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      for (let i = phase1Frames; i < phase2Frames; i += adjustedBatchSize) {
+      const phase2End = Math.min(Math.floor(totalFrames * 0.5), totalFrames);
+      for (let i = phase1End; i < phase2End; i += adjustedBatchSize) {
         if (abortControllerRef.current?.signal.aborted) break;
 
         const batch = Array.from(
-          { length: Math.min(adjustedBatchSize, phase2Frames - i) },
+          { length: Math.min(adjustedBatchSize, phase2End - i) },
           (_, idx) => i + idx
         );
 
@@ -188,89 +219,112 @@ export function useOptimizedPreload(options: PreloadOptions) {
         await new Promise(resolve => setTimeout(resolve, 20));
       }
 
-      // FASE 3: Remaining frames (background)
-      if (priority === 'high') {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // FASE 3: Remaining frames
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-        for (let i = phase2Frames; i < phase3Frames; i += adjustedBatchSize) {
-          if (abortControllerRef.current?.signal.aborted) break;
+      for (let i = phase2End; i < totalFrames; i += adjustedBatchSize) {
+        if (abortControllerRef.current?.signal.aborted) break;
 
-          const batch = Array.from(
-            { length: Math.min(adjustedBatchSize, phase3Frames - i) },
-            (_, idx) => i + idx
-          );
+        const batch = Array.from(
+          { length: Math.min(adjustedBatchSize, totalFrames - i) },
+          (_, idx) => i + idx
+        );
 
-          const batchImages = await loadBatch(batch);
-          allImages.push(...batchImages);
+        const batchImages = await loadBatch(batch);
+        allImages.push(...batchImages);
 
-          setState(prev => ({
-            ...prev,
-            loadedFrames: allImages.length,
-            progress: (allImages.length / totalFrames) * 100,
-          }));
+        setState(prev => ({
+          ...prev,
+          loadedFrames: allImages.length,
+          progress: (allImages.length / totalFrames) * 100,
+        }));
 
-          await new Promise(resolve => setTimeout(resolve, 50));
-        }
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
 
-      // Salva no cache
-      if (enableCache) {
-        FRAME_CACHE.set(cacheKey, allImages);
-      }
+      FRAME_CACHE.set(cacheKey, allImages);
 
       setState(prev => ({
         ...prev,
         isLoading: false,
         images: allImages,
         progress: 100,
+        isComplete: true,
       }));
 
+      if (!silent) console.log(`[Preload ${portfolioType}] Completo: ${allImages.length}/${totalFrames} frames`);
       return allImages;
 
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`[Preload ${portfolioType}] Erro:`, errorMessage);
+      
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
+        images: allImages,
+        isComplete: allImages.length > 0,
       }));
-      throw error;
+      
+      return allImages;
     }
-  }, [portfolioType, totalFrames, batchSize, priority, enableCache, loadBatch]);
+  }, [portfolioType, totalFrames, batchSize, silent, loadBatch, state.images.length]);
 
-  /**
-   * Limpa recursos
-   */
+  useEffect(() => {
+    if (autoStart && !hasStartedRef.current) {
+      loadFrames();
+    }
+  }, [autoStart, loadFrames]);
+
   const cleanup = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
+    hasStartedRef.current = false;
   }, []);
 
-  /**
-   * Força reload
-   */
   const reload = useCallback(() => {
     const cacheKey = `${portfolioType}-${totalFrames}`;
     FRAME_CACHE.delete(cacheKey);
-    return loadFramesProgressively();
-  }, [portfolioType, totalFrames, loadFramesProgressively]);
+    hasStartedRef.current = false;
+    return loadFrames();
+  }, [portfolioType, totalFrames, loadFrames]);
 
   return {
     ...state,
-    loadFrames: loadFramesProgressively,
+    loadFrames,
     cleanup,
     reload,
   };
 }
 
-export const clearFrameCache = () => {
-  FRAME_CACHE.clear();
+export const getCachedFrames = (portfolioType: 'dev' | 'edits', totalFrames: number): HTMLImageElement[] | null => {
+  const cacheKey = `${portfolioType}-${totalFrames}`;
+  return FRAME_CACHE.get(cacheKey) || null;
 };
 
-export const getFrameCacheSize = (): number => {
-  let totalSize = 0;
-  FRAME_CACHE.forEach(images => {
-    totalSize += images.length;
+export const clearFrameCache = (portfolioType?: 'dev' | 'edits') => {
+  if (portfolioType) {
+    for (const [key] of FRAME_CACHE) {
+      if (key.startsWith(portfolioType)) {
+        FRAME_CACHE.delete(key);
+      }
+    }
+  } else {
+    FRAME_CACHE.clear();
+  }
+};
+
+export const areFramesCached = (portfolioType: 'dev' | 'edits', totalFrames: number): boolean => {
+  const cacheKey = `${portfolioType}-${totalFrames}`;
+  return FRAME_CACHE.has(cacheKey);
+};
+
+export const getCacheInfo = (): Record<string, number> => {
+  const info: Record<string, number> = {};
+  FRAME_CACHE.forEach((images, key) => {
+    info[key] = images.length;
   });
-  return totalSize;
+  return info;
 };
