@@ -1,5 +1,15 @@
+/**
+ * About Component - Versão Otimizada
+ * 
+ * Otimizações:
+ * - React.memo para evitar re-renders
+ * - useMemo para skills renderizadas
+ * - useCallback para funções estáveis
+ * - Cache strategy para fetch
+ */
+
 import { Link } from "react-router-dom";
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState, useCallback, memo } from "react";
 import {
   Clapperboard,
   Code2,
@@ -8,7 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useFitScale } from "@/hooks/useFitScale";
-import { supabase } from "@/integrations/backend/client";
+import { supabase } from "@/integrations/supabase/client";
 import { getIconByKey } from "@/lib/skillIconsCatalog";
 import about1ImgRaw from "@/assets/eu.png";
 import about2ImgRaw from "@/assets/background.jpg";
@@ -28,8 +38,18 @@ interface AboutProps {
   isVisible?: boolean;
 }
 
-// Default skills (fallback se não houver no banco)
-const defaultHardSkills = [
+// Cache para skills (evita re-fetch)
+const SKILLS_CACHE = {
+  hard: null as Skill[] | null,
+  soft: null as Skill[] | null,
+  resumeUrl: null as string | null,
+  timestamp: 0,
+};
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+// Default skills (fallback)
+const DEFAULT_HARD_SKILLS = [
   { icon_key: "adobe-cc", icon_color: "#DA1F26", name: "Creative Cloud" },
   { icon_key: "after-effects", icon_color: "#9999FF", name: "After Effects" },
   { icon_key: "premiere-pro", icon_color: "#9999FF", name: "Premiere Pro" },
@@ -51,7 +71,7 @@ const defaultHardSkills = [
   { icon_key: "excel", icon_color: "#217346", name: "Excel" },
 ];
 
-const defaultSoftSkills = [
+const DEFAULT_SOFT_SKILLS = [
   { icon_key: "communication", icon_color: "#60A5FA", name: "Comunicação" },
   { icon_key: "organization", icon_color: "#4ADE80", name: "Organização" },
   { icon_key: "teamwork", icon_color: "#C084FC", name: "Trabalho em equipe" },
@@ -59,47 +79,162 @@ const defaultSoftSkills = [
   { icon_key: "creativity", icon_color: "#FB923C", name: "Criatividade" },
 ];
 
-export function About({ isVisible = true }: AboutProps) {
+// Skill Icon Component (memoizado)
+interface SkillIconProps {
+  iconKey: string;
+  color: string;
+  category: "hard" | "soft";
+}
+
+const SkillIcon = memo(({ iconKey, color, category }: SkillIconProps) => {
+  const catalogItem = getIconByKey(iconKey, category);
+  
+  if (!catalogItem) return null;
+
+  const IconComponent = catalogItem.icon;
+  
+  return (
+    <IconComponent
+      className="shrink-0"
+      style={{
+        width: "var(--icon-size)",
+        height: "var(--icon-size)",
+        color,
+      }}
+    />
+  );
+});
+
+SkillIcon.displayName = 'SkillIcon';
+
+// Skill Card Component (memoizado)
+interface SkillCardProps {
+  skill: Skill;
+  category: "hard" | "soft";
+}
+
+const SkillCard = memo(({ skill, category }: SkillCardProps) => {
+  return (
+    <div
+      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+      style={{
+        height: "var(--skill-h)",
+        gap: "var(--skill-gap)",
+        padding: "var(--skill-gap)",
+      }}
+    >
+      <SkillIcon 
+        iconKey={skill.icon_key} 
+        color={skill.icon_color} 
+        category={category} 
+      />
+      <span
+        className="leading-tight truncate"
+        style={{
+          fontSize: "var(--text-size)",
+          maxWidth: category === "hard" ? "16ch" : "18ch",
+        }}
+      >
+        {skill.name}
+      </span>
+    </div>
+  );
+});
+
+SkillCard.displayName = 'SkillCard';
+
+// Componente Principal
+export const About = memo(({ isVisible = true }: AboutProps) => {
   const [hardSkills, setHardSkills] = useState<Skill[]>([]);
   const [softSkills, setSoftSkills] = useState<Skill[]>([]);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
-  const [, setLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const skillsViewportRef = useRef<HTMLDivElement | null>(null);
+  const skillsContentRef = useRef<HTMLDivElement | null>(null);
+
+  /**
+   * Fetch otimizado com cache
+   */
+  const fetchSkillsData = useCallback(async () => {
+    const now = Date.now();
+    const isCacheValid = SKILLS_CACHE.timestamp && (now - SKILLS_CACHE.timestamp < CACHE_TTL);
+
+    if (isCacheValid && SKILLS_CACHE.hard && SKILLS_CACHE.soft) {
+      setHardSkills(SKILLS_CACHE.hard);
+      setSoftSkills(SKILLS_CACHE.soft);
+      setResumeUrl(SKILLS_CACHE.resumeUrl);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
       const [hardResult, softResult, settingsResult] = await Promise.all([
         supabase.from("hard_skills").select("*").order("display_order"),
         supabase.from("soft_skills").select("*").order("display_order"),
         supabase.from("site_settings").select("resume_url").eq("id", "main").single(),
       ]);
 
-      if (hardResult.data && hardResult.data.length > 0) {
-        setHardSkills(hardResult.data);
-      }
-      if (softResult.data && softResult.data.length > 0) {
-        setSoftSkills(softResult.data);
-      }
-      if (settingsResult.data?.resume_url) {
-        setResumeUrl(settingsResult.data.resume_url);
-      }
-      setLoaded(true);
-    };
+      const hardData = hardResult.data || [];
+      const softData = softResult.data || [];
+      const resumeData = settingsResult.data?.resume_url || null;
 
-    fetchData();
+      // Atualiza cache
+      SKILLS_CACHE.hard = hardData;
+      SKILLS_CACHE.soft = softData;
+      SKILLS_CACHE.resumeUrl = resumeData;
+      SKILLS_CACHE.timestamp = now;
+
+      setHardSkills(hardData);
+      setSoftSkills(softData);
+      setResumeUrl(resumeData);
+    } catch (error) {
+      console.error('[About] Error fetching skills:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Use skills do banco ou fallback para defaults
-  const displayHardSkills = hardSkills.length > 0 ? hardSkills : defaultHardSkills.map((s, i) => ({ ...s, id: `default-hard-${i}`, display_order: i }));
-  const displaySoftSkills = softSkills.length > 0 ? softSkills : defaultSoftSkills.map((s, i) => ({ ...s, id: `default-soft-${i}`, display_order: i }));
+  useEffect(() => {
+    fetchSkillsData();
+  }, [fetchSkillsData]);
 
-  const btnBase =
+  /**
+   * Skills renderizadas (memoizadas)
+   */
+  const displayHardSkills = useMemo(() => {
+    if (hardSkills.length > 0) return hardSkills;
+    return DEFAULT_HARD_SKILLS.map((s, i) => ({ 
+      ...s, 
+      id: `default-hard-${i}`, 
+      display_order: i 
+    }));
+  }, [hardSkills]);
+
+  const displaySoftSkills = useMemo(() => {
+    if (softSkills.length > 0) return softSkills;
+    return DEFAULT_SOFT_SKILLS.map((s, i) => ({ 
+      ...s, 
+      id: `default-soft-${i}`, 
+      display_order: i 
+    }));
+  }, [softSkills]);
+
+  /**
+   * Button base styles (memoizado)
+   */
+  const btnBase = useMemo(() => 
     "w-full inline-flex items-center justify-center " +
     "rounded-md font-medium text-white shadow-sm " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
     "transition-colors duration-300 ease-in-out " +
-    "hover:shadow-md";
+    "hover:shadow-md"
+  , []);
 
-  const cardStyle = {
+  /**
+   * CSS Variables (memoizadas)
+   */
+  const cardStyle = useMemo<React.CSSProperties>(() => ({
     "--skill-min": "clamp(80px, 7.6vw, 150px)",
     "--skill-h": "clamp(32px, 3.2vh, 70px)",
     "--skill-gap": "clamp(3px, 0.35vw, 10px)",
@@ -112,11 +247,11 @@ export function About({ isVisible = true }: AboutProps) {
     "--btn-size": "clamp(9px, 0.85vw, 14px)",
     "--btn-icon": "clamp(12px, 1.05vw, 18px)",
     "--avatar": "clamp(60px, 9vw, 170px)",
-  } as React.CSSProperties;
+  } as React.CSSProperties), []);
 
-  const skillsViewportRef = useRef<HTMLDivElement | null>(null);
-  const skillsContentRef = useRef<HTMLDivElement | null>(null);
-
+  /**
+   * Fit Scale Hook
+   */
   const scale = useFitScale(skillsViewportRef.current, skillsContentRef.current, {
     minScale: 0.82,
     maxScale: 1,
@@ -126,28 +261,33 @@ export function About({ isVisible = true }: AboutProps) {
     () => ({
       transform: `scale(${scale})`,
       transformOrigin: "top center",
-      willChange: "transform",
+      willChange: scale < 1 ? "transform" : "auto",
     }),
     [scale]
   );
 
-  const renderSkillIcon = (iconKey: string, color: string, category: "hard" | "soft") => {
-    const catalogItem = getIconByKey(iconKey, category);
-    if (!catalogItem) return null;
-
-    const IconComponent = catalogItem.icon;
+  /**
+   * Loading State
+   */
+  if (isLoading) {
     return (
-      <IconComponent
-        className="shrink-0"
-        style={{
-          width: "var(--icon-size)",
-          height: "var(--icon-size)",
-          color,
-        }}
-      />
+      <section
+        className="w-full h-full bg-transparent flex items-center justify-center"
+        style={cardStyle}
+      >
+        <div className="relative z-[1] w-full h-full rounded-2xl bg-black/25 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+            <p className="text-white/70 text-sm">Carregando perfil...</p>
+          </div>
+        </div>
+      </section>
     );
-  };
+  }
 
+  /**
+   * Render Principal
+   */
   return (
     <section
       className={`w-full h-full bg-transparent transition-opacity duration-1000 ease-out ${
@@ -156,7 +296,7 @@ export function About({ isVisible = true }: AboutProps) {
       style={cardStyle}
     >
       <div className="w-full h-full relative rounded-2xl overflow-hidden">
-        {/* overlay glass */}
+        {/* Overlay glass */}
         <div
           aria-hidden
           className="absolute inset-0 z-0 rounded-2xl
@@ -168,28 +308,29 @@ export function About({ isVisible = true }: AboutProps) {
 
         {/* Conteúdo principal */}
         <div className="relative z-[1] h-full flex flex-col p-[var(--padding)] gap-[var(--skill-gap)]">
-          {/* Topo: imagem de background com avatar */}
+          
+          {/* Topo: Background + Avatar */}
           <div
             className="relative shrink-0 rounded-2xl overflow-hidden"
             style={{ height: "clamp(220px, 34vh, 420px)" }}
           >
             <img
               src={about2Img}
-              alt="background"
+              alt="Background workspace"
               loading="lazy"
               decoding="async"
               onError={(e) => {
-                console.error("[About] Falha ao carregar background.jpg", about2Img);
+                console.error("[About] Falha ao carregar background.jpg");
                 e.currentTarget.style.opacity = "0";
                 (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
                   "bg-white/5"
                 );
               }}
-              className="absolute inset-0 w-full h-full object-cover object-[50%_68%] origin-[50%_68%]
-                         transition-transform duration-500 will-change-transform hover:scale-[1.08]"
+              className="absolute inset-0 w-full h-full object-cover object-[50%_68%] 
+                         transition-transform duration-500 hover:scale-[1.08]"
             />
 
-            {/* avatar (direita) */}
+            {/* Avatar */}
             <div className="absolute right-[var(--padding)] bottom-[var(--padding)] z-20 flex flex-col items-center pointer-events-auto">
               <div
                 className="relative border-[3px] border-white/40 overflow-hidden rounded-lg shadow-lg"
@@ -197,11 +338,11 @@ export function About({ isVisible = true }: AboutProps) {
               >
                 <img
                   src={about1Img}
-                  alt="foto do Swamiy"
+                  alt="Foto de Swamiy Saraiva"
                   loading="lazy"
                   decoding="async"
                   onError={(e) => {
-                    console.error("[About] Falha ao carregar eu.png", about1Img);
+                    console.error("[About] Falha ao carregar eu.png");
                     e.currentTarget.style.display = "none";
                     (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
                       "bg-white/10"
@@ -213,7 +354,7 @@ export function About({ isVisible = true }: AboutProps) {
             </div>
           </div>
 
-          {/* Botões - grid responsivo: 2 colunas em mobile, row em desktop */}
+          {/* Botões de Ação */}
           <div 
             className="grid grid-cols-2 sm:grid-cols-3 md:flex w-full shrink-0" 
             style={{ gap: 'var(--skill-gap)' }}
@@ -238,6 +379,8 @@ export function About({ isVisible = true }: AboutProps) {
 
             <a
               href="https://wa.me/5521969381944"
+              target="_blank"
+              rel="noopener noreferrer"
               className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
@@ -257,6 +400,8 @@ export function About({ isVisible = true }: AboutProps) {
 
             <a
               href="https://github.com/Saraiva94"
+              target="_blank"
+              rel="noopener noreferrer"
               className={`${btnBase} col-span-2 sm:col-span-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
             >
@@ -265,8 +410,10 @@ export function About({ isVisible = true }: AboutProps) {
             </a>
           </div>
 
-          {/* Base: texto e skills */}
+          {/* Educação + Skills */}
           <div className="relative z-0 flex-1 min-h-0 text-white overflow-hidden flex flex-col">
+            
+            {/* Educação */}
             <div className="text-white/90 leading-snug text-center shrink-0" style={{ marginBottom: 'var(--skill-gap)' }}>
               <span className="block font-bold leading-tight md:hidden" style={{ fontSize: 'var(--title-size)' }}>
                 Análise e<br />
@@ -279,6 +426,7 @@ export function About({ isVisible = true }: AboutProps) {
               <span className="block" style={{ fontSize: 'var(--subtitle-size)' }}>Faculdade Unigranrio</span>
             </div>
 
+            {/* Skills Container */}
             <div
               ref={skillsViewportRef}
               className="flex flex-1 min-h-0 overflow-hidden"
@@ -286,7 +434,8 @@ export function About({ isVisible = true }: AboutProps) {
             >
               <div ref={skillsContentRef} className="w-full" style={scaledStyle}>
                 <div className="flex w-full" style={{ gap: "var(--section-gap)" }}>
-                  {/* Hard Skills - 2/3 do espaço */}
+                  
+                  {/* Hard Skills */}
                   <section className="flex-[2] flex flex-col min-h-0">
                     <h3
                       className="font-bold text-sky-400 shrink-0"
@@ -306,31 +455,12 @@ export function About({ isVisible = true }: AboutProps) {
                       }}
                     >
                       {displayHardSkills.map((skill) => (
-                        <div
-                          key={skill.id}
-                          className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
-                          style={{
-                            height: "var(--skill-h)",
-                            gap: "var(--skill-gap)",
-                            padding: "var(--skill-gap)",
-                          }}
-                        >
-                          {renderSkillIcon(skill.icon_key, skill.icon_color, "hard")}
-                          <span
-                            className="leading-tight truncate"
-                            style={{
-                              fontSize: "var(--text-size)",
-                              maxWidth: "16ch",
-                            }}
-                          >
-                            {skill.name}
-                          </span>
-                        </div>
+                        <SkillCard key={skill.id} skill={skill} category="hard" />
                       ))}
                     </div>
                   </section>
 
-                  {/* Soft Skills - 1/3 do espaço */}
+                  {/* Soft Skills */}
                   <section className="flex-1 flex flex-col min-h-0">
                     <h3
                       className="font-bold text-sky-400 shrink-0"
@@ -350,26 +480,7 @@ export function About({ isVisible = true }: AboutProps) {
                       }}
                     >
                       {displaySoftSkills.map((skill) => (
-                        <div
-                          key={skill.id}
-                          className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
-                          style={{
-                            height: "var(--skill-h)",
-                            gap: "var(--skill-gap)",
-                            padding: "var(--skill-gap)",
-                          }}
-                        >
-                          {renderSkillIcon(skill.icon_key, skill.icon_color, "soft")}
-                          <span
-                            className="leading-tight truncate"
-                            style={{
-                              fontSize: "var(--text-size)",
-                              maxWidth: "18ch",
-                            }}
-                          >
-                            {skill.name}
-                          </span>
-                        </div>
+                        <SkillCard key={skill.id} skill={skill} category="soft" />
                       ))}
                     </div>
                   </section>
@@ -381,4 +492,6 @@ export function About({ isVisible = true }: AboutProps) {
       </div>
     </section>
   );
-}
+});
+
+About.displayName = 'About';
