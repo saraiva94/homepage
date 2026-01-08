@@ -173,13 +173,13 @@ export default function Index() {
         </div>
       </header>
 
-      {/* Card principal - centralizado verticalmente no espaço restante */}
-      <main className="flex-1 relative z-10 px-2 sm:px-4 flex items-center justify-center">
+      {/* Card principal - mais próximo do navbar */}
+      <main className="flex-1 relative z-10 px-2 sm:px-4 pb-4 flex items-start justify-center">
         <div
           className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl transition-all duration-700 ease-out delay-150 ${
             contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ height: "clamp(400px, calc(100vh - 180px), 800px)" }}
+          style={{ height: "clamp(400px, calc(100vh - 140px), 820px)" }}
         >
           <About isVisible={contentReady} />
         </div>
