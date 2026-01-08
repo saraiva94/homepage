@@ -79,12 +79,12 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
         className="absolute inset-0 bg-black/30 pointer-events-none"
       />
 
-      {/* Partículas flutuantes com hover para iluminar */}
+      {/* Partículas fixas com hover para iluminar */}
       <div className="absolute inset-0 pointer-events-auto">
         {particles.map((p) => (
           <div
             key={`p-${p.id}`}
-            className={`absolute rounded-full animate-float-${p.floatDirection} transition-all duration-300 cursor-default hover:scale-[3] hover:brightness-[2]`}
+            className="absolute rounded-full transition-all duration-300 cursor-default hover:scale-[3] hover:brightness-[2]"
             style={{
               left: `${p.left}%`,
               top: `${p.top}%`,
@@ -96,8 +96,6 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
                 : p.hasGlow 
                   ? `0 0 ${p.size * 2}px ${p.color}, 0 0 ${p.size * 4}px ${p.color}` 
                   : `0 0 ${p.size}px ${p.color}`,
-              animationDelay: `${p.delay}s`,
-              animationDuration: `${p.duration}s`,
             }}
           />
         ))}
