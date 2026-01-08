@@ -17,7 +17,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { About } from "@/components/About";
-import CursorTrail from "@/components/CursorTrail";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CyberpunkBackground } from "@/components/CyberpunkBackground";
 import { useOptimizedPreload, getCacheInfo } from "@/hooks/useOptimizedPreload";
@@ -126,10 +125,8 @@ export default function Index() {
    */
   return (
     <div className="w-full h-[100dvh] overflow-hidden relative bg-black flex flex-col">
-      {/* Fundo cyberpunk interativo */}
+      {/* Fundo cyberpunk interativo com partículas que iluminam ao hover */}
       <CyberpunkBackground className="z-0" />
-      
-      <CursorTrail />
 
       {/* Header com Command Lines / Timelines */}
       <header 

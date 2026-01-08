@@ -116,11 +116,12 @@ interface SkillCardProps {
 const SkillCard = memo(({ skill, category }: SkillCardProps) => {
   return (
     <div
-      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)]"
+      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)] overflow-hidden"
       style={{
         height: "var(--skill-h)",
         gap: "var(--skill-gap)",
         padding: "var(--skill-gap)",
+        minWidth: 0,
       }}
     >
       <SkillIcon 
@@ -129,10 +130,9 @@ const SkillCard = memo(({ skill, category }: SkillCardProps) => {
         category={category} 
       />
       <span
-        className="leading-tight truncate"
+        className="leading-tight truncate flex-shrink min-w-0"
         style={{
           fontSize: "var(--text-size)",
-          maxWidth: category === "hard" ? "16ch" : "18ch",
         }}
       >
         {skill.name}
