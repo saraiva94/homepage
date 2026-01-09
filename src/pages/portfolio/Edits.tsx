@@ -64,7 +64,7 @@ export default function EditsPage() {
         const { data, error } = await supabase
           .from("portfolio_videos")
           .select("*")
-          .eq("portfolio_type", "editor")
+          .eq("portfolio_type", "edits")
           .order("display_order")
           .limit(MAX_VIDEOS);
 
