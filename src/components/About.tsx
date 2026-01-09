@@ -447,7 +447,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Hard skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns:
                           "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
@@ -472,7 +472,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Soft skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns:
                           "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
