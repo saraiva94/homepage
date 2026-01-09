@@ -121,8 +121,10 @@ export function useOptimizedPreload(options: PreloadOptions) {
             reject(new Error(`Failed to load frame ${frameNum}`));
           };
           
-          img.loading = 'lazy';
           img.decoding = 'async';
+          // Importante: não usar `loading="lazy"` aqui.
+          // Alguns browsers podem adiar/ignorar o download de imagens "lazy" que não estão no DOM,
+          // o que pode travar o progresso em páginas que dependem do preload.
           img.src = getFrameUrl(portfolioType, frameNum);
         });
       });
