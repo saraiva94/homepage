@@ -200,7 +200,12 @@ export default function DevPage() {
       const totalVideos = videos.length;
       if (totalVideos === 0) return;
 
-      const heroScrollScreens = 1 + totalVideos + 0.5;
+      // Calcula scroll para garantir que todos os frames sejam percorridos
+      // Mais scroll = mais tempo para percorrer todos os frames
+      const framesScrollScreens = 2; // Telas dedicadas para animação de frames
+      const videosScrollScreens = totalVideos * 1.2; // Telas por vídeo
+      const endScrollScreens = 0.5; // Tela para botões finais
+      const heroScrollScreens = framesScrollScreens + videosScrollScreens + endScrollScreens;
       const scrollEnd = window.innerHeight * heroScrollScreens;
 
       scrollTriggerRef.current = ScrollTrigger.create({
@@ -209,11 +214,15 @@ export default function DevPage() {
         end: `+=${scrollEnd}`,
         pin: true,
         pinSpacing: true,
-        scrub: 1,
+        scrub: 0.5, // Mais responsivo
         onUpdate: (self: any) => {
           const progress = self.progress;
-
-          const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1));
+          const availableFrames = imagesRef.current.length;
+          
+          // Usa todos os frames disponíveis, não apenas TOTAL_FRAMES
+          const maxFrame = Math.max(availableFrames - 1, 0);
+          const targetFrame = Math.min(Math.round(progress * maxFrame), maxFrame);
+          
           if (targetFrame !== stateRef.current.frame && imagesRef.current[targetFrame]) {
             stateRef.current.frame = targetFrame;
             requestAnimationFrame(render);
