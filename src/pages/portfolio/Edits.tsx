@@ -25,6 +25,7 @@ interface Video {
 export default function EditsPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
+  const [gsapLoaded, setGsapLoaded] = useState(false);
   const [framesReady, setFramesReady] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
@@ -38,8 +39,9 @@ export default function EditsPage() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const stateRef = useRef({ frame: 0, count: TOTAL_FRAMES });
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
 
-  const { loadFrames, progress: preloadProgress } = useOptimizedPreload({
+  const { loadFrames, progress: preloadProgress, images: preloadedImages } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
     portfolioType: 'edits',
     batchSize: 20,
@@ -47,22 +49,32 @@ export default function EditsPage() {
     silent: true,
   });
 
+  // Sincroniza imagens do preload com ref
+  useEffect(() => {
+    if (preloadedImages.length > 0) {
+      imagesRef.current = preloadedImages;
+      setFramesReady(true);
+    }
+  }, [preloadedImages]);
+
   // Fetch videos from database
   useEffect(() => {
     const fetchVideos = async () => {
-      const { data, error } = await supabase
-        .from("portfolio_videos")
-        .select("*")
-        .eq("portfolio_type", "editor")
-        .order("display_order")
-        .limit(MAX_VIDEOS);
+      try {
+        const { data, error } = await supabase
+          .from("portfolio_videos")
+          .select("*")
+          .eq("portfolio_type", "editor")
+          .order("display_order")
+          .limit(MAX_VIDEOS);
 
-      if (error) {
-        console.error("Error fetching videos:", error);
-      } else {
+        if (error) throw error;
         setVideos(data || []);
+      } catch (error) {
+        console.error("[Edits] Error fetching videos:", error);
+      } finally {
+        setIsLoadingVideos(false);
       }
-      setIsLoadingVideos(false);
     };
 
     fetchVideos();
@@ -74,6 +86,10 @@ export default function EditsPage() {
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
+    
+    lenisRef.current = lenis;
+    setGsapLoaded(true);
+    
     return () => {
       lenis.destroy();
       gsap.ticker.lagSmoothing(500, 33);
@@ -144,11 +160,10 @@ export default function EditsPage() {
         imagesRef.current = cachedImages;
         setFramesReady(true);
       } else {
-        // Se não tem cache, carrega frames
+        // Se não tem cache, inicia preload em background
         console.log(`[Edits] ⏳ Cache vazio, carregando frames...`);
-        const images = await loadFrames();
-        imagesRef.current = images;
-        setFramesReady(true);
+        loadFrames();
+        // framesReady será setado pelo effect que observa preloadedImages
       }
     };
 
@@ -301,15 +316,16 @@ export default function EditsPage() {
   }
 
   // Calcula progresso total
-  const isFullyLoaded = !isLoadingVideos && framesReady;
+  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesReady;
   
   useEffect(() => {
     let progress = 0;
-    if (!isLoadingVideos) progress += 30;
-    if (framesReady) progress += 70;
-    else progress += (preloadProgress * 0.7);
+    if (!isLoadingVideos) progress += 20;
+    if (gsapLoaded) progress += 20;
+    if (framesReady) progress += 60;
+    else progress += (preloadProgress * 0.6);
     setLoadingProgress(Math.min(progress, 100));
-  }, [isLoadingVideos, framesReady, preloadProgress]);
+  }, [isLoadingVideos, gsapLoaded, framesReady, preloadProgress]);
 
   if (!isFullyLoaded) {
     return (
