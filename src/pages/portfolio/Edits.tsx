@@ -26,7 +26,6 @@ export default function EditsPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [gsapLoaded, setGsapLoaded] = useState(false);
-  const [framesReady, setFramesReady] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,7 +40,12 @@ export default function EditsPage() {
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
 
-  const { loadFrames, progress: preloadProgress, images: preloadedImages } = useOptimizedPreload({
+  const {
+    loadFrames,
+    progress: preloadProgress,
+    images: preloadedImages,
+    isComplete: framesComplete,
+  } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
     portfolioType: 'edits',
     batchSize: 20,
@@ -53,7 +57,7 @@ export default function EditsPage() {
   useEffect(() => {
     if (preloadedImages.length > 0) {
       imagesRef.current = preloadedImages;
-      setFramesReady(true);
+      stateRef.current.count = preloadedImages.length;
     }
   }, [preloadedImages]);
 
@@ -64,7 +68,7 @@ export default function EditsPage() {
         const { data, error } = await supabase
           .from("portfolio_videos")
           .select("*")
-          .eq("portfolio_type", "edits")
+          .eq("portfolio_type", "editor")
           .order("display_order")
           .limit(MAX_VIDEOS);
 
@@ -154,16 +158,15 @@ export default function EditsPage() {
     const initImages = async () => {
       // Tenta usar imagens do cache primeiro
       const cachedImages = getCachedFrames('edits', TOTAL_FRAMES);
-      
+
       if (cachedImages && cachedImages.length > 0) {
         console.log(`[Edits] ✅ Usando ${cachedImages.length} frames do cache`);
         imagesRef.current = cachedImages;
-        setFramesReady(true);
+        stateRef.current.count = cachedImages.length;
       } else {
         // Se não tem cache, inicia preload em background
         console.log(`[Edits] ⏳ Cache vazio, carregando frames...`);
         loadFrames();
-        // framesReady será setado pelo effect que observa preloadedImages
       }
     };
 
@@ -172,7 +175,8 @@ export default function EditsPage() {
 
   // Init scroll quando frames estiverem prontos
   useEffect(() => {
-    if (!framesReady || videos.length === 0) return;
+    const hasAnyFrames = imagesRef.current.length > 0;
+    if (!framesComplete || !hasAnyFrames || videos.length === 0) return;
 
     setupCanvas();
     stateRef.current.frame = 0;
@@ -195,9 +199,9 @@ export default function EditsPage() {
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
       }
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, [framesReady, videos.length]);
+  }, [framesComplete, videos.length]);
 
   // ============= SCROLLTRIGGER =============
   function initScroll(): void {
@@ -315,17 +319,19 @@ export default function EditsPage() {
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }
 
-  // Calcula progresso total
-  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesReady;
-  
+  // Só libera a página quando:
+  // - vídeos carregaram
+  // - GSAP/Lenis pronto
+  // - preload de frames concluiu (barra 0 → 100)
+  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesComplete;
+
   useEffect(() => {
     let progress = 0;
-    if (!isLoadingVideos) progress += 20;
-    if (gsapLoaded) progress += 20;
-    if (framesReady) progress += 60;
-    else progress += (preloadProgress * 0.6);
-    setLoadingProgress(Math.min(progress, 100));
-  }, [isLoadingVideos, gsapLoaded, framesReady, preloadProgress]);
+    if (!isLoadingVideos) progress += 15;
+    if (gsapLoaded) progress += 15;
+    progress += preloadProgress * 0.7;
+    setLoadingProgress(Math.max(0, Math.min(100, progress)));
+  }, [isLoadingVideos, gsapLoaded, preloadProgress]);
 
   if (!isFullyLoaded) {
     return (
