@@ -15,7 +15,7 @@
  *    → Experiência instantânea
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { About } from "@/components/About";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CyberpunkBackground } from "@/components/CyberpunkBackground";
@@ -27,6 +27,7 @@ const stacksImg = stacksImgRaw as unknown as string;
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [contentReady, setContentReady] = useState(false);
+  const preloadStartedRef = useRef(false);
 
   /**
    * ========================================
@@ -68,23 +69,21 @@ export default function Index() {
   /**
    * ========================================
    * PRELOAD DE PORTFOLIOS (BACKGROUND)
-   * Inicia IMEDIATAMENTE após homepage visível
+   * Inicia UMA VEZ após homepage visível
    * ========================================
    */
   useEffect(() => {
-    if (!isLoading && contentReady) {
-      // Inicia preload imediatamente (sem delay)
+    if (!isLoading && contentReady && !preloadStartedRef.current) {
+      preloadStartedRef.current = true;
       console.log('[Index] 🎬 Iniciando preload de portfolios em background...');
       devPreload.loadFrames();
       
       // Edits inicia 1s depois para não competir por bandwidth
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         editsPreload.loadFrames();
       }, 1000);
-
-      return () => clearTimeout(timer);
     }
-  }, [isLoading, contentReady, devPreload, editsPreload]);
+  }, [isLoading, contentReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * ========================================
