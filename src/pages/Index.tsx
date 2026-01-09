@@ -19,7 +19,7 @@ import { useEffect, useState, useCallback } from "react";
 import { About } from "@/components/About";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CyberpunkBackground } from "@/components/CyberpunkBackground";
-import { useOptimizedPreload, getCacheInfo } from "@/hooks/useOptimizedPreload";
+import { useOptimizedPreload } from "@/hooks/useOptimizedPreload";
 import stacksImgRaw from "@/assets/stacks.png";
 
 const stacksImg = stacksImgRaw as unknown as string;
@@ -68,41 +68,23 @@ export default function Index() {
   /**
    * ========================================
    * PRELOAD DE PORTFOLIOS (BACKGROUND)
-   * Inicia DEPOIS que homepage está visível
+   * Inicia IMEDIATAMENTE após homepage visível
    * ========================================
    */
   useEffect(() => {
     if (!isLoading && contentReady) {
+      // Inicia preload imediatamente (sem delay)
+      console.log('[Index] 🎬 Iniciando preload de portfolios em background...');
+      devPreload.loadFrames();
+      
+      // Edits inicia 1s depois para não competir por bandwidth
       const timer = setTimeout(() => {
-        console.log('[Index] 🎬 Iniciando preload de portfolios em background...');
-        devPreload.loadFrames();
-        
-        setTimeout(() => {
-          editsPreload.loadFrames();
-        }, 3000);
-      }, 1500);
+        editsPreload.loadFrames();
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading, contentReady]);
-
-  /**
-   * ========================================
-   * STATUS DO PRELOAD (DEBUG - apenas console)
-   * ========================================
-   */
-  useEffect(() => {
-    const statusInterval = setInterval(() => {
-      const cacheInfo = getCacheInfo();
-      const totalCached = Object.values(cacheInfo).reduce((a, b) => a + b, 0);
-      
-      if (totalCached > 0) {
-        console.log('[Index] 📊 Cache status:', cacheInfo);
-      }
-    }, 5000);
-
-    return () => clearInterval(statusInterval);
-  }, []);
+  }, [isLoading, contentReady, devPreload, editsPreload]);
 
   /**
    * ========================================
