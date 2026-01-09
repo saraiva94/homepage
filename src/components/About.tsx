@@ -116,7 +116,7 @@ interface SkillCardProps {
 const SkillCard = memo(({ skill, category }: SkillCardProps) => {
   return (
     <div
-      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-colors duration-300 hover:bg-white/20 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)] overflow-hidden"
+      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:border-white/40"
       style={{
         height: "var(--skill-h)",
         gap: "var(--skill-gap)",
@@ -447,7 +447,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Hard skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns:
                           "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
@@ -472,7 +472,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Soft skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns:
                           "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
