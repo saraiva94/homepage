@@ -36,7 +36,6 @@ export default function DevPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [gsapLoaded, setGsapLoaded] = useState(false);
-  const [framesReady, setFramesReady] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,7 +52,12 @@ export default function DevPage() {
   const gsapRef = useRef<any>(null);
   const scrollTriggerApiRef = useRef<any>(null);
 
-  const { loadFrames, progress: preloadProgress, images: preloadedImages } = useOptimizedPreload({
+  const {
+    loadFrames,
+    progress: preloadProgress,
+    images: preloadedImages,
+    isComplete: framesComplete,
+  } = useOptimizedPreload({
     totalFrames: TOTAL_FRAMES,
     portfolioType: 'dev',
     batchSize: 20,
@@ -62,9 +66,12 @@ export default function DevPage() {
   });
 
   useEffect(() => {
+    // Mantém o ref sempre sincronizado.
+    // Importante: stateRef.count precisa refletir a quantidade REAL de frames disponíveis
+    // pra animação usar 100% do range (top → bottom) sem depender de frames undefined.
     if (preloadedImages.length > 0) {
       imagesRef.current = preloadedImages;
-      setFramesReady(true);
+      stateRef.current.count = preloadedImages.length;
     }
   }, [preloadedImages]);
 
@@ -75,12 +82,11 @@ export default function DevPage() {
       if (cachedFrames && cachedFrames.length > 0) {
         console.log(`[Dev] ✅ Usando ${cachedFrames.length} frames do cache`);
         imagesRef.current = cachedFrames;
-        setFramesReady(true);
+        stateRef.current.count = cachedFrames.length;
         return;
       }
 
       console.log('[Dev] ⏳ Cache vazio, carregando frames...');
-      // dispara preload em background; o effect acima libera a página assim que chegar o 1º frame
       loadFrames();
     };
 
@@ -181,7 +187,8 @@ export default function DevPage() {
   };
 
   useEffect(() => {
-    if (!gsapLoaded || !framesReady || imagesRef.current.length === 0) return;
+    const hasAnyFrames = imagesRef.current.length > 0;
+    if (!gsapLoaded || !framesComplete || !hasAnyFrames) return;
 
     setupCanvas();
     stateRef.current.frame = 0;
@@ -213,7 +220,7 @@ export default function DevPage() {
         onUpdate: (self: any) => {
           const progress = self.progress;
 
-          const targetFrame = Math.round(progress * (TOTAL_FRAMES - 1));
+          const targetFrame = Math.round(progress * (stateRef.current.count - 1));
           if (targetFrame !== stateRef.current.frame && imagesRef.current[targetFrame]) {
             stateRef.current.frame = targetFrame;
             requestAnimationFrame(render);
@@ -318,20 +325,23 @@ export default function DevPage() {
         scrollTriggerRef.current.kill();
       }
     };
-  }, [gsapLoaded, framesReady, videos.length]);
+  }, [gsapLoaded, framesComplete, videos.length]);
 
-  // Calcula progresso total (videos + gsap + frames)
-  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesReady;
-  
-  // Atualiza progresso baseado nos estados
+  // Só libera a página quando:
+  // - vídeos carregaram
+  // - GSAP/Lenis pronto
+  // - preload de frames concluiu (barra 0 → 100)
+  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesComplete;
+
   useEffect(() => {
+    // Progresso 0..100 (linear) para o LoadingScreen.
+    // frames pesam mais porque dominam o tempo de load.
     let progress = 0;
-    if (!isLoadingVideos) progress += 20;
-    if (gsapLoaded) progress += 20;
-    if (framesReady) progress += 60;
-    else progress += (preloadProgress * 0.6);
-    setLoadingProgress(Math.min(progress, 100));
-  }, [isLoadingVideos, gsapLoaded, framesReady, preloadProgress]);
+    if (!isLoadingVideos) progress += 15;
+    if (gsapLoaded) progress += 15;
+    progress += preloadProgress * 0.7;
+    setLoadingProgress(Math.max(0, Math.min(100, progress)));
+  }, [isLoadingVideos, gsapLoaded, preloadProgress]);
 
   if (!isFullyLoaded) {
     return (
