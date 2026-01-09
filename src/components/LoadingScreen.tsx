@@ -176,27 +176,27 @@ export function LoadingScreen({
         </div>
 
         {/* Barra de progresso cyberpunk */}
-        <div className="relative w-full">
+        <div className="relative">
           {/* Container da barra */}
-          <div className="relative w-full h-6 bg-black border-2 border-cyan-500 rounded overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+          <div className="relative h-6 bg-black border-2 border-cyan-500 rounded overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)]">
             
-            {/* Grid overlay (fundo) */}
-            <div className="absolute inset-0 w-full h-full grid grid-cols-[repeat(20,1fr)] pointer-events-none">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="border-r border-cyan-900/50 last:border-r-0 h-full" />
-              ))}
-            </div>
-
             {/* Barra de progresso animada */}
             <div
-              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 transition-all duration-300 ease-out"
-              style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
             >
               {/* Efeito de scan line */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-scan-line" />
               
               {/* Brilho superior */}
               <div className="absolute inset-x-0 top-0 h-1 bg-white/50" />
+            </div>
+
+            {/* Grid overlay */}
+            <div className="absolute inset-0 flex pointer-events-none">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} className="flex-1 border-r border-cyan-900/50 last:border-r-0" />
+              ))}
             </div>
           </div>
 
