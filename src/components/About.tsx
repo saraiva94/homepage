@@ -598,7 +598,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             {/* Skills Container — scroll invisível nas colunas */}
             <div
               className="flex flex-1 min-h-0"
-              style={{ gap: "var(--section-gap)", overflow: 'hidden' }}
+              style={{ gap: "var(--section-gap)", overflowY: 'hidden' }}
             >
               <div className="w-full flex" style={{ gap: "var(--section-gap)" }}>
                   
@@ -614,10 +614,11 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Hard skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0"
+                      className="grid flex-1 min-h-0 hide-scrollbar"
                       style={{
-                        gridTemplateColumns: `repeat(${groupedHardSkills.length}, 1fr)`,
+                        gridTemplateColumns: `repeat(${groupedHardSkills.length}, minmax(var(--skill-min), 1fr))`,
                         gap: "var(--skill-gap)",
+                        overflowX: 'auto',
                       }}
                     >
                       {groupedHardSkills.map((group) => (
@@ -644,10 +645,11 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Soft skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0"
+                      className="grid flex-1 min-h-0 hide-scrollbar"
                       style={{
-                        gridTemplateColumns: `repeat(${groupedSoftSkills.length}, 1fr)`,
+                        gridTemplateColumns: `repeat(${groupedSoftSkills.length}, minmax(var(--skill-min), 1fr))`,
                         gap: "var(--skill-gap)",
+                        overflowX: 'auto',
                       }}
                     >
                       {groupedSoftSkills.map((group) => (
