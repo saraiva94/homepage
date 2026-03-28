@@ -578,6 +578,15 @@ body {
   animation: pulse-slow 3s ease-in-out infinite;
 }
 
+/* Scroll invisível para colunas de skills */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Text shadow para efeito cyberpunk */
 .glitch-text {
   position: relative;

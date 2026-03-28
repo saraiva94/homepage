@@ -9,7 +9,7 @@
  */
 
 import { Link } from "react-router-dom";
-import { useMemo, useRef, useEffect, useState, useCallback, memo } from "react";
+import { useMemo, useEffect, useState, useCallback, memo } from "react";
 import {
   Clapperboard,
   Code2,
@@ -17,7 +17,6 @@ import {
   Github,
   MessageCircle,
 } from "lucide-react";
-import { useFitScale } from "@/hooks/useFitScale";
 import { supabase } from "@/integrations/backend/client";
 import { getIconByKey } from "@/lib/skillIconsCatalog";
 import about1ImgRaw from "@/assets/eu.png";
@@ -206,8 +205,6 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
   const [backgroundPos, setBackgroundPos] = useState("50% 68%");
   const [isLoading, setIsLoading] = useState(true);
 
-  const skillsViewportRef = useRef<HTMLDivElement | null>(null);
-  const skillsContentRef = useRef<HTMLDivElement | null>(null);
 
   /**
    * Fetch otimizado com cache
@@ -347,21 +344,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
   } as React.CSSProperties), []);
 
   /**
-   * Fit Scale Hook
+   * Sem scale — colunas de skills usam scroll invisível
    */
-  const scale = useFitScale(skillsViewportRef.current, skillsContentRef.current, {
-    minScale: 0.82,
-    maxScale: 1,
-  });
-
-  const scaledStyle = useMemo<React.CSSProperties>(
-    () => ({
-      transform: `scale(${scale})`,
-      transformOrigin: "top center",
-      willChange: scale < 1 ? "transform" : "auto",
-    }),
-    [scale]
-  );
 
   /**
    * Loading State
@@ -524,14 +508,12 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               <span className="block" style={{ fontSize: 'var(--subtitle-size)' }}>Faculdade Unigranrio</span>
             </div>
 
-            {/* Skills Container */}
+            {/* Skills Container — scroll invisível nas colunas */}
             <div
-              ref={skillsViewportRef}
-              className="flex flex-1 min-h-0 overflow-hidden"
-              style={{ gap: "var(--section-gap)" }}
+              className="flex flex-1 min-h-0"
+              style={{ gap: "var(--section-gap)", overflow: 'hidden' }}
             >
-              <div ref={skillsContentRef} className="w-full" style={scaledStyle}>
-                <div className="flex w-full" style={{ gap: "var(--section-gap)" }}>
+              <div className="w-full flex" style={{ gap: "var(--section-gap)" }}>
                   
                   {/* Hard Skills - Categorizado */}
                   <section className="flex-[2] flex flex-col min-h-0">
@@ -545,10 +527,12 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Hard skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns: `repeat(${groupedHardSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
+                        overflowY: 'auto',
+                        scrollbarWidth: 'none',
                       }}
                     >
                       {groupedHardSkills.map((group) => (
@@ -585,10 +569,12 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Soft skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 overflow-hidden content-start"
+                      className="grid flex-1 min-h-0 content-start"
                       style={{
                         gridTemplateColumns: `repeat(${groupedSoftSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
+                        overflowY: 'auto',
+                        scrollbarWidth: 'none',
                       }}
                     >
                       {groupedSoftSkills.map((group) => (
@@ -612,7 +598,6 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       ))}
                     </div>
                   </section>
-                </div>
               </div>
             </div>
           </div>
