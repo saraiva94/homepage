@@ -9,9 +9,10 @@
  */
 
 import { Link } from "react-router-dom";
-import { useMemo, useEffect, useState, useCallback, memo } from "react";
+import { useMemo, useEffect, useState, useCallback, useRef, memo } from "react";
 import {
   Clapperboard,
+  ChevronDown,
   Code2,
   FileText,
   Github,
@@ -193,6 +194,92 @@ const SkillCard = memo(({ skill, category }: SkillCardProps) => {
 });
 
 SkillCard.displayName = 'SkillCard';
+
+// Coluna com scroll individual, título fixo e seta indicadora
+interface ScrollableColumnProps {
+  title: string;
+  color: string;
+  skills: Skill[];
+  category: "hard" | "soft";
+}
+
+const ScrollableColumn = memo(({ title, color, skills, category }: ScrollableColumnProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const check = () => {
+      setCanScroll(el.scrollHeight > el.clientHeight + 2);
+    };
+
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [skills.length]);
+
+  return (
+    <div className="flex flex-col min-h-0" style={{ position: 'relative' }}>
+      {/* Título fixo */}
+      <span
+        className="font-semibold shrink-0 text-center truncate"
+        style={{
+          fontSize: "var(--text-size)",
+          color,
+          marginBottom: "var(--skill-gap)",
+        }}
+      >
+        {title}
+      </span>
+
+      {/* Coluna com scroll invisível */}
+      <div
+        ref={scrollRef}
+        className="flex flex-col flex-1 min-h-0"
+        style={{
+          gap: "var(--skill-gap)",
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {skills.map((skill) => (
+          <SkillCard key={skill.id} skill={skill} category={category} />
+        ))}
+      </div>
+
+      {/* Seta pulsante indicando scroll disponível */}
+      {canScroll && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          <ChevronDown
+            style={{
+              width: 'var(--icon-size)',
+              height: 'var(--icon-size)',
+              color,
+              opacity: 0.7,
+              animation: 'pulse-slow 1s ease-in-out infinite',
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+});
+
+ScrollableColumn.displayName = 'ScrollableColumn';
 
 // Componente Principal
 export const About = memo(({ isVisible = true }: AboutProps) => {
@@ -527,32 +614,20 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Hard skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 content-start"
+                      className="grid flex-1 min-h-0"
                       style={{
                         gridTemplateColumns: `repeat(${groupedHardSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
-                        overflowY: 'auto',
-                        scrollbarWidth: 'none',
                       }}
                     >
                       {groupedHardSkills.map((group) => (
-                        <div key={group.name} className="flex flex-col min-h-0">
-                          <span
-                            className="font-semibold shrink-0 text-center truncate"
-                            style={{
-                              fontSize: "var(--text-size)",
-                              color: group.color,
-                              marginBottom: "var(--skill-gap)",
-                            }}
-                          >
-                            {group.name}
-                          </span>
-                          <div className="flex flex-col" style={{ gap: "var(--skill-gap)" }}>
-                            {group.skills.map((skill) => (
-                              <SkillCard key={skill.id} skill={skill} category="hard" />
-                            ))}
-                          </div>
-                        </div>
+                        <ScrollableColumn
+                          key={group.name}
+                          title={group.name}
+                          color={group.color}
+                          skills={group.skills}
+                          category="hard"
+                        />
                       ))}
                     </div>
                   </section>
@@ -569,32 +644,20 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       Soft skills
                     </h3>
                     <div
-                      className="grid flex-1 min-h-0 content-start"
+                      className="grid flex-1 min-h-0"
                       style={{
                         gridTemplateColumns: `repeat(${groupedSoftSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
-                        overflowY: 'auto',
-                        scrollbarWidth: 'none',
                       }}
                     >
                       {groupedSoftSkills.map((group) => (
-                        <div key={group.name} className="flex flex-col min-h-0">
-                          <span
-                            className="font-semibold shrink-0 text-center truncate"
-                            style={{
-                              fontSize: "var(--text-size)",
-                              color: group.color,
-                              marginBottom: "var(--skill-gap)",
-                            }}
-                          >
-                            {group.name}
-                          </span>
-                          <div className="flex flex-col" style={{ gap: "var(--skill-gap)" }}>
-                            {group.skills.map((skill) => (
-                              <SkillCard key={skill.id} skill={skill} category="soft" />
-                            ))}
-                          </div>
-                        </div>
+                        <ScrollableColumn
+                          key={group.name}
+                          title={group.name}
+                          color={group.color}
+                          skills={group.skills}
+                          category="soft"
+                        />
                       ))}
                     </div>
                   </section>
