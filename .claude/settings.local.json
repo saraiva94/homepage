@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npx vite:*)",
+      "Bash(grep -o \"pointer-events\" dist/assets/index-*.css)",
+      "Bash(ls dist/assets/*.css)",
+      "Bash(curl -s http://localhost:8080/src/main.tsx)",
+      "Bash(curl -s http://localhost:8080/src/index.css)",
+      "Bash(curl -s http://localhost:8080/src/components/About.tsx)",
+      "Bash(curl -s \"http://localhost:8080/src/components/CyberpunkBackground.tsx\")",
+      "Bash(curl -s \"http://localhost:8080/src/pages/Index.tsx\")",
+      "Bash(grep -o \"padding:[^;]*3\\\\.5rem\\\\|padding:[^;]*1\\\\.25rem\\\\|\\\\.px-10\\\\|\\\\.py-4\\\\|\\\\.px-14\\\\|\\\\.sm\\\\:px-14\\\\|\\\\.sm\\\\:py-5\" dist/assets/*.css)",
+      "Bash(grep -o \"\\\\.py-5\\\\b\\\\|sm:px-14\\\\|sm:py-5\" dist/assets/*.css)",
+      "Read(//c/Users/saraiva/OneDrive/**)",
+      "Read(//c/Users/saraiva/OneDice de Trabalho/Landing Page/New_LP/blank-canvas-builder/supabase/migrations/**)",
+      "Bash(find 'c:\\\\Users\\\\saraiva\\\\OneDrive\\\\Área de Trabalho\\\\Landing Page\\\\New_LP\\\\blank-canvas-builder' -type f -name *.sql)",
+      "Bash(grep -o \"w-\\\\[95%\\\\]\\\\|w-\\\\[90%\\\\]\\\\|w-\\\\[85%\\\\]\\\\|w-\\\\[80%\\\\]\" dist/assets/*.css)"
+    ]
+  }
+}

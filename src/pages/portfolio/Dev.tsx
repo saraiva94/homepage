@@ -10,14 +10,14 @@
  * - Experiência instantânea
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import Lenis from "lenis";
 import { supabase } from "@/integrations/backend/client";
-import { getCachedFrames, useOptimizedPreload } from "@/hooks/useOptimizedPreload";
+import { getCachedFrames, useOptimizedPreload, getGlobalProgress } from "@/hooks/useOptimizedPreload";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -36,7 +36,7 @@ export default function DevPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [gsapLoaded, setGsapLoaded] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [showPage, setShowPage] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -75,25 +75,18 @@ export default function DevPage() {
     }
   }, [preloadedImages]);
 
+  // Inicia preload de frames imediatamente (em paralelo com loading screen)
   useEffect(() => {
-    const initFrames = async () => {
-      const cachedFrames = getCachedFrames('dev', TOTAL_FRAMES);
-
-      if (cachedFrames && cachedFrames.length > 0) {
-        console.log(`[Dev] ✅ Usando ${cachedFrames.length} frames do cache`);
-        imagesRef.current = cachedFrames;
-        stateRef.current.count = cachedFrames.length;
-        return;
-      }
-
-      console.log('[Dev] ⏳ Cache vazio, carregando frames...');
-      loadFrames();
-    };
-
-    if (!isLoadingVideos) {
-      initFrames();
+    const cachedFrames = getCachedFrames('dev', TOTAL_FRAMES);
+    if (cachedFrames && cachedFrames.length > 0) {
+      console.log(`[Dev] ✅ Usando ${cachedFrames.length} frames do cache`);
+      imagesRef.current = cachedFrames;
+      stateRef.current.count = cachedFrames.length;
+      return;
     }
-  }, [isLoadingVideos, loadFrames]);
+    console.log('[Dev] ⏳ Cache vazio, carregando frames...');
+    loadFrames();
+  }, [loadFrames]);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -188,7 +181,7 @@ export default function DevPage() {
 
   useEffect(() => {
     const hasAnyFrames = imagesRef.current.length > 0;
-    if (!gsapLoaded || !framesComplete || !hasAnyFrames) return;
+    if (!gsapLoaded || !showPage || !hasAnyFrames) return;
 
     setupCanvas();
     stateRef.current.frame = 0;
@@ -325,28 +318,37 @@ export default function DevPage() {
         scrollTriggerRef.current.kill();
       }
     };
-  }, [gsapLoaded, framesComplete, videos.length]);
+  }, [gsapLoaded, showPage, videos.length, preloadedImages.length]);
 
-  // Só libera a página quando:
-  // - vídeos carregaram
-  // - GSAP/Lenis pronto
-  // - preload de frames concluiu (barra 0 → 100)
-  const isFullyLoaded = !isLoadingVideos && gsapLoaded && framesComplete;
-
+  // Polling do progresso global (funciona mesmo quando homepage iniciou o preload)
+  const [frameProgressPolled, setFrameProgressPolled] = useState(0);
   useEffect(() => {
-    // Progresso 0..100 (linear) para o LoadingScreen.
-    // frames pesam mais porque dominam o tempo de load.
-    let progress = 0;
-    if (!isLoadingVideos) progress += 15;
-    if (gsapLoaded) progress += 15;
-    progress += preloadProgress * 0.7;
-    setLoadingProgress(Math.max(0, Math.min(100, progress)));
-  }, [isLoadingVideos, gsapLoaded, preloadProgress]);
+    if (showPage) return;
+    const interval = setInterval(() => {
+      const gp = getGlobalProgress('dev', TOTAL_FRAMES);
+      setFrameProgressPolled(gp);
+    }, 200);
+    return () => clearInterval(interval);
+  }, [showPage]);
 
-  if (!isFullyLoaded) {
+  // Progresso real: videos(10) + gsap(10) + frames(80) via polling global
+  const framesPct = Math.max(preloadProgress, frameProgressPolled);
+  const realProgress = Math.min(
+    Math.round(
+      (isLoadingVideos ? 0 : 10) + (gsapLoaded ? 10 : 0) + framesPct * 0.8
+    ),
+    100
+  );
+
+  const handleLoadingComplete = useCallback(() => {
+    setShowPage(true);
+  }, []);
+
+  if (!showPage) {
     return (
-      <LoadingScreen 
-        progress={loadingProgress}
+      <LoadingScreen
+        progress={realProgress}
+        onComplete={handleLoadingComplete}
         title="DEV"
         subtitle="PORTFOLIO"
       />
@@ -359,7 +361,8 @@ export default function DevPage() {
         <div className="text-white text-xl">Nenhum vídeo disponível</div>
         <Link
           to="/"
-          className="px-6 py-3 text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60"
+          className="text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60"
+          style={{ padding: '1rem 3rem' }}
         >
           Voltar para Homepage
         </Link>
@@ -386,7 +389,8 @@ export default function DevPage() {
         >
           <Link
             to="/"
-            className="relative px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            className="relative text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            style={{ padding: '1rem 3rem' }}
           >
             Homepage
           </Link>
@@ -394,9 +398,9 @@ export default function DevPage() {
 
         <div
           ref={scrollHintRef}
-          className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none px-4"
+          className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 pointer-events-none"
         >
-          <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase px-4 sm:px-6 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 text-center">
+          <span className="text-white text-xs sm:text-base font-semibold tracking-wider uppercase bg-white/20 backdrop-blur-sm rounded-full border border-white/30 text-center" style={{ padding: '0.75rem 2rem' }}>
             Role para ver o conteúdo
           </span>
           <svg
@@ -439,7 +443,8 @@ export default function DevPage() {
         >
           <Link
             to="/"
-            className="relative px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto w-full sm:w-auto text-center"
+            style={{ padding: '1.25rem 3.5rem' }}
           >
             Homepage
           </Link>
@@ -453,9 +458,10 @@ export default function DevPage() {
                 });
               }
             }}
-            className="relative px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-xl font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto w-full sm:w-auto text-center"
+            style={{ padding: '1.25rem 3.5rem' }}
           >
-            Voltar ao início
+            Voltar ao topo
           </button>
         </div>
       </section>

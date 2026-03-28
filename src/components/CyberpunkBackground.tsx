@@ -65,7 +65,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
   }, []);
 
   return (
-    <div className={`fixed inset-0 overflow-hidden ${className}`}>
+    <div className={`absolute inset-0 overflow-hidden ${className}`} style={{ pointerEvents: 'none', zIndex: 0 }}>
       {/* Background original com 70% opacidade */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70 pointer-events-none"
@@ -80,7 +80,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
       />
 
       {/* Partículas com animação de flutuação e ciclo de vida */}
-      <div className="absolute inset-0 pointer-events-auto">
+      <div className="absolute inset-0 pointer-events-none">
         {particles.map((p) => (
           <div
             key={`p-${p.id}`}

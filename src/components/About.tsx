@@ -59,11 +59,13 @@ const DEFAULT_HARD_SKILLS = [
   { icon_key: "react", icon_color: "#61DAFB", name: "React" },
   { icon_key: "react-native", icon_color: "#61DAFB", name: "React Native" },
   { icon_key: "nextjs", icon_color: "#FFFFFF", name: "Next.js" },
+  { icon_key: "tailwindcss", icon_color: "#06B6D4", name: "Tailwind CSS" },
   { icon_key: "nodejs", icon_color: "#339933", name: "Node.js" },
   { icon_key: "bunjs", icon_color: "#FBF0DF", name: "Bun.js" },
   { icon_key: "python", icon_color: "#3776AB", name: "Python" },
   { icon_key: "azure", icon_color: "#0078D4", name: "Azure" },
   { icon_key: "mysql", icon_color: "#4479A1", name: "MySQL" },
+  { icon_key: "postgresql", icon_color: "#4169E1", name: "PostgreSQL" },
   { icon_key: "sqlite", icon_color: "#003B57", name: "SQLite" },
   { icon_key: "supabase", icon_color: "#3ECF8E", name: "Supabase" },
   { icon_key: "git", icon_color: "#F05032", name: "Git" },
@@ -78,6 +80,58 @@ const DEFAULT_SOFT_SKILLS = [
   { icon_key: "proactivity", icon_color: "#FACC15", name: "Proatividade" },
   { icon_key: "creativity", icon_color: "#FB923C", name: "Criatividade" },
 ];
+
+// Mapa de categorização hard skills por icon_key
+const HARD_CATEGORY_MAP: Record<string, string> = {
+  "adobe-cc": "Edição",
+  "after-effects": "Edição",
+  "premiere-pro": "Edição",
+  "html5": "Frontend",
+  "javascript": "Frontend",
+  "typescript": "Frontend",
+  "react": "Frontend",
+  "react-native": "Frontend",
+  "nextjs": "Frontend",
+  "tailwindcss": "Frontend",
+  "nodejs": "Backend",
+  "bunjs": "Backend",
+  "python": "Backend",
+  "azure": "Cloud & DB",
+  "mysql": "Cloud & DB",
+  "postgresql": "Cloud & DB",
+  "sqlite": "Cloud & DB",
+  "supabase": "Cloud & DB",
+  "git": "Ferramentas",
+  "github": "Ferramentas",
+  "excel": "Ferramentas",
+};
+
+const HARD_CATEGORY_COLORS: Record<string, string> = {
+  "Edição": "#f472b6",
+  "Frontend": "#60a5fa",
+  "Backend": "#4ade80",
+  "Cloud & DB": "#c084fc",
+  "Ferramentas": "#fb923c",
+};
+
+const HARD_CATEGORY_ORDER = ["Edição", "Frontend", "Backend", "Cloud & DB", "Ferramentas"];
+
+// Mapa de categorização soft skills por icon_key
+const SOFT_CATEGORY_MAP: Record<string, string> = {
+  "communication": "Interpessoal",
+  "teamwork": "Interpessoal",
+  "creativity": "Mentalidade",
+  "proactivity": "Mentalidade",
+  "organization": "Gestão",
+};
+
+const SOFT_CATEGORY_COLORS: Record<string, string> = {
+  "Interpessoal": "#c084fc",
+  "Mentalidade": "#facc15",
+  "Gestão": "#4ade80",
+};
+
+const SOFT_CATEGORY_ORDER = ["Interpessoal", "Mentalidade", "Gestão"];
 
 // Skill Icon Component (memoizado)
 interface SkillIconProps {
@@ -148,6 +202,10 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
   const [hardSkills, setHardSkills] = useState<Skill[]>([]);
   const [softSkills, setSoftSkills] = useState<Skill[]>([]);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const [profileImg, setProfileImg] = useState<string | null>(null);
+  const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
+  const [profilePos, setProfilePos] = useState("50% 50%");
+  const [backgroundPos, setBackgroundPos] = useState("50% 68%");
   const [isLoading, setIsLoading] = useState(true);
 
   const skillsViewportRef = useRef<HTMLDivElement | null>(null);
@@ -172,14 +230,15 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
       const [hardResult, softResult, settingsResult] = await Promise.all([
         supabase.from("hard_skills").select("*").order("display_order"),
         supabase.from("soft_skills").select("*").order("display_order"),
-        supabase.from("site_settings").select("resume_url").eq("id", "main").single(),
+        supabase.from("site_settings").select("resume_url, profile_image_url, background_image_url, profile_image_position, background_image_position").eq("id", "main").single(),
       ]);
 
       const hardData = hardResult.data || [];
       const softData = softResult.data || [];
       const resumeData = settingsResult.data?.resume_url || null;
+      const profileData = settingsResult.data?.profile_image_url || null;
+      const bgData = settingsResult.data?.background_image_url || null;
 
-      // Atualiza cache
       SKILLS_CACHE.hard = hardData;
       SKILLS_CACHE.soft = softData;
       SKILLS_CACHE.resumeUrl = resumeData;
@@ -188,6 +247,10 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
       setHardSkills(hardData);
       setSoftSkills(softData);
       setResumeUrl(resumeData);
+      setProfileImg(profileData);
+      setBackgroundImg(bgData);
+      setProfilePos(settingsResult.data?.profile_image_position || "50% 50%");
+      setBackgroundPos(settingsResult.data?.background_image_position || "50% 68%");
     } catch (error) {
       console.error('[About] Error fetching skills:', error);
     } finally {
@@ -204,21 +267,55 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
    */
   const displayHardSkills = useMemo(() => {
     if (hardSkills.length > 0) return hardSkills;
-    return DEFAULT_HARD_SKILLS.map((s, i) => ({ 
-      ...s, 
-      id: `default-hard-${i}`, 
-      display_order: i 
+    return DEFAULT_HARD_SKILLS.map((s, i) => ({
+      ...s,
+      id: `default-hard-${i}`,
+      display_order: i
     }));
   }, [hardSkills]);
 
+  const groupedHardSkills = useMemo(() => {
+    const groups: Record<string, Skill[]> = {};
+    for (const cat of HARD_CATEGORY_ORDER) {
+      groups[cat] = [];
+    }
+    for (const skill of displayHardSkills) {
+      const cat = HARD_CATEGORY_MAP[skill.icon_key] || "Ferramentas";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(skill);
+    }
+    return HARD_CATEGORY_ORDER.filter(cat => groups[cat].length > 0).map(cat => ({
+      name: cat,
+      color: HARD_CATEGORY_COLORS[cat] || "#60a5fa",
+      skills: groups[cat],
+    }));
+  }, [displayHardSkills]);
+
   const displaySoftSkills = useMemo(() => {
     if (softSkills.length > 0) return softSkills;
-    return DEFAULT_SOFT_SKILLS.map((s, i) => ({ 
-      ...s, 
-      id: `default-soft-${i}`, 
-      display_order: i 
+    return DEFAULT_SOFT_SKILLS.map((s, i) => ({
+      ...s,
+      id: `default-soft-${i}`,
+      display_order: i
     }));
   }, [softSkills]);
+
+  const groupedSoftSkills = useMemo(() => {
+    const groups: Record<string, Skill[]> = {};
+    for (const cat of SOFT_CATEGORY_ORDER) {
+      groups[cat] = [];
+    }
+    for (const skill of displaySoftSkills) {
+      const cat = SOFT_CATEGORY_MAP[skill.icon_key] || "Interpessoal";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(skill);
+    }
+    return SOFT_CATEGORY_ORDER.filter(cat => groups[cat].length > 0).map(cat => ({
+      name: cat,
+      color: SOFT_CATEGORY_COLORS[cat] || "#c084fc",
+      skills: groups[cat],
+    }));
+  }, [displaySoftSkills]);
 
   /**
    * Button base styles (memoizado)
@@ -246,6 +343,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
     "--subtitle-size": "clamp(10px, 1vw, 16px)",
     "--btn-size": "clamp(9px, 0.85vw, 14px)",
     "--btn-icon": "clamp(12px, 1.05vw, 18px)",
+    "--btn-py": "clamp(8px, 0.9vh, 16px)",
+    "--btn-px": "clamp(12px, 1.4vw, 28px)",
     "--avatar": "clamp(60px, 9vw, 170px)",
   } as React.CSSProperties), []);
 
@@ -307,7 +406,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
         />
 
         {/* Conteúdo principal */}
-        <div className="relative z-[1] h-full flex flex-col p-[var(--padding)] gap-[var(--skill-gap)]">
+        <div className="relative z-[1] h-full flex flex-col p-[var(--padding)] gap-[var(--section-gap)]">
           
           {/* Topo: Background + Avatar */}
           <div
@@ -315,7 +414,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             style={{ height: "clamp(220px, 34vh, 420px)" }}
           >
             <img
-              src={about2Img}
+              src={backgroundImg || about2Img}
               alt="Background workspace"
               loading="lazy"
               decoding="async"
@@ -326,8 +425,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                   "bg-white/5"
                 );
               }}
-              className="absolute inset-0 w-full h-full object-cover object-[50%_68%] 
-                         transition-transform duration-500 hover:scale-[1.08]"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-[1.08]"
+              style={{ objectPosition: backgroundPos }}
             />
 
             {/* Avatar */}
@@ -337,7 +436,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                 style={{ width: "var(--avatar)", height: "var(--avatar)" }}
               >
                 <img
-                  src={about1Img}
+                  src={profileImg || about1Img}
                   alt="Foto de Swamiy Saraiva"
                   loading="lazy"
                   decoding="async"
@@ -349,20 +448,21 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                     );
                   }}
                   className="w-full h-full object-cover"
+                  style={{ objectPosition: profilePos }}
                 />
               </div>
             </div>
           </div>
 
           {/* Botões de Ação */}
-          <div 
-            className="grid grid-cols-2 sm:grid-cols-3 md:flex w-full shrink-0" 
+          <div
+            className="grid grid-cols-2 sm:grid-cols-3 md:flex w-full shrink-0"
             style={{ gap: 'var(--skill-gap)' }}
           >
             <Link
               to="/portfolio/edits"
               className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400 md:flex-1`}
-              style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <Clapperboard style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
               <span className="truncate">Portfólio Editor</span>
@@ -371,7 +471,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             <Link
               to="/portfolio/dev"
               className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400 md:flex-1`}
-              style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <Code2 style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
               <span className="truncate">Portfólio Dev</span>
@@ -382,7 +482,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               target="_blank"
               rel="noopener noreferrer"
               className={`${btnBase} bg-green-500 hover:bg-green-600 active:bg-green-700 focus-visible:outline-green-300 md:flex-1`}
-              style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <MessageCircle style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
               <span className="truncate">Whatsapp</span>
@@ -392,7 +492,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               href={resumeUrl || "/Curriculo_Swamiy_Saraiva.pdf"}
               download="Curriculo_Swamiy_Saraiva.pdf"
               className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400 md:flex-1`}
-              style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <FileText style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
               <span className="truncate">Currículo</span>
@@ -403,7 +503,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               target="_blank"
               rel="noopener noreferrer"
               className={`${btnBase} col-span-2 sm:col-span-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700 md:flex-1`}
-              style={{ fontSize: 'var(--btn-size)', padding: 'var(--skill-gap) var(--padding)', gap: 'var(--skill-gap)' }}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <Github style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} className="text-white" />
               <span className="text-white truncate">Github</span>
@@ -435,10 +535,10 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               <div ref={skillsContentRef} className="w-full" style={scaledStyle}>
                 <div className="flex w-full" style={{ gap: "var(--section-gap)" }}>
                   
-                  {/* Hard Skills */}
+                  {/* Hard Skills - Categorizado */}
                   <section className="flex-[2] flex flex-col min-h-0">
                     <h3
-                      className="font-bold text-sky-400 shrink-0"
+                      className="font-bold text-sky-400 shrink-0 text-center"
                       style={{
                         fontSize: "var(--title-size)",
                         marginBottom: "var(--skill-gap)",
@@ -449,21 +549,36 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                     <div
                       className="grid flex-1 min-h-0 overflow-hidden content-start"
                       style={{
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
+                        gridTemplateColumns: `repeat(${groupedHardSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
                       }}
                     >
-                      {displayHardSkills.map((skill) => (
-                        <SkillCard key={skill.id} skill={skill} category="hard" />
+                      {groupedHardSkills.map((group) => (
+                        <div key={group.name} className="flex flex-col min-h-0">
+                          <span
+                            className="font-semibold shrink-0 text-center truncate"
+                            style={{
+                              fontSize: "var(--text-size)",
+                              color: group.color,
+                              marginBottom: "var(--skill-gap)",
+                            }}
+                          >
+                            {group.name}
+                          </span>
+                          <div className="flex flex-col" style={{ gap: "var(--skill-gap)" }}>
+                            {group.skills.map((skill) => (
+                              <SkillCard key={skill.id} skill={skill} category="hard" />
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </section>
 
-                  {/* Soft Skills */}
+                  {/* Soft Skills - Categorizado */}
                   <section className="flex-1 flex flex-col min-h-0">
                     <h3
-                      className="font-bold text-sky-400 shrink-0"
+                      className="font-bold text-sky-400 shrink-0 text-center"
                       style={{
                         fontSize: "var(--title-size)",
                         marginBottom: "var(--skill-gap)",
@@ -474,13 +589,28 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                     <div
                       className="grid flex-1 min-h-0 overflow-hidden content-start"
                       style={{
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(var(--skill-min), 1fr))",
+                        gridTemplateColumns: `repeat(${groupedSoftSkills.length}, 1fr)`,
                         gap: "var(--skill-gap)",
                       }}
                     >
-                      {displaySoftSkills.map((skill) => (
-                        <SkillCard key={skill.id} skill={skill} category="soft" />
+                      {groupedSoftSkills.map((group) => (
+                        <div key={group.name} className="flex flex-col min-h-0">
+                          <span
+                            className="font-semibold shrink-0 text-center truncate"
+                            style={{
+                              fontSize: "var(--text-size)",
+                              color: group.color,
+                              marginBottom: "var(--skill-gap)",
+                            }}
+                          >
+                            {group.name}
+                          </span>
+                          <div className="flex flex-col" style={{ gap: "var(--skill-gap)" }}>
+                            {group.skills.map((skill) => (
+                              <SkillCard key={skill.id} skill={skill} category="soft" />
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </section>

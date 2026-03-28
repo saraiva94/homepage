@@ -32,6 +32,8 @@ interface PreloadState {
 // Cache global para frames - compartilhado entre todas as instâncias
 const FRAME_CACHE = new Map<string, HTMLImageElement[]>();
 const LOADING_PROMISES = new Map<string, Promise<HTMLImageElement[]>>();
+// Progresso global - atualizado durante o carregamento, legível por qualquer instância
+const GLOBAL_PROGRESS = new Map<string, { loaded: number; total: number }>();
 
 // Detecta conexão lenta
 const isSlowConnection = (): boolean => {
@@ -185,7 +187,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
 
     // Evita múltiplas chamadas da mesma instância
     if (hasStartedRef.current) {
-      return state.images;
+      return [];
     }
 
     hasStartedRef.current = true;
@@ -196,11 +198,12 @@ export function useOptimizedPreload(options: PreloadOptions) {
     const adjustedBatchSize = isSlowNetworkRef.current ? Math.floor(batchSize / 2) : batchSize;
 
     if (!silent) console.log(`[Preload ${portfolioType}] 🚀 Iniciando carregamento de ${totalFrames} frames`);
+    GLOBAL_PROGRESS.set(cacheKey, { loaded: 0, total: totalFrames });
 
     // Cria promise para compartilhar entre instâncias
     const loadingPromise = (async () => {
       try {
-        // FASE 1: Critical frames (primeiros 30) - carrega rápido para UI inicial
+        // FASE 1: Critical frames (primeiros 30)
         const phase1End = Math.min(30, totalFrames);
         for (let i = 0; i < phase1End; i += adjustedBatchSize) {
           if (abortControllerRef.current?.signal.aborted) break;
@@ -212,6 +215,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
 
           const batchImages = await loadBatch(batch);
           allImages.push(...batchImages);
+          GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
 
           setState(prev => ({
             ...prev,
@@ -223,7 +227,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
           await new Promise(resolve => setTimeout(resolve, 5));
         }
 
-        // FASE 2: Remaining frames (sem delays longos)
+        // FASE 2: Remaining frames
         for (let i = phase1End; i < totalFrames; i += adjustedBatchSize) {
           if (abortControllerRef.current?.signal.aborted) break;
 
@@ -234,6 +238,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
 
           const batchImages = await loadBatch(batch);
           allImages.push(...batchImages);
+          GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
 
           setState(prev => ({
             ...prev,
@@ -247,6 +252,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
 
         FRAME_CACHE.set(cacheKey, allImages);
         LOADING_PROMISES.delete(cacheKey);
+        GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
 
         setState(prev => ({
           ...prev,
@@ -283,7 +289,7 @@ export function useOptimizedPreload(options: PreloadOptions) {
 
     LOADING_PROMISES.set(cacheKey, loadingPromise);
     return loadingPromise;
-  }, [portfolioType, totalFrames, batchSize, silent, loadBatch, state.images]);
+  }, [portfolioType, totalFrames, batchSize, silent, loadBatch]);
 
   useEffect(() => {
     if (autoStart && !hasStartedRef.current) {
@@ -341,4 +347,13 @@ export const getCacheInfo = (): Record<string, number> => {
     info[key] = images.length;
   });
   return info;
+};
+
+/** Retorna progresso global do preload (0-100), funciona entre instâncias */
+export const getGlobalProgress = (portfolioType: 'dev' | 'edits', totalFrames: number): number => {
+  const cacheKey = `${portfolioType}-${totalFrames}`;
+  if (FRAME_CACHE.has(cacheKey)) return 100;
+  const progress = GLOBAL_PROGRESS.get(cacheKey);
+  if (!progress) return 0;
+  return Math.min((progress.loaded / progress.total) * 100, 100);
 };

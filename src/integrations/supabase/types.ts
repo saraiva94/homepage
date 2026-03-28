@@ -97,18 +97,30 @@ export type Database = {
           created_at: string
           id: string
           resume_url: string | null
+          profile_image_url: string | null
+          background_image_url: string | null
+          profile_image_position: string | null
+          background_image_position: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           resume_url?: string | null
+          profile_image_url?: string | null
+          background_image_url?: string | null
+          profile_image_position?: string | null
+          background_image_position?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           resume_url?: string | null
+          profile_image_url?: string | null
+          background_image_url?: string | null
+          profile_image_position?: string | null
+          background_image_position?: string | null
           updated_at?: string
         }
         Relationships: []

@@ -2,25 +2,25 @@
  * ========================================
  * LOADING SCREEN CYBERPUNK
  * ========================================
- * 
- * Tela de carregamento com tema cyberpunk
- * Cores da identidade visual (roxo, azul, ciano)
- * Aparece ANTES do site carregar
- * Barra de progresso estilo hacker/matrix
+ *
+ * Dois modos:
+ * 1. Autônomo (homepage): barra interna 0→100% em minDuration, chama onComplete
+ * 2. Externo (portfolios): recebe progress 0→100%, onReady sinaliza que pode transicionar,
+ *    barra preenche suavemente, só chama onComplete quando progress=100 E barra visual=100
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 
 interface LoadingScreenProps {
   onComplete?: () => void;
   minDuration?: number;
-  progress?: number; // Se fornecido, usa progresso externo
-  title?: string; // Título customizado (ex: "PORTFOLIO DEV")
-  subtitle?: string; // Subtítulo customizado
+  progress?: number;
+  title?: string;
+  subtitle?: string;
 }
 
-export function LoadingScreen({ 
-  onComplete, 
+export function LoadingScreen({
+  onComplete,
   minDuration = 2000,
   progress: externalProgress,
   title = 'SWAMIY',
@@ -29,45 +29,57 @@ export function LoadingScreen({
   const [internalProgress, setInternalProgress] = useState(0);
   const [displayText, setDisplayText] = useState('INITIALIZING SYSTEM...');
   const [isComplete, setIsComplete] = useState(false);
+  const completeCalled = useRef(false);
 
-  // Usa progresso externo se fornecido, senão usa interno
+  // Progresso visual: externo OU interno
   const progress = externalProgress !== undefined ? externalProgress : internalProgress;
 
+  // Textos do loading
+  const loadingTexts = useMemo(() => [
+    'INITIALIZING SYSTEM...',
+    'LOADING...',
+    'LOADING ASSETS...',
+    'RENDERING...',
+    'COMPILING...',
+    'SYNCHRONIZING...',
+    'FINALIZING...',
+    'SYSTEM READY',
+  ], []);
+
+  // Modo externo: quando progress chega a 100, sinaliza complete
   useEffect(() => {
-    // Se progresso externo, não anima internamente
-    if (externalProgress !== undefined) {
-      if (externalProgress >= 100 && !isComplete) {
-        setIsComplete(true);
-        setTimeout(() => {
-          onComplete?.();
-        }, 500);
-      }
-      return;
+    if (externalProgress === undefined) return;
+    if (externalProgress >= 100 && !completeCalled.current) {
+      completeCalled.current = true;
+      setDisplayText('SYSTEM READY');
+      setIsComplete(true);
+      setTimeout(() => onComplete?.(), 500);
     }
+  }, [externalProgress, onComplete]);
+
+  // Atualiza texto baseado no progresso (modo externo)
+  useEffect(() => {
+    if (externalProgress === undefined) return;
+    const idx = Math.min(
+      Math.floor((externalProgress / 100) * (loadingTexts.length - 1)),
+      loadingTexts.length - 1
+    );
+    setDisplayText(loadingTexts[idx]);
+  }, [externalProgress, loadingTexts]);
+
+  // Modo autônomo: animação interna
+  useEffect(() => {
+    if (externalProgress !== undefined) return;
 
     const startTime = Date.now();
     let animationFrame: number;
-    let textInterval: ReturnType<typeof setInterval>;
-
-    const loadingTexts = [
-      'INITIALIZING SYSTEM...',
-      'LOADING NEURAL NETWORK...',
-      'CONNECTING TO MAINFRAME...',
-      'DECRYPTING DATA...',
-      'COMPILING MATRICES...',
-      'SYNCHRONIZING PROTOCOLS...',
-      'ESTABLISHING LINK...',
-      'SYSTEM READY',
-    ];
-
     let textIndex = 0;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const naturalProgress = Math.min((elapsed / minDuration) * 100, 100);
-      const variance = Math.random() * 2;
-      const newProgress = Math.min(naturalProgress + variance, 100);
-      
+      const newProgress = Math.min(naturalProgress + Math.random() * 2, 100);
+
       setInternalProgress(newProgress);
 
       const progressTextIndex = Math.floor((newProgress / 100) * (loadingTexts.length - 1));
@@ -78,17 +90,16 @@ export function LoadingScreen({
 
       if (newProgress < 100) {
         animationFrame = requestAnimationFrame(animate);
-      } else {
+      } else if (!completeCalled.current) {
+        completeCalled.current = true;
         setIsComplete(true);
-        setTimeout(() => {
-          onComplete?.();
-        }, 500);
+        setTimeout(() => onComplete?.(), 500);
       }
     };
 
     animationFrame = requestAnimationFrame(animate);
 
-    textInterval = setInterval(() => {
+    const textInterval = setInterval(() => {
       if (Math.random() > 0.9) {
         const glitchChars = '!@#$%^&*()_+{}|:<>?~';
         const randomGlitch = glitchChars[Math.floor(Math.random() * glitchChars.length)];
@@ -98,7 +109,6 @@ export function LoadingScreen({
           chars[randomIndex] = randomGlitch;
           return chars.join('');
         });
-        
         setTimeout(() => {
           setDisplayText(loadingTexts[textIndex]);
         }, 50);
@@ -109,44 +119,35 @@ export function LoadingScreen({
       cancelAnimationFrame(animationFrame);
       clearInterval(textInterval);
     };
-  }, [onComplete, minDuration, externalProgress, isComplete]);
+  }, [onComplete, minDuration, externalProgress, loadingTexts]);
 
   return (
-    <div 
+    <div
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
         isComplete ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       {/* Grid de fundo cyberpunk */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Linhas verticais */}
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={`v-${i}`}
             className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent"
-            style={{
-              left: `${(i / 20) * 100}%`,
-              animationDelay: `${i * 0.1}s`,
-            }}
+            style={{ left: `${(i / 20) * 100}%` }}
           />
         ))}
-        
-        {/* Linhas horizontais */}
         {Array.from({ length: 15 }).map((_, i) => (
           <div
             key={`h-${i}`}
             className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent"
-            style={{
-              top: `${(i / 15) * 100}%`,
-              animationDelay: `${i * 0.15}s`,
-            }}
+            style={{ top: `${(i / 15) * 100}%` }}
           />
         ))}
       </div>
 
       {/* Logo/Título */}
-      <div className="relative z-10 mb-12">
-        <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse-slow tracking-wider font-mono">
+      <div className="relative z-10 mb-12 text-center">
+        <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse-slow tracking-wider font-mono text-center">
           {title}
         </h1>
         <div className="flex items-center justify-center gap-2 mt-2">
@@ -158,8 +159,7 @@ export function LoadingScreen({
 
       {/* Container principal */}
       <div className="relative z-10 w-full max-w-2xl px-8">
-        
-        {/* Texto de status com efeito matrix */}
+        {/* Texto de status */}
         <div className="mb-8 text-center">
           <p className="text-green-400 font-mono text-lg md:text-xl tracking-wider glitch-text">
             {displayText}
@@ -175,24 +175,16 @@ export function LoadingScreen({
           </div>
         </div>
 
-        {/* Barra de progresso cyberpunk */}
+        {/* Barra de progresso */}
         <div className="relative">
-          {/* Container da barra */}
           <div className="relative h-6 bg-black border-2 border-cyan-500 rounded overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-            
-            {/* Barra de progresso animada */}
             <div
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 transition-all duration-300 ease-out"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${Math.min(progress, 100)}%` }}
             >
-              {/* Efeito de scan line */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-scan-line" />
-              
-              {/* Brilho superior */}
               <div className="absolute inset-x-0 top-0 h-1 bg-white/50" />
             </div>
-
-            {/* Grid overlay */}
             <div className="absolute inset-0 flex pointer-events-none">
               {Array.from({ length: 20 }).map((_, i) => (
                 <div key={i} className="flex-1 border-r border-cyan-900/50 last:border-r-0" />
@@ -200,22 +192,21 @@ export function LoadingScreen({
             </div>
           </div>
 
-          {/* Porcentagem */}
           <div className="flex justify-between items-center mt-3">
             <span className="text-cyan-400 font-mono text-sm">
-              [{Math.floor(progress)}%]
+              [{Math.floor(Math.min(progress, 100))}%]
             </span>
-            <span className="text-purple-400 font-mono text-sm animate-pulse">
-              ▓▓▓▓▓▓▓▓▓▓
+            <span className="text-cyan-500/40 font-mono text-sm">
+              SYS.LOAD
             </span>
           </div>
         </div>
 
-        {/* Detalhes técnicos (estilo hacker) */}
+        {/* Detalhes técnicos */}
         <div className="mt-8 space-y-1 text-xs font-mono text-green-500/60">
           <div className="flex justify-between">
             <span>&gt; CPU: 100%</span>
-            <span>RAM: {Math.floor(progress)}MB/100MB</span>
+            <span>RAM: {Math.floor(Math.min(progress, 100))}MB/100MB</span>
           </div>
           <div className="flex justify-between">
             <span>&gt; GPU: RENDERING</span>
@@ -223,7 +214,9 @@ export function LoadingScreen({
           </div>
           <div>
             <span>&gt; STATUS: </span>
-            <span className="text-cyan-400 animate-pulse">LOADING...</span>
+            <span className="text-cyan-400 animate-pulse">
+              {progress >= 100 ? 'READY' : 'LOADING...'}
+            </span>
           </div>
         </div>
       </div>
@@ -233,18 +226,19 @@ export function LoadingScreen({
         {Array.from({ length: 30 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-float"
+            className="absolute w-1 h-1 bg-cyan-400 rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`,
+              left: `${((i * 37) % 100)}%`,
+              top: `${((i * 53) % 100)}%`,
+              animationDelay: `${(i * 0.17) % 5}s`,
+              animationDuration: `${3 + (i % 4)}s`,
+              animation: `float-${(i % 6) + 1} ${3 + (i % 4)}s ease-in-out infinite ${(i * 0.17) % 5}s`,
             }}
           />
         ))}
       </div>
 
-      {/* Canto inferior: versão do sistema */}
+      {/* Versão */}
       <div className="absolute bottom-4 right-4 text-xs font-mono text-cyan-500/40">
         v4.2.1 | BUILD 2026.01.08
       </div>

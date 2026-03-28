@@ -249,11 +249,11 @@ export function SkillsManager({ type }: SkillsManagerProps) {
             )}
           </div>
 
-          {/* Catálogo completo para Soft Skills */}
-          {type === "soft" && !searchQuery && (
+          {/* Catálogo completo */}
+          {!searchQuery && (
             <div className="mb-4">
               <label className="block text-white/70 text-sm mb-2">Ou selecione do catálogo</label>
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-48 overflow-y-auto p-2 bg-black/20 rounded-lg">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-64 overflow-y-auto p-2 bg-black/20 rounded-lg">
                 {catalog.map((item) => {
                   const Icon = item.icon;
                   return (

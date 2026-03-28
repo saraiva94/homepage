@@ -39,7 +39,7 @@ export default function Index() {
     portfolioType: 'dev',
     batchSize: 15,
     autoStart: false,
-    silent: true,
+    silent: false,
   });
 
   /**
@@ -52,7 +52,7 @@ export default function Index() {
     portfolioType: 'edits',
     batchSize: 15,
     autoStart: false,
-    silent: true,
+    silent: false,
   });
 
   /**
@@ -106,58 +106,59 @@ export default function Index() {
    */
   return (
     <div className="w-full h-[100dvh] overflow-hidden relative bg-black flex flex-col">
-      {/* Fundo cyberpunk interativo com partículas que iluminam ao hover */}
-      <CyberpunkBackground className="z-0" />
+      {/* Fundo cyberpunk interativo com partículas */}
+      <CyberpunkBackground />
 
       {/* Header com Command Lines / Timelines */}
-      <header 
-        className={`relative z-10 w-full py-4 md:py-6 shrink-0 transition-all duration-700 ease-out ${
+      <header
+        className={`relative w-full py-4 md:py-6 shrink-0 transition-all duration-700 ease-out ${
           contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         }`}
+        style={{ zIndex: 10, position: 'relative' }}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
-            
-            {/* Command Lines - Esquerda */}
-            <div className="flex-1 flex justify-center md:justify-start md:-mr-6 lg:-mr-12 xl:-mr-16 order-1 md:order-1">
-              <span
-                className="glitch text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
-                data-text="Command Lines"
-              >
-                Command Lines
-              </span>
-            </div>
+        <div
+          className="w-full mx-auto grid items-center px-4"
+          style={{ gridTemplateColumns: '1fr auto 1fr' }}
+        >
+          <div className="flex justify-end font-mono" style={{ paddingRight: '0.6ch' }}>
+            <span
+              className="glitch text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
+              data-text="Command Lines"
+            >
+              Command Lines
+            </span>
+          </div>
 
-            {/* Imagem das stacks - Centro */}
-            <div className="flex-shrink-0 flex items-center justify-center order-first md:order-2">
-              <img
-                src={stacksImg}
-                alt="Tech Stack"
-                className="w-full h-auto max-w-[80px] sm:max-w-[100px] md:max-w-[140px] lg:max-w-[180px] xl:max-w-[220px] object-contain select-none pointer-events-none"
-                loading="eager"
-              />
-            </div>
+          <div className="flex items-center justify-center">
+            <img
+              src={stacksImg}
+              alt="Tech Stack"
+              className="h-auto max-w-[60px] sm:max-w-[80px] md:max-w-[140px] lg:max-w-[180px] xl:max-w-[220px] object-contain select-none"
+              loading="eager"
+            />
+          </div>
 
-            {/* Timelines - Direita */}
-            <div className="flex-1 flex justify-center md:justify-end md:-ml-8 lg:-ml-20 xl:-ml-28 order-2 md:order-3">
-              <span
-                className="glitch text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
-                data-text="Timelines"
-              >
-                Timelines
-              </span>
-            </div>
+          <div className="flex justify-start font-mono" style={{ paddingLeft: '1.2ch' }}>
+            <span
+              className="glitch text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
+              data-text="Timelines"
+            >
+              Timelines
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Card principal - mais próximo do navbar */}
-      <main className="flex-1 relative z-10 px-2 sm:px-4 pb-4 flex items-start justify-center">
+      {/* Card principal - centralizado no espaço abaixo do navbar */}
+      <main
+        className="flex-1 flex items-center justify-center min-h-0"
+        style={{ zIndex: 10, position: 'relative' }}
+      >
         <div
-          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl transition-all duration-700 ease-out delay-150 ${
+          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl max-h-full transition-all duration-700 ease-out delay-150 ${
             contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ height: "clamp(400px, calc(100vh - 140px), 820px)" }}
+          style={{ height: "clamp(400px, calc(100dvh - 140px), 820px)" }}
         >
           <About isVisible={contentReady} />
         </div>
