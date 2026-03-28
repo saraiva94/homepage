@@ -112,7 +112,8 @@ export default function DevPage() {
 
   useEffect(() => {
     // ============= LENIS + SCROLLTRIGGER =============
-    const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+    const lenis = new Lenis({ smoothWheel: true, lerp: isMobile ? 0.25 : 0.1 });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf((time as number) * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -138,7 +139,8 @@ export default function DevPage() {
     ctxRef.current = ctx;
 
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+    const dpr = isMobile ? 1 : Math.min(2, window.devicePixelRatio || 1);
 
     canvas.width = Math.max(1, Math.floor(rect.width * dpr));
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
@@ -203,13 +205,15 @@ export default function DevPage() {
       const heroScrollScreens = 1 + totalVideos + 0.5;
       const scrollEnd = window.innerHeight * heroScrollScreens;
 
+      const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+
       scrollTriggerRef.current = ScrollTrigger.create({
         trigger: container,
         start: "top top",
         end: `+=${scrollEnd}`,
         pin: true,
         pinSpacing: true,
-        scrub: 1,
+        scrub: isMobile ? 2 : 1,
         onUpdate: (self: any) => {
           const progress = self.progress;
 
@@ -228,6 +232,7 @@ export default function DevPage() {
               transform: "translate(-50%, 0)",
               opacity,
               pointerEvents: opacity < 0.1 ? "none" : "auto",
+              force3D: true,
             });
           }
 
@@ -237,6 +242,7 @@ export default function DevPage() {
             gsap.set(scrollHintRef.current, {
               opacity: 1 - hintProgress,
               y: hintProgress * 100,
+              force3D: true,
             });
           }
 
@@ -252,7 +258,7 @@ export default function DevPage() {
             const exitStart = videoEnd - progressPerVideo * 0.35;
 
             if (progress < videoStart) {
-              gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3 });
+              gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3, force3D: true });
             } else if (progress >= videoStart && progress < enterEnd) {
               const t = (progress - videoStart) / (enterEnd - videoStart);
               const eased = 1 - Math.pow(1 - t, 2);
@@ -260,9 +266,10 @@ export default function DevPage() {
                 y: `${-60 + eased * 60}%`,
                 opacity: eased,
                 scale: 0.3 + eased * 0.7,
+                force3D: true,
               });
             } else if (progress >= enterEnd && progress < exitStart) {
-              gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1 });
+              gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1, force3D: true });
             } else if (progress >= exitStart && progress <= videoEnd) {
               const t = (progress - exitStart) / (videoEnd - exitStart);
               const eased = Math.pow(t, 2);
@@ -270,9 +277,10 @@ export default function DevPage() {
                 y: `${eased * 60}%`,
                 opacity: 1 - eased,
                 scale: 1 + eased * 0.8,
+                force3D: true,
               });
             } else {
-              gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.8 });
+              gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.8, force3D: true });
             }
           });
 
@@ -284,9 +292,10 @@ export default function DevPage() {
                 opacity: eased,
                 scale: 0.8 + eased * 0.2,
                 pointerEvents: eased > 0.5 ? "auto" : "none",
+                force3D: true,
               });
             } else {
-              gsap.set(endButtonRef.current, { opacity: 0, scale: 0.8, pointerEvents: "none" });
+              gsap.set(endButtonRef.current, { opacity: 0, scale: 0.8, pointerEvents: "none", force3D: true });
             }
           }
         },
@@ -380,6 +389,7 @@ export default function DevPage() {
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full z-0 bg-black"
+          style={{ willChange: 'contents' }}
         />
 
         <div
@@ -421,7 +431,7 @@ export default function DevPage() {
               videoRefs.current[idx] = el;
             }}
             className="absolute inset-0 flex items-center justify-center z-20 px-2 sm:px-4"
-            style={{ transform: "translateY(100%)", opacity: 0 }}
+            style={{ transform: "translateY(100%)", opacity: 0, willChange: 'transform, opacity' }}
           >
             <div className="w-full max-w-[95vw] sm:max-w-[90vw] md:max-w-[1000px]">
               <video
