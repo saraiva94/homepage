@@ -312,7 +312,7 @@ export function SkillsManager({ type }: SkillsManagerProps) {
 
           {/* Cor */}
           <div className="mb-4">
-            <label className="block text-white/70 text-sm mb-2 flex items-center gap-2">
+            <label className="text-white/70 text-sm mb-2 flex items-center gap-2">
               <Palette className="w-4 h-4" />
               Cor do ícone
             </label>
