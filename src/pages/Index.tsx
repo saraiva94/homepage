@@ -111,10 +111,10 @@ export default function Index() {
 
       {/* Header com Command Lines / Timelines */}
       <header
-        className={`relative w-full py-4 md:py-6 shrink-0 transition-all duration-700 ease-out ${
+        className={`relative w-full py-8 md:py-6 shrink-0 transition-all duration-700 ease-out ${
           contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         }`}
-        style={{ zIndex: 10, position: 'relative' }}
+        style={{ zIndex: 20, position: 'relative' }}
       >
         <div
           className="w-full mx-auto grid items-center px-4"
@@ -151,7 +151,7 @@ export default function Index() {
 
       {/* Card principal - centralizado no espaço abaixo do navbar */}
       <main
-        className="flex-1 flex items-center justify-center min-h-0"
+        className="flex-1 flex items-center justify-center min-h-0 -mt-4 md:mt-0"
         style={{ zIndex: 10, position: 'relative' }}
       >
         <div

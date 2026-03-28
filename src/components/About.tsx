@@ -16,6 +16,7 @@ import {
   Code2,
   FileText,
   Github,
+  Linkedin,
   MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/backend/client";
@@ -529,7 +530,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
           >
             <Link
               to="/portfolio/edits"
-              className={`${btnBase} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus-visible:outline-blue-400 md:flex-1`}
+              className={`${btnBase} bg-blue-800 hover:bg-blue-900 active:bg-blue-950 focus-visible:outline-blue-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <Clapperboard style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
@@ -557,6 +558,19 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             </a>
 
             <a
+              href="https://www.linkedin.com/in/swami-saraiva/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${btnBase} md:flex-1`}
+              style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)', backgroundColor: '#0A66C2' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#004182'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0A66C2'}
+            >
+              <Linkedin style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} />
+              <span className="truncate">LinkedIn</span>
+            </a>
+
+            <a
               href={resumeUrl || "/Curriculo_Swamiy_Saraiva.pdf"}
               download="Curriculo_Swamiy_Saraiva.pdf"
               className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400 md:flex-1`}
@@ -570,7 +584,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               href="https://github.com/Saraiva94"
               target="_blank"
               rel="noopener noreferrer"
-              className={`${btnBase} col-span-2 sm:col-span-1 bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700 md:flex-1`}
+              className={`${btnBase} bg-black hover:bg-gray-900 active:bg-gray-800 !text-white focus-visible:outline-gray-700 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
               <Github style={{ width: 'var(--btn-icon)', height: 'var(--btn-icon)', flexShrink: 0 }} className="text-white" />
@@ -582,13 +596,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
           <div className="relative z-0 flex-1 min-h-0 text-white overflow-hidden flex flex-col">
             
             {/* Educação */}
-            <div className="text-white/90 leading-snug text-center shrink-0" style={{ marginBottom: 'var(--skill-gap)' }}>
-              <span className="block font-bold leading-tight md:hidden" style={{ fontSize: 'var(--title-size)' }}>
-                Análise e<br />
-                desenvolvimento<br />
-                de sistemas (ADS)
-              </span>
-              <span className="hidden md:block font-bold" style={{ fontSize: 'var(--title-size)' }}>
+            <div className="text-white/90 text-center shrink-0" style={{ marginBottom: 'var(--skill-gap)' }}>
+              <span className="block font-bold whitespace-nowrap" style={{ fontSize: 'var(--title-size)' }}>
                 Análise e Desenvolvimento de Sistemas (ADS)
               </span>
               <span className="block" style={{ fontSize: 'var(--subtitle-size)' }}>Faculdade Unigranrio</span>
@@ -597,7 +606,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             {/* Skills Container — scroll invisível nas colunas */}
             <div
               className="flex flex-1 min-h-0"
-              style={{ gap: "var(--section-gap)", overflow: 'hidden' }}
+              style={{ gap: "var(--section-gap)", overflowY: 'hidden' }}
             >
               <div className="w-full flex" style={{ gap: "var(--section-gap)" }}>
                   

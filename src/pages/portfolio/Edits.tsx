@@ -13,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 const TOTAL_FRAMES = 300;
 const PERSPECTIVE_PX = 1000;
 const MAX_VIDEOS = 8;
+const IS_MOBILE = typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window);
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
 
@@ -87,7 +88,7 @@ export default function EditsPage() {
   // ============= LENIS + SCROLLTRIGGER =============
   useEffect(() => {
     const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
-    const lenis = new Lenis({ smoothWheel: true, lerp: isMobile ? 0.25 : 0.1 });
+    const lenis = new Lenis({ smoothWheel: true, lerp: isMobile ? 0.15 : 0.1 });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -222,7 +223,7 @@ export default function EditsPage() {
       end: `+=${scrollEnd}`,
       pin: true,
       pinSpacing: true,
-      scrub: isMobile ? 2 : 1,
+      scrub: isMobile ? 0.5 : 1,
       onUpdate: (self) => {
         const progress = self.progress;
 
@@ -233,27 +234,25 @@ export default function EditsPage() {
           requestAnimationFrame(render);
         }
 
-        // ===== HEADER - fade out suave =====
+        // ===== HEADER + SCROLL HINT - somem juntos =====
+        const fadeEnd = 0.08;
+        const fadeT = clamp01(progress / fadeEnd);
+
         if (headerRef.current) {
-          const headerFadeEnd = 0.12;
-          const t = clamp01(progress / headerFadeEnd);
-          const eased = 1 - Math.pow(1 - t, 3);
-          const opacity = 1 - eased;
           gsap.set(headerRef.current, {
-            transform: "translate(-50%, 0)",
-            opacity,
-            pointerEvents: opacity < 0.1 ? "none" : "auto",
+            xPercent: -50,
+            yPercent: -50,
+            y: fadeT * 100,
+            autoAlpha: 1 - fadeT,
+            pointerEvents: fadeT > 0.9 ? "none" : "auto",
             force3D: true,
           });
         }
 
-        // ===== SCROLL HINT - desaparece descendo =====
         if (scrollHintRef.current) {
-          const hintFadeEnd = 0.08;
-          const hintProgress = clamp01(progress / hintFadeEnd);
           gsap.set(scrollHintRef.current, {
-            opacity: 1 - hintProgress,
-            y: hintProgress * 100,
+            opacity: 1 - fadeT,
+            y: fadeT * 100,
             force3D: true,
           });
         }
@@ -271,7 +270,7 @@ export default function EditsPage() {
           const exitStart = videoEnd - progressPerVideo * 0.35;
 
           if (progress < videoStart) {
-            gsap.set(videoEl, { opacity: 0, scale: 0.4, y: "0%", force3D: true });
+            gsap.set(videoEl, { opacity: 0, scale: 0.4, y: "0%", force3D: true, visibility: "hidden" });
           } else if (progress >= videoStart && progress < enterEnd) {
             const t = (progress - videoStart) / (enterEnd - videoStart);
             const eased = 1 - Math.pow(1 - t, 3);
@@ -280,9 +279,10 @@ export default function EditsPage() {
               scale: 0.4 + eased * 0.6,
               y: "0%",
               force3D: true,
+              visibility: "visible",
             });
           } else if (progress >= enterEnd && progress < exitStart) {
-            gsap.set(videoEl, { opacity: 1, scale: 1, y: "0%", force3D: true });
+            gsap.set(videoEl, { opacity: 1, scale: 1, y: "0%", force3D: true, visibility: "visible" });
           } else if (progress >= exitStart && progress <= videoEnd) {
             const t = (progress - exitStart) / (videoEnd - exitStart);
             const eased = Math.pow(t, 2);
@@ -291,9 +291,10 @@ export default function EditsPage() {
               scale: 1 + eased * 0.6,
               y: "0%",
               force3D: true,
+              visibility: "visible",
             });
           } else {
-            gsap.set(videoEl, { opacity: 0, scale: 1.6, y: "0%", force3D: true });
+            gsap.set(videoEl, { opacity: 0, scale: 1.6, y: "0%", force3D: true, visibility: "hidden" });
           }
         });
 
@@ -376,24 +377,23 @@ export default function EditsPage() {
       <section
         ref={containerRef}
         className="relative w-screen h-[100dvh] overflow-hidden"
-        style={{ perspective: `${PERSPECTIVE_PX}px` }}
+        style={IS_MOBILE ? undefined : { perspective: `${PERSPECTIVE_PX}px` }}
       >
         {/* Canvas fullscreen */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full z-0 bg-black"
-          style={{ willChange: 'contents' }}
+          style={{ willChange: IS_MOBILE ? undefined : 'contents' }}
         />
 
         {/* Header - Botão Homepage */}
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-4 sm:top-8 z-30"
-          style={{ transform: "translate(-50%, 0)" }}
+          className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2"
         >
           <Link
             to="/"
-            className="relative text-sm sm:text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            className="relative text-sm sm:text-base font-bold bg-black text-white rounded-full hover:bg-black/90 transition-colors hover:scale-105 border border-sky-400/60 animate-glow-pulse"
             style={{
               padding: '1rem 3rem',
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
@@ -436,6 +436,7 @@ export default function EditsPage() {
               <video
                 controls
                 playsInline
+                preload="none"
                 className="w-full aspect-video max-h-[70dvh] sm:max-h-[80dvh] rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
               >
                 <source src={video.video_url} type="video/mp4" />
@@ -452,7 +453,7 @@ export default function EditsPage() {
         >
           <Link
             to="/"
-            className="relative text-base sm:text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-black text-white rounded-full hover:bg-black/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse w-full sm:w-auto text-center"
             style={{
               padding: '1.25rem 3.5rem',
               boxShadow: "0 0 20px rgba(56, 189, 248, 0.5), 0 0 40px rgba(56, 189, 248, 0.3)",
@@ -468,7 +469,7 @@ export default function EditsPage() {
                 ease: "power2.inOut",
               });
             }}
-            className="relative text-base sm:text-xl font-bold bg-white/20 text-white rounded-full hover:bg-white/30 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-white/20 text-white rounded-full hover:bg-white/30 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm w-full sm:w-auto text-center"
             style={{ padding: '1.25rem 3.5rem' }}
           >
             Voltar ao topo

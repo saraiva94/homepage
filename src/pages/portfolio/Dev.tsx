@@ -25,6 +25,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 const TOTAL_FRAMES = 261;
 const PERSPECTIVE_PX = 1000;
 const MAX_VIDEOS = 8;
+const IS_MOBILE = typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window);
 
 interface Video {
   id: string;
@@ -113,7 +114,7 @@ export default function DevPage() {
   useEffect(() => {
     // ============= LENIS + SCROLLTRIGGER =============
     const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
-    const lenis = new Lenis({ smoothWheel: true, lerp: isMobile ? 0.25 : 0.1 });
+    const lenis = new Lenis({ smoothWheel: true, lerp: isMobile ? 0.15 : 0.1 });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf((time as number) * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -213,7 +214,7 @@ export default function DevPage() {
         end: `+=${scrollEnd}`,
         pin: true,
         pinSpacing: true,
-        scrub: isMobile ? 2 : 1,
+        scrub: isMobile ? 0.5 : 1,
         onUpdate: (self: any) => {
           const progress = self.progress;
 
@@ -223,71 +224,73 @@ export default function DevPage() {
             requestAnimationFrame(render);
           }
 
+          const fadeEnd = 0.08;
+          const fadeT = Math.max(0, Math.min(1, progress / fadeEnd));
+
           if (headerRef.current) {
-            const headerFadeEnd = 0.12;
-            const t = Math.max(0, Math.min(1, progress / headerFadeEnd));
-            const eased = 1 - Math.pow(1 - t, 3);
-            const opacity = 1 - eased;
             gsap.set(headerRef.current, {
-              transform: "translate(-50%, 0)",
-              opacity,
-              pointerEvents: opacity < 0.1 ? "none" : "auto",
+              xPercent: -50,
+              yPercent: -50,
+              y: fadeT * 100,
+              autoAlpha: 1 - fadeT,
+              pointerEvents: fadeT > 0.9 ? "none" : "auto",
               force3D: true,
             });
           }
 
           if (scrollHintRef.current) {
-            const hintFadeEnd = 0.08;
-            const hintProgress = Math.max(0, Math.min(1, progress / hintFadeEnd));
             gsap.set(scrollHintRef.current, {
-              opacity: 1 - hintProgress,
-              y: hintProgress * 100,
+              opacity: 1 - fadeT,
+              y: fadeT * 100,
               force3D: true,
             });
           }
 
-          const buttonStart = 0.95;
-          const progressPerVideo = buttonStart / totalVideos;
+          const videoScrollEnd = 0.9;
+          const progressPerVideo = videoScrollEnd / totalVideos;
 
           videoRefs.current.forEach((videoEl, idx) => {
             if (!videoEl || idx >= totalVideos) return;
 
             const videoStart = idx * progressPerVideo;
             const videoEnd = videoStart + progressPerVideo;
-            const enterEnd = videoStart + progressPerVideo * 0.4;
+            const enterEnd = videoStart + progressPerVideo * 0.35;
             const exitStart = videoEnd - progressPerVideo * 0.35;
 
             if (progress < videoStart) {
-              gsap.set(videoEl, { y: "-60%", opacity: 0, scale: 0.3, force3D: true });
+              gsap.set(videoEl, { opacity: 0, scale: 0.4, y: "0%", force3D: true, visibility: "hidden" });
             } else if (progress >= videoStart && progress < enterEnd) {
               const t = (progress - videoStart) / (enterEnd - videoStart);
-              const eased = 1 - Math.pow(1 - t, 2);
+              const eased = 1 - Math.pow(1 - t, 3);
               gsap.set(videoEl, {
-                y: `${-60 + eased * 60}%`,
                 opacity: eased,
-                scale: 0.3 + eased * 0.7,
+                scale: 0.4 + eased * 0.6,
+                y: "0%",
                 force3D: true,
+                visibility: "visible",
               });
             } else if (progress >= enterEnd && progress < exitStart) {
-              gsap.set(videoEl, { y: "0%", opacity: 1, scale: 1, force3D: true });
+              gsap.set(videoEl, { opacity: 1, scale: 1, y: "0%", force3D: true, visibility: "visible" });
             } else if (progress >= exitStart && progress <= videoEnd) {
               const t = (progress - exitStart) / (videoEnd - exitStart);
               const eased = Math.pow(t, 2);
               gsap.set(videoEl, {
-                y: `${eased * 60}%`,
                 opacity: 1 - eased,
-                scale: 1 + eased * 0.8,
+                scale: 1 + eased * 0.6,
+                y: "0%",
                 force3D: true,
+                visibility: "visible",
               });
             } else {
-              gsap.set(videoEl, { y: "60%", opacity: 0, scale: 1.8, force3D: true });
+              gsap.set(videoEl, { opacity: 0, scale: 1.6, y: "0%", force3D: true, visibility: "hidden" });
             }
           });
 
           if (endButtonRef.current) {
+            const buttonStart = 0.85;
             if (progress >= buttonStart) {
               const t = (progress - buttonStart) / (1 - buttonStart);
-              const eased = 1 - Math.pow(1 - t, 2);
+              const eased = 1 - Math.pow(1 - t, 3);
               gsap.set(endButtonRef.current, {
                 opacity: eased,
                 scale: 0.8 + eased * 0.2,
@@ -384,22 +387,21 @@ export default function DevPage() {
       <section
         ref={containerRef}
         className="relative w-screen h-[100dvh] overflow-hidden"
-        style={{ perspective: `${PERSPECTIVE_PX}px` }}
+        style={IS_MOBILE ? undefined : { perspective: `${PERSPECTIVE_PX}px` }}
       >
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full z-0 bg-black"
-          style={{ willChange: 'contents' }}
+          style={{ willChange: IS_MOBILE ? undefined : 'contents' }}
         />
 
         <div
           ref={headerRef}
-          className="absolute left-1/2 top-4 sm:top-8 z-30"
-          style={{ transform: "translate(-50%, 0)" }}
+          className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2"
         >
           <Link
             to="/"
-            className="relative text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse"
+            className="relative text-sm sm:text-base font-bold bg-white text-black rounded-full hover:bg-white/90 transition-colors hover:scale-105 border border-sky-400/60 animate-glow-pulse"
             style={{ padding: '1rem 3rem' }}
           >
             Homepage
@@ -453,7 +455,7 @@ export default function DevPage() {
         >
           <Link
             to="/"
-            className="relative text-base sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-white text-black rounded-full hover:bg-white/90 transition-all hover:scale-105 border border-sky-400/60 animate-glow-pulse w-full sm:w-auto text-center"
             style={{ padding: '1.25rem 3.5rem' }}
           >
             Homepage
@@ -468,7 +470,7 @@ export default function DevPage() {
                 });
               }
             }}
-            className="relative text-base sm:text-xl font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm pointer-events-auto w-full sm:w-auto text-center"
+            className="relative text-base sm:text-xl font-bold bg-black/60 text-white rounded-full hover:bg-black/80 transition-all hover:scale-105 border border-white/40 backdrop-blur-sm w-full sm:w-auto text-center"
             style={{ padding: '1.25rem 3.5rem' }}
           >
             Voltar ao topo
