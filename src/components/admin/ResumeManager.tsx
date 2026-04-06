@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/backend/client";
-import { FileText, Upload, Trash2, Check, X, ExternalLink } from "lucide-react";
+import { FileText, Upload, Trash2, Check, X, ExternalLink, Download } from "lucide-react";
+
+const FALLBACK_RESUME = "/Curriculo_Swamiy_Saraiva.pdf";
 
 export function ResumeManager() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
@@ -21,10 +23,9 @@ export function ResumeManager() {
       .single();
 
     if (error) {
-      console.error("Error fetching resume URL:", error);
-    } else {
-      setResumeUrl(data?.resume_url || null);
+      console.warn("[ResumeManager] fetch error:", error.message);
     }
+    setResumeUrl(data?.resume_url || null);
     setLoading(false);
   };
 
@@ -66,7 +67,7 @@ export function ResumeManager() {
         .from("resume")
         .getPublicUrl(fileName);
 
-      // Update database
+      // Update database (upsert to handle missing row)
       const { error: dbError } = await supabase
         .from("site_settings")
         .upsert({ id: "main", resume_url: urlData.publicUrl });
@@ -74,9 +75,9 @@ export function ResumeManager() {
       if (dbError) throw dbError;
 
       setResumeUrl(urlData.publicUrl);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
-      alert("Erro ao fazer upload do currículo");
+      alert("Erro ao fazer upload do currículo: " + (err.message || "erro desconhecido"));
     } finally {
       setUploading(false);
     }
@@ -120,6 +121,12 @@ export function ResumeManager() {
     );
   }
 
+  const displayUrl = resumeUrl || FALLBACK_RESUME;
+  const isFromDb = !!resumeUrl;
+  const displayName = isFromDb
+    ? decodeURIComponent(displayUrl.split("/").pop() || "curriculo.pdf")
+    : "Curriculo_Swamiy_Saraiva.pdf (local)";
+
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
       <div className="flex items-center gap-3 mb-6">
@@ -127,17 +134,18 @@ export function ResumeManager() {
         <h2 className="text-xl font-semibold text-white">Currículo para Download</h2>
       </div>
 
-      {resumeUrl ? (
-        <div className="bg-black/30 rounded-xl p-4 border border-white/10">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
-                <FileText className="w-6 h-6 text-red-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium truncate">Currículo atual</p>
+      {/* Current resume card */}
+      <div className="bg-black/30 rounded-xl p-4 border border-white/10 mb-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
+              <FileText className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-medium truncate">{displayName}</p>
+              {isFromDb ? (
                 <a
-                  href={resumeUrl}
+                  href={displayUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
@@ -145,75 +153,84 @@ export function ResumeManager() {
                   <span className="truncate">Visualizar PDF</span>
                   <ExternalLink className="w-3 h-3 shrink-0" />
                 </a>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                <span>Substituir</span>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleUpload}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-
-              {confirmDelete ? (
-                <div className="flex gap-1 bg-black/70 rounded-lg p-1">
-                  <button
-                    onClick={() => setConfirmDelete(false)}
-                    className="p-2 hover:bg-white/10 text-white/60 hover:text-white rounded transition"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="p-2 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded transition"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                </div>
               ) : (
-                <button
-                  onClick={() => setConfirmDelete(true)}
-                  className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <span className="text-sm text-white/40">Arquivo local (fallback)</span>
               )}
             </div>
           </div>
 
-          {uploading && (
-            <div className="mt-3 text-center text-white/60 text-sm">
-              Enviando novo currículo...
-            </div>
-          )}
-        </div>
-      ) : (
-        <label className="block bg-black/30 rounded-xl p-8 border-2 border-dashed border-white/20 hover:border-white/40 cursor-pointer transition group">
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleUpload}
-            disabled={uploading}
-            className="hidden"
-          />
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-white/10 group-hover:bg-red-500/30 flex items-center justify-center transition">
-              <Upload className="w-8 h-8 text-white/60 group-hover:text-white transition" />
-            </div>
-            <div className="text-center">
-              <p className="text-white font-medium">
-                {uploading ? "Enviando..." : "Clique para fazer upload do currículo"}
-              </p>
-              <p className="text-white/40 text-sm mt-1">Apenas arquivos PDF</p>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Download */}
+            <a
+              href={displayUrl}
+              download="Curriculo_Swamiy_Saraiva.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition flex items-center gap-2 text-sm"
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </a>
+
+            {/* Delete (only if from DB) */}
+            {isFromDb && (
+              <>
+                {confirmDelete ? (
+                  <div className="flex gap-1 bg-black/70 rounded-lg p-1">
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      className="p-2 hover:bg-white/10 text-white/60 hover:text-white rounded transition"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="p-2 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded transition"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
+                    title="Excluir currículo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </>
+            )}
           </div>
-        </label>
+        </div>
+      </div>
+
+      {/* Upload new */}
+      <label className="block bg-black/30 rounded-xl p-6 border-2 border-dashed border-white/20 hover:border-white/40 cursor-pointer transition group">
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleUpload}
+          disabled={uploading}
+          className="hidden"
+        />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-white/10 group-hover:bg-red-500/30 flex items-center justify-center transition">
+            <Upload className="w-7 h-7 text-white/60 group-hover:text-white transition" />
+          </div>
+          <div className="text-center">
+            <p className="text-white font-medium">
+              {uploading ? "Enviando..." : isFromDb ? "Substituir currículo" : "Enviar novo currículo"}
+            </p>
+            <p className="text-white/40 text-sm mt-1">Apenas arquivos PDF</p>
+          </div>
+        </div>
+      </label>
+
+      {uploading && (
+        <div className="mt-3 text-center text-white/60 text-sm">
+          Enviando novo currículo...
+        </div>
       )}
     </div>
   );

@@ -65,8 +65,25 @@ import {
   SiNotion,
   SiSlack,
   SiDiscord,
+  // Novos
+  SiSpring,
+  SiSpringboot,
+  SiDotnet,
+  SiScala,
+  SiRuby,
+  SiJest,
+  SiCypress,
+  SiSelenium,
+  SiInsomnia,
+  SiVitest,
+  SiPostman,
+  SiClaude,
+  SiOpenai,
+  SiGithubcopilot,
+  SiAnthropic,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
+import { FaJava } from "react-icons/fa";
 import {
   FileSpreadsheet,
   MessagesSquare,
@@ -94,6 +111,8 @@ import {
   Glasses,
   Scale,
   Leaf,
+  MousePointerClick,
+  Image,
   type LucideIcon,
 } from "lucide-react";
 import type { IconType } from "react-icons";
@@ -134,6 +153,8 @@ export const hardSkillsCatalog: IconCatalogItem[] = [
   { key: "webgl", name: "WebGL", icon: SiWebgl, color: "#990000", category: "hard" },
   
   // Backend
+  { key: "java", name: "Java", icon: FaJava, color: "#007396", category: "hard" },
+  { key: "csharp", name: "C#", icon: SiDotnet, color: "#239120", category: "hard" },
   { key: "nodejs", name: "Node.js", icon: SiNodedotjs, color: "#339933", category: "hard" },
   { key: "bunjs", name: "Bun.js", icon: SiBun, color: "#FBF0DF", category: "hard" },
   { key: "python", name: "Python", icon: SiPython, color: "#3776AB", category: "hard" },
@@ -192,6 +213,28 @@ export const hardSkillsCatalog: IconCatalogItem[] = [
   // Game Dev
   { key: "unity", name: "Unity", icon: SiUnity, color: "#FFFFFF", category: "hard" },
   { key: "unreal", name: "Unreal Engine", icon: SiUnrealengine, color: "#0E1128", category: "hard" },
+
+  // Backend (extras)
+  { key: "spring", name: "Spring Boot", icon: SiSpringboot, color: "#6DB33F", category: "hard" },
+  { key: "dotnet", name: ".NET", icon: SiDotnet, color: "#512BD4", category: "hard" },
+  { key: "scala", name: "Scala", icon: SiScala, color: "#DC322F", category: "hard" },
+  { key: "ruby", name: "Ruby", icon: SiRuby, color: "#CC342D", category: "hard" },
+
+  // Testes
+  { key: "jest", name: "Jest", icon: SiJest, color: "#C21325", category: "hard" },
+  { key: "postman", name: "Postman", icon: SiPostman, color: "#FF6C37", category: "hard" },
+  { key: "cypress", name: "Cypress", icon: SiCypress, color: "#17202C", category: "hard" },
+  { key: "selenium", name: "Selenium", icon: SiSelenium, color: "#43B02A", category: "hard" },
+  { key: "insomnia", name: "Insomnia", icon: SiInsomnia, color: "#5849BE", category: "hard" },
+  { key: "vitest", name: "Vitest", icon: SiVitest, color: "#6E9F18", category: "hard" },
+
+  // IA / AI Tools
+  { key: "claude", name: "Claude", icon: SiClaude, color: "#D97757", category: "hard" },
+  { key: "chatgpt", name: "ChatGPT", icon: SiOpenai, color: "#10A37F", category: "hard" },
+  { key: "copilot", name: "GitHub Copilot", icon: SiGithubcopilot, color: "#000000", category: "hard" },
+  { key: "cursor", name: "Cursor", icon: MousePointerClick, color: "#000000", category: "hard" },
+  { key: "midjourney", name: "Midjourney", icon: Image, color: "#000000", category: "hard" },
+  { key: "stablediffusion", name: "Stable Diffusion", icon: Sparkles, color: "#A855F7", category: "hard" },
 ];
 
 // Catálogo completo de Soft Skills

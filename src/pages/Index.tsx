@@ -20,7 +20,7 @@ import { About } from "@/components/About";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { CyberpunkBackground } from "@/components/CyberpunkBackground";
 import { useOptimizedPreload } from "@/hooks/useOptimizedPreload";
-import stacksImgRaw from "@/assets/stacks.png";
+import stacksImgRaw from "@/assets/optimized/stacks.webp";
 
 const stacksImg = stacksImgRaw as unknown as string;
 
@@ -68,20 +68,34 @@ export default function Index() {
 
   /**
    * ========================================
-   * PRELOAD DE PORTFOLIOS (BACKGROUND)
-   * Inicia UMA VEZ após homepage visível
+   * IDLE PREFETCH (BACKGROUND)
+   * 1. Após 3s idle: prefetch route chunks
+   * 2. Via requestIdleCallback: preload frames
    * ========================================
    */
   useEffect(() => {
     if (!isLoading && contentReady && !preloadStartedRef.current) {
       preloadStartedRef.current = true;
-      console.log('[Index] 🎬 Iniciando preload de portfolios em background...');
-      devPreload.loadFrames();
-      
-      // Edits inicia 1s depois para não competir por bandwidth
-      setTimeout(() => {
-        editsPreload.loadFrames();
-      }, 1000);
+
+      const idleTimer = setTimeout(() => {
+        // Prefetch route chunks (low priority)
+        import("@/pages/portfolio/Dev");
+        import("@/pages/portfolio/Edits");
+
+        // Preload frames when browser is idle
+        const startFramePreload = () => {
+          devPreload.loadFrames();
+          setTimeout(() => editsPreload.loadFrames(), 1500);
+        };
+
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(startFramePreload, { timeout: 8000 });
+        } else {
+          setTimeout(startFramePreload, 1000);
+        }
+      }, 3000);
+
+      return () => clearTimeout(idleTimer);
     }
   }, [isLoading, contentReady]); // eslint-disable-line react-hooks/exhaustive-deps
 

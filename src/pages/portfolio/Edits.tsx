@@ -21,6 +21,7 @@ interface Video {
   id: string;
   video_url: string;
   display_order: number;
+  thumbnail_url: string | null;
 }
 
 export default function EditsPage() {
@@ -437,6 +438,7 @@ export default function EditsPage() {
                 controls
                 playsInline
                 preload="none"
+                poster={video.thumbnail_url || undefined}
                 className="w-full aspect-video max-h-[70dvh] sm:max-h-[80dvh] rounded-xl sm:rounded-2xl border border-white/20 shadow-2xl object-contain"
               >
                 <source src={video.video_url} type="video/mp4" />

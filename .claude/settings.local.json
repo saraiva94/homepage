@@ -15,7 +15,19 @@
       "Read(//c/Users/saraiva/OneDrive/**)",
       "Read(//c/Users/saraiva/OneDice de Trabalho/Landing Page/New_LP/blank-canvas-builder/supabase/migrations/**)",
       "Bash(find 'c:\\\\Users\\\\saraiva\\\\OneDrive\\\\Área de Trabalho\\\\Landing Page\\\\New_LP\\\\blank-canvas-builder' -type f -name *.sql)",
-      "Bash(grep -o \"w-\\\\[95%\\\\]\\\\|w-\\\\[90%\\\\]\\\\|w-\\\\[85%\\\\]\\\\|w-\\\\[80%\\\\]\" dist/assets/*.css)"
+      "Bash(grep -o \"w-\\\\[95%\\\\]\\\\|w-\\\\[90%\\\\]\\\\|w-\\\\[85%\\\\]\\\\|w-\\\\[80%\\\\]\" dist/assets/*.css)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ls:*)",
+      "Bash(node -e ':*)",
+      "Bash(node -e \"try { const t = require\\('lovable-tagger'\\); console.log\\('version:', t.version || 'unknown'\\); console.log\\('exports:', Object.keys\\(t\\)\\); } catch\\(e\\) { console.log\\('Error:', e.message\\); }\")",
+      "Bash(npm uninstall:*)",
+      "Bash(rm -rf node_modules)",
+      "Bash(rm -f package-lock.json)",
+      "Bash([ ! -f node_modules/react/package.json ])",
+      "Bash(node -e \"const r = require\\('react'\\); console.log\\('React version:', r.version\\);\")",
+      "Bash(node -e \"console.log\\(require\\('react-icons/package.json'\\).version\\)\")",
+      "Bash(node scripts/optimize-images.js)"
     ]
   }
 }

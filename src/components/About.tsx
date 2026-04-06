@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/backend/client";
 import { getIconByKey } from "@/lib/skillIconsCatalog";
-import about1ImgRaw from "@/assets/eu.png";
-import about2ImgRaw from "@/assets/background.jpg";
+import about1ImgRaw from "@/assets/optimized/eu.webp";
+import about2ImgRaw from "@/assets/optimized/background.webp";
 
 const about1Img = about1ImgRaw as unknown as string;
 const about2Img = about2ImgRaw as unknown as string;
@@ -83,26 +83,106 @@ const DEFAULT_SOFT_SKILLS = [
 
 // Mapa de categorização hard skills por icon_key
 const HARD_CATEGORY_MAP: Record<string, string> = {
+  // Edição
   "adobe-cc": "Edição",
   "after-effects": "Edição",
   "premiere-pro": "Edição",
+  "photoshop": "Edição",
+  "illustrator": "Edição",
+  "adobe-xd": "Edição",
+  "figma": "Edição",
+  "sketch": "Edição",
+  "blender": "Edição",
+  "davinci": "Edição",
+  // Frontend
   "javascript": "Frontend",
   "typescript": "Frontend",
   "react": "Frontend",
   "react-native": "Frontend",
   "nextjs": "Frontend",
+  "vuejs": "Frontend",
+  "angular": "Frontend",
+  "svelte": "Frontend",
+  "html5": "Frontend",
+  "css3": "Frontend",
   "tailwindcss": "Frontend",
+  "bootstrap": "Frontend",
+  "sass": "Frontend",
+  "threejs": "Frontend",
+  "webgl": "Frontend",
+  // Backend
   "nodejs": "Backend",
   "bunjs": "Backend",
   "python": "Backend",
+  "java": "Backend",
+  "csharp": "Backend",
+  "go": "Backend",
+  "rust": "Backend",
+  "php": "Backend",
+  "ruby": "Backend",
+  "django": "Backend",
+  "fastapi": "Backend",
+  "express": "Backend",
+  "nestjs": "Backend",
+  "kotlin": "Backend",
+  "swift": "Backend",
+  "cpp": "Backend",
+  "c": "Backend",
+  "dart": "Backend",
+  "laravel": "Backend",
+  "flutter": "Backend",
+  "graphql": "Backend",
+  "spring": "Backend",
+  "dotnet": "Backend",
+  "scala": "Backend",
+  // Cloud & DB
   "azure": "Cloud & DB",
+  "aws": "Cloud & DB",
+  "gcp": "Cloud & DB",
   "mysql": "Cloud & DB",
   "postgresql": "Cloud & DB",
+  "mongodb": "Cloud & DB",
   "sqlite": "Cloud & DB",
+  "redis": "Cloud & DB",
   "supabase": "Cloud & DB",
+  "firebase": "Cloud & DB",
+  "docker": "Cloud & DB",
+  "kubernetes": "Cloud & DB",
+  "terraform": "Cloud & DB",
+  "elasticsearch": "Cloud & DB",
+  // Ferramentas
   "git": "Ferramentas",
   "github": "Ferramentas",
+  "gitlab": "Ferramentas",
+  "vscode": "Ferramentas",
+  "jira": "Ferramentas",
+  "notion": "Ferramentas",
   "excel": "Ferramentas",
+  "postman": "Ferramentas",
+  "linux": "Ferramentas",
+  "vercel": "Ferramentas",
+  "netlify": "Ferramentas",
+  "jenkins": "Ferramentas",
+  "nginx": "Ferramentas",
+  "apache": "Ferramentas",
+  "rabbitmq": "Ferramentas",
+  "ubuntu": "Ferramentas",
+  "confluence": "Ferramentas",
+  "slack": "Ferramentas",
+  "discord": "Ferramentas",
+  "unity": "Ferramentas",
+  "unreal": "Ferramentas",
+  "jest": "Ferramentas",
+  "cypress": "Ferramentas",
+  "selenium": "Ferramentas",
+  "insomnia": "Ferramentas",
+  "vitest": "Ferramentas",
+  "claude": "Ferramentas",
+  "chatgpt": "Ferramentas",
+  "cursor": "Ferramentas",
+  "copilot": "Ferramentas",
+  "midjourney": "Ferramentas",
+  "stablediffusion": "Ferramentas",
 };
 
 const HARD_CATEGORY_COLORS: Record<string, string> = {
@@ -117,11 +197,39 @@ const HARD_CATEGORY_ORDER = ["Edição", "Frontend", "Backend", "Cloud & DB", "F
 
 // Mapa de categorização soft skills por icon_key
 const SOFT_CATEGORY_MAP: Record<string, string> = {
+  // Interpessoal
   "communication": "Interpessoal",
   "teamwork": "Interpessoal",
-  "creativity": "Mentalidade",
+  "collaboration": "Interpessoal",
+  "negotiation": "Interpessoal",
+  "empathy": "Interpessoal",
+  "networking": "Interpessoal",
+  "listening": "Interpessoal",
+  "feedback": "Interpessoal",
+  "positivity": "Interpessoal",
+  // Mentalidade
   "proactivity": "Mentalidade",
+  "creativity": "Mentalidade",
+  "adaptability": "Mentalidade",
+  "resilience": "Mentalidade",
+  "growth-mindset": "Mentalidade",
+  "curiosity": "Mentalidade",
+  "learning": "Mentalidade",
+  "innovation": "Mentalidade",
+  "critical-thinking": "Mentalidade",
+  "passion": "Mentalidade",
+  "analytical": "Mentalidade",
+  // Gestão
   "organization": "Gestão",
+  "problem-solving": "Gestão",
+  "commitment": "Gestão",
+  "patience": "Gestão",
+  "ethics": "Gestão",
+  "leadership": "Gestão",
+  "time-management": "Gestão",
+  "planning": "Gestão",
+  "decision-making": "Gestão",
+  "attention-detail": "Gestão",
 };
 
 const SOFT_CATEGORY_COLORS: Record<string, string> = {
@@ -169,7 +277,7 @@ interface SkillCardProps {
 const SkillCard = memo(({ skill, category }: SkillCardProps) => {
   return (
     <div
-      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-colors duration-300 hover:bg-white/20 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)] overflow-hidden"
+      className="flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-colors duration-300 hover:bg-white/20 hover:shadow-[0_0_18px_rgba(255,255,255,0.22)] overflow-hidden shrink-0"
       style={{
         height: "var(--skill-h)",
         gap: "var(--skill-gap)",
@@ -223,7 +331,7 @@ const ScrollableColumn = memo(({ title, color, skills, category }: ScrollableCol
   }, [skills.length]);
 
   return (
-    <div className="flex flex-col min-h-0" style={{ position: 'relative' }}>
+    <div className="flex flex-col min-h-0 skill-column" style={{ position: 'relative' }}>
       {/* Título fixo */}
       <span
         className="font-semibold shrink-0 text-center truncate"
@@ -239,12 +347,10 @@ const ScrollableColumn = memo(({ title, color, skills, category }: ScrollableCol
       {/* Coluna com scroll invisível */}
       <div
         ref={scrollRef}
-        className="flex flex-col flex-1 min-h-0"
+        className="flex flex-col flex-1 min-h-0 hide-scrollbar"
         style={{
           gap: "var(--skill-gap)",
           overflowY: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
         }}
       >
         {skills.map((skill) => (
@@ -311,8 +417,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
 
     try {
       const [hardResult, softResult, settingsResult] = await Promise.all([
-        supabase.from("hard_skills").select("*").order("display_order"),
-        supabase.from("soft_skills").select("*").order("display_order"),
+        supabase.from("hard_skills").select("*").eq("is_visible", true).order("display_order"),
+        supabase.from("soft_skills").select("*").eq("is_visible", true).order("display_order"),
         supabase.from("site_settings").select("resume_url, profile_image_url, background_image_url, profile_image_position, background_image_position").eq("id", "main").single(),
       ]);
 
@@ -530,6 +636,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
           >
             <Link
               to="/portfolio/edits"
+              onMouseEnter={() => import("@/pages/portfolio/Edits")}
               className={`${btnBase} bg-blue-800 hover:bg-blue-900 active:bg-blue-950 focus-visible:outline-blue-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
@@ -539,6 +646,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
 
             <Link
               to="/portfolio/dev"
+              onMouseEnter={() => import("@/pages/portfolio/Dev")}
               className={`${btnBase} bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus-visible:outline-purple-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >
@@ -605,10 +713,10 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
 
             {/* Skills Container — scroll invisível nas colunas */}
             <div
-              className="flex flex-1 min-h-0"
-              style={{ gap: "var(--section-gap)", overflowY: 'hidden' }}
+              className="flex flex-1 min-h-0 hide-scrollbar skills-container"
+              style={{ gap: "var(--section-gap)", overflow: 'hidden' }}
             >
-              <div className="w-full flex" style={{ gap: "var(--section-gap)" }}>
+              <div className="flex h-full skills-inner" style={{ gap: "var(--section-gap)", minWidth: '100%' }}>
                   
                   {/* Hard Skills - Categorizado */}
                   <section className="flex-[2] flex flex-col min-h-0">
@@ -625,6 +733,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       className="grid flex-1 min-h-0 skills-grid"
                       style={{
                         gridTemplateColumns: `repeat(${groupedHardSkills.length}, 1fr)`,
+                        gridTemplateRows: '1fr',
                         gap: "var(--skill-gap)",
                       }}
                     >
@@ -655,6 +764,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                       className="grid flex-1 min-h-0 skills-grid"
                       style={{
                         gridTemplateColumns: `repeat(${groupedSoftSkills.length}, 1fr)`,
+                        gridTemplateRows: '1fr',
                         gap: "var(--skill-gap)",
                       }}
                     >

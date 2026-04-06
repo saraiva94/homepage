@@ -1,25 +1,34 @@
-// Vite configuration for Lovable project
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
-    host: "::",
+    host: true,
     port: 8080,
-    headers: {
-      // Cache agressivo para imagens de background (frames)
-      'Cache-Control': 'public, max-age=31536000, immutable',
+    hmr: {
+      host: 'localhost',
     },
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+    dedupe: ["react", "react-dom"],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-icons': ['react-icons', 'lucide-react', '@phosphor-icons/react'],
+          'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          'vendor-gsap': ['gsap', 'lenis'],
+        },
+      },
     },
   },
 }));

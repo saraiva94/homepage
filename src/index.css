@@ -587,6 +587,12 @@ body {
   display: none;
 }
 
+/* Colunas de skill — largura mínima para não comprimir */
+.skill-column {
+  min-width: var(--skill-min, 100px);
+  flex-shrink: 0;
+}
+
 /* Skills grid — scroll horizontal apenas no mobile */
 @media (max-width: 768px) {
   .skills-grid {
@@ -599,6 +605,14 @@ body {
   }
   .skills-grid::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Container de skills — scroll horizontal no mobile */
+  .skills-container {
+    overflow-x: auto;
+  }
+  .skills-inner {
+    min-width: max-content;
   }
 }
 

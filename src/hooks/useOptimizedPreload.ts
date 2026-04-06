@@ -1,13 +1,8 @@
 /**
- * ========================================
- * useOptimizedPreload.ts - VERSÃO CORRIGIDA
- * ========================================
- * 
- * CORREÇÕES:
- * - Melhor error handling
- * - Estado inicial mais robusto
- * - Preload em background (sem UI)
- * - Cache persistente
+ * useOptimizedPreload - Versão simplificada para diagnóstico
+ *
+ * Se o erro "Invalid hook call" desaparecer com esta versão,
+ * o problema estava na complexidade do hook original.
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -20,39 +15,13 @@ interface PreloadOptions {
   silent?: boolean;
 }
 
-interface PreloadState {
-  loadedFrames: number;
-  isLoading: boolean;
-  progress: number;
-  error: string | null;
-  images: HTMLImageElement[];
-  isComplete: boolean;
-}
-
-// Cache global para frames - compartilhado entre todas as instâncias
+// Cache global
 const FRAME_CACHE = new Map<string, HTMLImageElement[]>();
-const LOADING_PROMISES = new Map<string, Promise<HTMLImageElement[]>>();
-// Progresso global - atualizado durante o carregamento, legível por qualquer instância
 const GLOBAL_PROGRESS = new Map<string, { loaded: number; total: number }>();
 
-// Detecta conexão lenta
-const isSlowConnection = (): boolean => {
-  if (typeof navigator === 'undefined') return false;
-  
-  if ('connection' in navigator) {
-    const conn = (navigator as any).connection;
-    return conn?.effectiveType === 'slow-2g' || 
-           conn?.effectiveType === '2g' || 
-           conn?.saveData === true;
-  }
-  return false;
-};
-
-// Configuração dos portfolios
 const PORTFOLIO_CONFIG = {
   dev: {
     frameStart: 14,
-    frameEnd: 274,
     dir: "/background/Ultimate_tubular",
     basename: "Ultimate_tubular_",
     ext: "jpg",
@@ -60,7 +29,6 @@ const PORTFOLIO_CONFIG = {
   },
   edits: {
     frameStart: 1,
-    frameEnd: 300,
     dir: "/background/sunset_timeline",
     basename: "Neon_sunset_timeline",
     ext: "jpg",
@@ -68,7 +36,6 @@ const PORTFOLIO_CONFIG = {
   },
 };
 
-// Gera URL do frame
 const getFrameUrl = (type: 'dev' | 'edits', frameIndex: number): string => {
   const config = PORTFOLIO_CONFIG[type];
   const frameNumber = config.frameStart + frameIndex;
@@ -76,220 +43,78 @@ const getFrameUrl = (type: 'dev' | 'edits', frameIndex: number): string => {
   return encodeURI(`${config.dir}/${filename}`);
 };
 
-/**
- * ========================================
- * HOOK PRINCIPAL
- * ========================================
- */
 export function useOptimizedPreload(options: PreloadOptions) {
-  const {
-    totalFrames,
-    portfolioType,
-    batchSize = 15,
-    autoStart = false,
-    silent = false,
-  } = options;
+  const { totalFrames, portfolioType, batchSize = 15, autoStart = false, silent = false } = options;
 
-  const [state, setState] = useState<PreloadState>({
-    loadedFrames: 0,
-    isLoading: false,
-    progress: 0,
-    error: null,
-    images: [],
-    isComplete: false,
-  });
+  const [progress, setProgress] = useState(0);
+  const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const isSlowNetworkRef = useRef(isSlowConnection());
   const hasStartedRef = useRef(false);
-
-  const loadBatch = useCallback(
-    async (frameNumbers: number[]): Promise<HTMLImageElement[]> => {
-      const promises = frameNumbers.map((frameNum) => {
-        return new Promise<HTMLImageElement>((resolve, reject) => {
-          const img = new Image();
-          
-          const timeout = setTimeout(() => {
-            reject(new Error(`Timeout loading frame ${frameNum}`));
-          }, 10000);
-          
-          img.onload = () => {
-            clearTimeout(timeout);
-            resolve(img);
-          };
-          
-          img.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error(`Failed to load frame ${frameNum}`));
-          };
-          
-          img.decoding = 'async';
-          // Importante: não usar `loading="lazy"` aqui.
-          // Alguns browsers podem adiar/ignorar o download de imagens "lazy" que não estão no DOM,
-          // o que pode travar o progresso em páginas que dependem do preload.
-          img.src = getFrameUrl(portfolioType, frameNum);
-        });
-      });
-
-      try {
-        return await Promise.all(promises);
-      } catch {
-        const results = await Promise.allSettled(promises);
-        return results
-          .filter((result): result is PromiseFulfilledResult<HTMLImageElement> => 
-            result.status === 'fulfilled'
-          )
-          .map(result => result.value);
-      }
-    },
-    [portfolioType]
-  );
 
   const loadFrames = useCallback(async (): Promise<HTMLImageElement[]> => {
     const cacheKey = `${portfolioType}-${totalFrames}`;
-    
-    // Se já tem cache completo, usa imediatamente
+
+    // Cache hit
     if (FRAME_CACHE.has(cacheKey)) {
-      const cachedImages = FRAME_CACHE.get(cacheKey)!;
-      if (!silent) console.log(`[Preload ${portfolioType}] ✅ Usando ${cachedImages.length} frames do cache`);
-      
-      setState({
-        loadedFrames: cachedImages.length,
-        isLoading: false,
-        progress: 100,
-        error: null,
-        images: cachedImages,
-        isComplete: true,
-      });
-      
-      return cachedImages;
+      const cached = FRAME_CACHE.get(cacheKey)!;
+      if (!silent) console.log(`[Preload ${portfolioType}] ✅ Cache: ${cached.length} frames`);
+      setImages(cached);
+      setProgress(100);
+      setIsComplete(true);
+      return cached;
     }
 
-    // Se já está carregando em outra instância, aguarda
-    if (LOADING_PROMISES.has(cacheKey)) {
-      if (!silent) console.log(`[Preload ${portfolioType}] ⏳ Aguardando carregamento em andamento...`);
-      try {
-        const images = await LOADING_PROMISES.get(cacheKey)!;
-        setState({
-          loadedFrames: images.length,
-          isLoading: false,
-          progress: 100,
-          error: null,
-          images,
-          isComplete: true,
-        });
-        return images;
-      } catch {
-        // Se falhou, tenta novamente
-        LOADING_PROMISES.delete(cacheKey);
-      }
-    }
-
-    // Evita múltiplas chamadas da mesma instância
-    if (hasStartedRef.current) {
-      return [];
-    }
-
+    if (hasStartedRef.current) return images;
     hasStartedRef.current = true;
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-    abortControllerRef.current = new AbortController();
+    setIsLoading(true);
 
-    const allImages: HTMLImageElement[] = [];
-    const adjustedBatchSize = isSlowNetworkRef.current ? Math.floor(batchSize / 2) : batchSize;
-
-    if (!silent) console.log(`[Preload ${portfolioType}] 🚀 Iniciando carregamento de ${totalFrames} frames`);
+    if (!silent) console.log(`[Preload ${portfolioType}] 🚀 Carregando ${totalFrames} frames...`);
     GLOBAL_PROGRESS.set(cacheKey, { loaded: 0, total: totalFrames });
 
-    // Cria promise para compartilhar entre instâncias
-    const loadingPromise = (async () => {
-      try {
-        // FASE 1: Critical frames (primeiros 30)
-        const phase1End = Math.min(30, totalFrames);
-        for (let i = 0; i < phase1End; i += adjustedBatchSize) {
-          if (abortControllerRef.current?.signal.aborted) break;
+    const allImages: HTMLImageElement[] = [];
 
-          const batch = Array.from(
-            { length: Math.min(adjustedBatchSize, phase1End - i) },
-            (_, idx) => i + idx
-          );
+    for (let i = 0; i < totalFrames; i += batchSize) {
+      const batchEnd = Math.min(i + batchSize, totalFrames);
+      const batchPromises: Promise<HTMLImageElement>[] = [];
 
-          const batchImages = await loadBatch(batch);
-          allImages.push(...batchImages);
-          GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
-
-          setState(prev => ({
-            ...prev,
-            loadedFrames: allImages.length,
-            progress: (allImages.length / totalFrames) * 100,
-            images: [...allImages],
-          }));
-
-          await new Promise(resolve => setTimeout(resolve, 5));
-        }
-
-        // FASE 2: Remaining frames
-        for (let i = phase1End; i < totalFrames; i += adjustedBatchSize) {
-          if (abortControllerRef.current?.signal.aborted) break;
-
-          const batch = Array.from(
-            { length: Math.min(adjustedBatchSize, totalFrames - i) },
-            (_, idx) => i + idx
-          );
-
-          const batchImages = await loadBatch(batch);
-          allImages.push(...batchImages);
-          GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
-
-          setState(prev => ({
-            ...prev,
-            loadedFrames: allImages.length,
-            progress: (allImages.length / totalFrames) * 100,
-            images: [...allImages],
-          }));
-
-          await new Promise(resolve => setTimeout(resolve, 10));
-        }
-
-        FRAME_CACHE.set(cacheKey, allImages);
-        LOADING_PROMISES.delete(cacheKey);
-        GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
-
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          images: allImages,
-          progress: 100,
-          isComplete: true,
-        }));
-
-        if (!silent) console.log(`[Preload ${portfolioType}] ✅ Completo: ${allImages.length}/${totalFrames} frames`);
-        return allImages;
-
-      } catch (error) {
-        LOADING_PROMISES.delete(cacheKey);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`[Preload ${portfolioType}] ❌ Erro:`, errorMessage);
-        
-        // Salva o que conseguiu carregar
-        if (allImages.length > 0) {
-          FRAME_CACHE.set(cacheKey, allImages);
-        }
-        
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage,
-          images: allImages,
-          isComplete: allImages.length > 0,
-        }));
-        
-        return allImages;
+      for (let j = i; j < batchEnd; j++) {
+        batchPromises.push(
+          new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            const timeout = setTimeout(() => reject(new Error('timeout')), 10000);
+            img.onload = () => { clearTimeout(timeout); resolve(img); };
+            img.onerror = () => { clearTimeout(timeout); reject(new Error('load failed')); };
+            img.decoding = 'async';
+            img.src = getFrameUrl(portfolioType, j);
+          })
+        );
       }
-    })();
 
-    LOADING_PROMISES.set(cacheKey, loadingPromise);
-    return loadingPromise;
-  }, [portfolioType, totalFrames, batchSize, silent, loadBatch]);
+      const results = await Promise.allSettled(batchPromises);
+      for (const r of results) {
+        if (r.status === 'fulfilled') allImages.push(r.value);
+      }
+
+      const pct = (allImages.length / totalFrames) * 100;
+      GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
+      setImages([...allImages]);
+      setProgress(pct);
+
+      // Small yield to avoid blocking UI
+      await new Promise(r => setTimeout(r, 5));
+    }
+
+    FRAME_CACHE.set(cacheKey, allImages);
+    GLOBAL_PROGRESS.set(cacheKey, { loaded: allImages.length, total: totalFrames });
+    setIsLoading(false);
+    setIsComplete(true);
+    setProgress(100);
+
+    if (!silent) console.log(`[Preload ${portfolioType}] ✅ Completo: ${allImages.length}/${totalFrames}`);
+    return allImages;
+  }, [portfolioType, totalFrames, batchSize, silent, images]);
 
   useEffect(() => {
     if (autoStart && !hasStartedRef.current) {
@@ -297,39 +122,32 @@ export function useOptimizedPreload(options: PreloadOptions) {
     }
   }, [autoStart, loadFrames]);
 
-  const cleanup = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    hasStartedRef.current = false;
-  }, []);
-
-  const reload = useCallback(() => {
-    const cacheKey = `${portfolioType}-${totalFrames}`;
-    FRAME_CACHE.delete(cacheKey);
-    hasStartedRef.current = false;
-    return loadFrames();
-  }, [portfolioType, totalFrames, loadFrames]);
-
   return {
-    ...state,
+    loadedFrames: images.length,
+    isLoading,
+    progress,
+    error: null as string | null,
+    images,
+    isComplete,
     loadFrames,
-    cleanup,
-    reload,
+    cleanup: useCallback(() => { hasStartedRef.current = false; }, []),
+    reload: useCallback(() => {
+      const cacheKey = `${portfolioType}-${totalFrames}`;
+      FRAME_CACHE.delete(cacheKey);
+      hasStartedRef.current = false;
+      return loadFrames();
+    }, [portfolioType, totalFrames, loadFrames]),
   };
 }
 
 export const getCachedFrames = (portfolioType: 'dev' | 'edits', totalFrames: number): HTMLImageElement[] | null => {
-  const cacheKey = `${portfolioType}-${totalFrames}`;
-  return FRAME_CACHE.get(cacheKey) || null;
+  return FRAME_CACHE.get(`${portfolioType}-${totalFrames}`) || null;
 };
 
 export const clearFrameCache = (portfolioType?: 'dev' | 'edits') => {
   if (portfolioType) {
-    for (const [key] of FRAME_CACHE) {
-      if (key.startsWith(portfolioType)) {
-        FRAME_CACHE.delete(key);
-      }
+    for (const key of FRAME_CACHE.keys()) {
+      if (key.startsWith(portfolioType)) FRAME_CACHE.delete(key);
     }
   } else {
     FRAME_CACHE.clear();
@@ -337,23 +155,19 @@ export const clearFrameCache = (portfolioType?: 'dev' | 'edits') => {
 };
 
 export const areFramesCached = (portfolioType: 'dev' | 'edits', totalFrames: number): boolean => {
-  const cacheKey = `${portfolioType}-${totalFrames}`;
-  return FRAME_CACHE.has(cacheKey);
+  return FRAME_CACHE.has(`${portfolioType}-${totalFrames}`);
 };
 
 export const getCacheInfo = (): Record<string, number> => {
   const info: Record<string, number> = {};
-  FRAME_CACHE.forEach((images, key) => {
-    info[key] = images.length;
-  });
+  FRAME_CACHE.forEach((imgs, key) => { info[key] = imgs.length; });
   return info;
 };
 
-/** Retorna progresso global do preload (0-100), funciona entre instâncias */
 export const getGlobalProgress = (portfolioType: 'dev' | 'edits', totalFrames: number): number => {
   const cacheKey = `${portfolioType}-${totalFrames}`;
   if (FRAME_CACHE.has(cacheKey)) return 100;
-  const progress = GLOBAL_PROGRESS.get(cacheKey);
-  if (!progress) return 0;
-  return Math.min((progress.loaded / progress.total) * 100, 100);
+  const p = GLOBAL_PROGRESS.get(cacheKey);
+  if (!p) return 0;
+  return Math.min((p.loaded / p.total) * 100, 100);
 };

@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import stacksImgRaw from "@/assets/stacks.png";
+import stacksImgRaw from "@/assets/optimized/stacks.webp";
 
 const stacksImg = stacksImgRaw as unknown as string;
 

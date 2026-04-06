@@ -10,7 +10,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import homepageBg from "@/assets/homepage-bg.png";
+import homepageBg from "@/assets/optimized/homepage-bg.webp";
 
 interface CyberpunkBackgroundProps {
   className?: string;

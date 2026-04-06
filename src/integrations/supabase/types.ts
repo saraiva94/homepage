@@ -42,6 +42,7 @@ export type Database = {
           icon_color: string
           icon_key: string
           id: string
+          is_visible: boolean
           name: string
           updated_at: string
         }
@@ -51,6 +52,7 @@ export type Database = {
           icon_color?: string
           icon_key: string
           id?: string
+          is_visible?: boolean
           name: string
           updated_at?: string
         }
@@ -60,6 +62,7 @@ export type Database = {
           icon_color?: string
           icon_key?: string
           id?: string
+          is_visible?: boolean
           name?: string
           updated_at?: string
         }
@@ -71,6 +74,8 @@ export type Database = {
           display_order: number
           id: string
           portfolio_type: string
+          thumbnail_url: string | null
+          thumbnail_time: number | null
           updated_at: string | null
           video_url: string
         }
@@ -79,6 +84,8 @@ export type Database = {
           display_order?: number
           id?: string
           portfolio_type: string
+          thumbnail_url?: string | null
+          thumbnail_time?: number | null
           updated_at?: string | null
           video_url: string
         }
@@ -87,6 +94,8 @@ export type Database = {
           display_order?: number
           id?: string
           portfolio_type?: string
+          thumbnail_url?: string | null
+          thumbnail_time?: number | null
           updated_at?: string | null
           video_url?: string
         }
@@ -132,6 +141,7 @@ export type Database = {
           icon_color: string
           icon_key: string
           id: string
+          is_visible: boolean
           name: string
           updated_at: string
         }
@@ -141,6 +151,7 @@ export type Database = {
           icon_color?: string
           icon_key: string
           id?: string
+          is_visible?: boolean
           name: string
           updated_at?: string
         }
@@ -150,6 +161,7 @@ export type Database = {
           icon_color?: string
           icon_key?: string
           id?: string
+          is_visible?: boolean
           name?: string
           updated_at?: string
         }
