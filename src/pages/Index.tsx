@@ -169,7 +169,7 @@ export default function Index() {
         style={{ zIndex: 10, position: 'relative' }}
       >
         <div
-          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-6xl max-h-full transition-all duration-700 ease-out delay-150 ${
+          className={`w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-[min(90vw,1600px)] max-h-full transition-all duration-700 ease-out delay-150 ${
             contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
           style={{ height: "clamp(400px, calc(100dvh - 140px), 820px)" }}
