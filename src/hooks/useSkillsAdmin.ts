@@ -44,7 +44,6 @@ export function useSkillsAdmin() {
       setHardSkills((hardResult.data || []) as Skill[]);
       setSoftSkills((softResult.data || []) as Skill[]);
     } catch (err: any) {
-      console.error("[useSkillsAdmin] fetch error:", err);
       setError(err.message || "Erro ao carregar skills");
     } finally {
       setIsLoading(false);
@@ -59,7 +58,6 @@ export function useSkillsAdmin() {
     const table = getTableName(type);
     const { error } = await supabase.from(table).update({ is_visible: visible }).eq("id", id);
     if (error) {
-      console.error("[useSkillsAdmin] toggle error:", error);
       throw error;
     }
     // Optimistic update
@@ -87,7 +85,6 @@ export function useSkillsAdmin() {
       .single();
 
     if (error) {
-      console.error("[useSkillsAdmin] add error:", error);
       throw error;
     }
 
@@ -99,7 +96,6 @@ export function useSkillsAdmin() {
     const table = getTableName(type);
     const { error } = await supabase.from(table).delete().eq("id", id);
     if (error) {
-      console.error("[useSkillsAdmin] delete error:", error);
       throw error;
     }
     const setter = type === "hard" ? setHardSkills : setSoftSkills;

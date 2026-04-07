@@ -1,10 +1,3 @@
-/**
- * useOptimizedPreload - Versão simplificada para diagnóstico
- *
- * Se o erro "Invalid hook call" desaparecer com esta versão,
- * o problema estava na complexidade do hook original.
- */
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface PreloadOptions {
@@ -59,7 +52,6 @@ export function useOptimizedPreload(options: PreloadOptions) {
     // Cache hit
     if (FRAME_CACHE.has(cacheKey)) {
       const cached = FRAME_CACHE.get(cacheKey)!;
-      if (!silent) console.log(`[Preload ${portfolioType}] ✅ Cache: ${cached.length} frames`);
       setImages(cached);
       setProgress(100);
       setIsComplete(true);
@@ -70,7 +62,6 @@ export function useOptimizedPreload(options: PreloadOptions) {
     hasStartedRef.current = true;
     setIsLoading(true);
 
-    if (!silent) console.log(`[Preload ${portfolioType}] 🚀 Carregando ${totalFrames} frames...`);
     GLOBAL_PROGRESS.set(cacheKey, { loaded: 0, total: totalFrames });
 
     const allImages: HTMLImageElement[] = [];
@@ -112,7 +103,6 @@ export function useOptimizedPreload(options: PreloadOptions) {
     setIsComplete(true);
     setProgress(100);
 
-    if (!silent) console.log(`[Preload ${portfolioType}] ✅ Completo: ${allImages.length}/${totalFrames}`);
     return allImages;
   }, [portfolioType, totalFrames, batchSize, silent, images]);
 

@@ -62,7 +62,7 @@ export function SkillsManager({ type }: SkillsManagerProps) {
       .order("display_order");
 
     if (error) {
-      console.error("Error fetching skills:", error);
+      // fetch failed
     } else {
       setSkills(data || []);
     }
@@ -115,8 +115,7 @@ export function SkillsManager({ type }: SkillsManagerProps) {
       setInsertPosition(0);
       
       await fetchSkills();
-    } catch (err) {
-      console.error("Error adding skill:", err);
+    } catch {
       alert("Erro ao adicionar skill");
     } finally {
       setSaving(false);
@@ -144,8 +143,7 @@ export function SkillsManager({ type }: SkillsManagerProps) {
 
       setConfirmDelete(null);
       await fetchSkills();
-    } catch (err) {
-      console.error("Error deleting skill:", err);
+    } catch {
       alert("Erro ao excluir skill");
     }
   };
@@ -171,8 +169,8 @@ export function SkillsManager({ type }: SkillsManagerProps) {
         .eq("id", otherSkill.id);
 
       await fetchSkills();
-    } catch (err) {
-      console.error("Error moving skill:", err);
+    } catch {
+      // move failed
     }
   };
 

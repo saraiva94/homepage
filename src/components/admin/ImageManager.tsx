@@ -29,7 +29,7 @@ export function ImageManager() {
         .single();
 
       if (error) {
-        console.warn("[ImageManager] fetch error (using fallbacks):", error.message);
+        // fetch failed — will use fallbacks
       }
 
       setProfile({
@@ -65,7 +65,6 @@ export function ImageManager() {
         setBackground((prev) => ({ ...prev, url }));
       }
     } catch (err: any) {
-      console.error("Image upload error:", err);
       alert("Erro ao fazer upload: " + (err.message || "erro desconhecido"));
     } finally {
       setUploadingType(null);

@@ -23,7 +23,6 @@ export default function Login() {
       });
 
       if (rpcError) {
-        console.error('Erro RPC:', rpcError);
         setError("Erro ao conectar. Tente novamente.");
         return;
       }
@@ -35,8 +34,7 @@ export default function Login() {
       } else {
         setError("Usuário ou senha incorretos");
       }
-    } catch (err) {
-      console.error('Erro:', err);
+    } catch {
       setError("Erro inesperado. Tente novamente.");
     } finally {
       setIsLoading(false);

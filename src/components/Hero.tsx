@@ -1,15 +1,3 @@
-/**
- * ========================================
- * HERO.TSX - VERSÃO CORRIGIDA
- * ========================================
- * 
- * CORREÇÕES:
- * 1. Vídeo carrega e toca automaticamente
- * 2. Fallback com gradient se vídeo falhar
- * 3. IntersectionObserver funcional
- * 4. Preload otimizado
- */
-
 import { useEffect, useRef, useCallback, useState } from "react";
 import stacksImgRaw from "@/assets/optimized/stacks.webp";
 
@@ -45,7 +33,6 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !shouldLoadVideo) {
-            console.log('[Hero] Visível - iniciando carregamento do vídeo');
             setShouldLoadVideo(true);
           }
         });
@@ -64,7 +51,6 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
    * ========================================
    */
   const handleVideoCanPlay = useCallback(() => {
-    console.log('[Hero] Vídeo pronto para tocar');
     setVideoLoaded(true);
     
     if (!hasNotified.current) {
@@ -78,8 +64,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
    * VIDEO ERROR HANDLER
    * ========================================
    */
-  const handleVideoError = useCallback((e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-    console.error('[Hero] Erro ao carregar vídeo:', e);
+  const handleVideoError = useCallback((_e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     setVideoError(true);
     
     // Notifica mesmo com erro para não travar a UI
@@ -107,9 +92,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
         video.loop = true;
         
         await video.play();
-        console.log('[Hero] Vídeo tocando');
-      } catch (error) {
-        console.warn('[Hero] Autoplay bloqueado:', error);
+      } catch {
         // Tenta reproduzir no próximo click do usuário
         const playOnInteraction = () => {
           video.play().catch(() => {});
@@ -131,7 +114,6 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (!hasNotified.current) {
-        console.warn('[Hero] Fallback - notificando sem vídeo');
         hasNotified.current = true;
         setVideoLoaded(true);
         onVideosLoaded?.();
@@ -172,7 +154,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
             aria-hidden="true"
             onCanPlay={handleVideoCanPlay}
             onError={handleVideoError}
-            onLoadedData={() => console.log('[Hero] Vídeo data carregada')}
+            onLoadedData={() => {}}
           >
             <source src={BINARY_VIDEO_URL} type="video/mp4" />
             Seu navegador não suporta vídeo HTML5.

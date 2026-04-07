@@ -76,8 +76,8 @@ export default function EditsPage() {
 
         if (error) throw error;
         setVideos(data || []);
-      } catch (error) {
-        console.error("[Edits] Error fetching videos:", error);
+      } catch {
+        // video fetch failed
       } finally {
         setIsLoadingVideos(false);
       }
@@ -160,12 +160,10 @@ export default function EditsPage() {
   useEffect(() => {
     const cachedImages = getCachedFrames('edits', TOTAL_FRAMES);
     if (cachedImages && cachedImages.length > 0) {
-      console.log(`[Edits] ✅ Usando ${cachedImages.length} frames do cache`);
       imagesRef.current = cachedImages;
       stateRef.current.count = cachedImages.length;
       return;
     }
-    console.log(`[Edits] ⏳ Cache vazio, carregando frames...`);
     loadFrames();
   }, [loadFrames]);
 

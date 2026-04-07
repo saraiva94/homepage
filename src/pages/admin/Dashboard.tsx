@@ -166,7 +166,7 @@ export default function AdminDashboard() {
       .order("display_order");
 
     if (error) {
-      console.error("Error fetching videos:", error);
+      // fetch failed
     } else {
       setVideos(data || []);
     }
@@ -200,8 +200,7 @@ export default function AdminDashboard() {
       if (dbError) throw dbError;
 
       await fetchVideos();
-    } catch (err) {
-      console.error("Upload error:", err);
+    } catch {
       alert("Erro ao fazer upload do vídeo");
     } finally {
       setUploading(false);
@@ -218,8 +217,8 @@ export default function AdminDashboard() {
           if (filePath) {
             await supabase.storage.from("portfolio-videos").remove([decodeURIComponent(filePath)]);
           }
-        } catch (storageErr) {
-          console.warn("Could not delete from storage:", storageErr);
+        } catch {
+          // storage cleanup failed — non-critical
         }
       }
 
@@ -238,8 +237,7 @@ export default function AdminDashboard() {
         }
       }
       await fetchVideos();
-    } catch (err) {
-      console.error("Delete error:", err);
+    } catch {
       alert("Erro ao excluir vídeo");
     }
   };

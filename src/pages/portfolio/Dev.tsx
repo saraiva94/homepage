@@ -1,15 +1,3 @@
-/**
- * ========================================
- * DEV.TSX - SEM BARRA DE LOADING
- * ========================================
- * 
- * MUDANÇAS:
- * - Remove ProgressBar component
- * - Usa frames do cache (já preloaded na homepage)
- * - Se cache vazio, carrega silenciosamente
- * - Experiência instantânea
- */
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
@@ -81,12 +69,10 @@ export default function DevPage() {
   useEffect(() => {
     const cachedFrames = getCachedFrames('dev', TOTAL_FRAMES);
     if (cachedFrames && cachedFrames.length > 0) {
-      console.log(`[Dev] ✅ Usando ${cachedFrames.length} frames do cache`);
       imagesRef.current = cachedFrames;
       stateRef.current.count = cachedFrames.length;
       return;
     }
-    console.log('[Dev] ⏳ Cache vazio, carregando frames...');
     loadFrames();
   }, [loadFrames]);
 
@@ -102,8 +88,8 @@ export default function DevPage() {
 
         if (error) throw error;
         setVideos(data || []);
-      } catch (error) {
-        console.error("[Dev] Error fetching videos:", error);
+      } catch {
+        // video fetch failed
       } finally {
         setIsLoadingVideos(false);
       }

@@ -57,7 +57,6 @@ export const preloadPortfolioFrames = (type: PortfolioType): Promise<HTMLImageEl
   const urls = generateFrameURLs(type);
   const images: HTMLImageElement[] = new Array(urls.length);
   
-  console.log(`[Preload] Iniciando pré-carregamento de ${urls.length} frames para ${type}...`);
 
   return new Promise((resolve) => {
     let loaded = 0;
@@ -73,7 +72,6 @@ export const preloadPortfolioFrames = (type: PortfolioType): Promise<HTMLImageEl
         if (loaded === total) {
           imageCache.set(type, images);
           preloadingPortfolios.delete(type);
-          console.log(`[Preload] ${type} completo: ${total} frames carregados`);
           resolve(images);
         }
       };

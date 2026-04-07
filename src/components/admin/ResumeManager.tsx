@@ -23,7 +23,7 @@ export function ResumeManager() {
       .single();
 
     if (error) {
-      console.warn("[ResumeManager] fetch error:", error.message);
+      // fetch failed — will use fallback
     }
     setResumeUrl(data?.resume_url || null);
     setLoading(false);
@@ -51,8 +51,8 @@ export function ResumeManager() {
           if (filePath) {
             await supabase.storage.from("resume").remove([decodeURIComponent(filePath)]);
           }
-        } catch (err) {
-          console.warn("Could not delete old resume:", err);
+        } catch {
+          // old file cleanup failed — non-critical
         }
       }
 
@@ -76,7 +76,6 @@ export function ResumeManager() {
 
       setResumeUrl(urlData.publicUrl);
     } catch (err: any) {
-      console.error("Upload error:", err);
       alert("Erro ao fazer upload do currículo: " + (err.message || "erro desconhecido"));
     } finally {
       setUploading(false);
@@ -93,8 +92,8 @@ export function ResumeManager() {
           if (filePath) {
             await supabase.storage.from("resume").remove([decodeURIComponent(filePath)]);
           }
-        } catch (err) {
-          console.warn("Could not delete from storage:", err);
+        } catch {
+          // storage cleanup failed — non-critical
         }
       }
 
@@ -107,8 +106,7 @@ export function ResumeManager() {
 
       setResumeUrl(null);
       setConfirmDelete(false);
-    } catch (err) {
-      console.error("Delete error:", err);
+    } catch {
       alert("Erro ao excluir currículo");
     }
   };

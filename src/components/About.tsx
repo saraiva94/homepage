@@ -1,13 +1,3 @@
-/**
- * About Component - Versão Otimizada
- * 
- * Otimizações:
- * - React.memo para evitar re-renders
- * - useMemo para skills renderizadas
- * - useCallback para funções estáveis
- * - Cache strategy para fetch
- */
-
 import { Link } from "react-router-dom";
 import { useMemo, useEffect, useState, useCallback, useRef, memo } from "react";
 import {
@@ -463,8 +453,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
       setBackgroundImg(bgData);
       setProfilePos(settingsResult.data?.profile_image_position || "50% 50%");
       setBackgroundPos(settingsResult.data?.background_image_position || "50% 68%");
-    } catch (error) {
-      console.error('[About] Error fetching skills:', error);
+    } catch {
+      // fetch failed — fallback skills will be used
     } finally {
       setIsLoading(false);
     }
@@ -618,7 +608,6 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
               loading="lazy"
               decoding="async"
               onError={(e) => {
-                console.error("[About] Falha ao carregar background.jpg");
                 e.currentTarget.style.opacity = "0";
                 (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
                   "bg-white/5"
@@ -639,7 +628,6 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                   loading="lazy"
                   decoding="async"
                   onError={(e) => {
-                    console.error("[About] Falha ao carregar eu.png");
                     e.currentTarget.style.display = "none";
                     (e.currentTarget.parentElement as HTMLElement | null)?.classList.add(
                       "bg-white/10"

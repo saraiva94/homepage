@@ -29,7 +29,7 @@ export function VideosManager() {
       .order("display_order");
 
     if (error) {
-      console.error("[VideosManager] fetch error:", error);
+      // fetch failed
     }
     setVideos((data as Video[]) || []);
     setIsLoading(false);
