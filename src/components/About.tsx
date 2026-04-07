@@ -174,6 +174,14 @@ const HARD_CATEGORY_MAP: Record<string, string> = {
   "copilot": "Ferramentas",
   "midjourney": "Ferramentas",
   "stablediffusion": "Ferramentas",
+  // Novas skills
+  "electron": "Frontend",
+  "gsap": "Frontend",
+  "playwright": "Ferramentas",
+  "mapbox": "Cloud & DB",
+  "stripe": "Ferramentas",
+  "zod": "Ferramentas",
+  "livekit": "Backend",
 };
 
 const HARD_CATEGORY_COLORS: Record<string, string> = {
@@ -691,7 +699,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
 
             <a
               href={resumeUrl || "/Curriculo_Swamiy_Saraiva.pdf"}
-              download="Curriculo_Swamiy_Saraiva.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
               className={`${btnBase} bg-red-500 hover:bg-red-600 active:bg-red-700 focus-visible:outline-red-400 md:flex-1`}
               style={{ fontSize: 'var(--btn-size)', padding: 'var(--btn-py) var(--btn-px)', gap: 'var(--skill-gap)' }}
             >

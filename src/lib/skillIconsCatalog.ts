@@ -81,6 +81,11 @@ import {
   SiOpenai,
   SiGithubcopilot,
   SiAnthropic,
+  SiElectron,
+  SiMapbox,
+  SiStripe,
+  SiGreensock,
+  SiZod,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
 import { FaJava } from "react-icons/fa";
@@ -115,7 +120,25 @@ import {
   Image,
   type LucideIcon,
 } from "lucide-react";
+import { createElement } from "react";
 import type { IconType } from "react-icons";
+
+function createImgIcon(url: string, alt: string): IconType {
+  const ImgIcon: IconType = (props) => {
+    const { size, style, ...rest } = props as Record<string, unknown>;
+    const s = size || (style as Record<string, unknown>)?.width || 24;
+    return createElement("img", {
+      src: url,
+      alt,
+      width: s,
+      height: s,
+      style: { width: s, height: s, ...(style as Record<string, unknown>) },
+      ...rest,
+    });
+  };
+  (ImgIcon as unknown as { displayName: string }).displayName = `ImgIcon(${alt})`;
+  return ImgIcon;
+}
 
 export interface IconCatalogItem {
   key: string;
@@ -235,6 +258,15 @@ export const hardSkillsCatalog: IconCatalogItem[] = [
   { key: "cursor", name: "Cursor", icon: MousePointerClick, color: "#000000", category: "hard" },
   { key: "midjourney", name: "Midjourney", icon: Image, color: "#000000", category: "hard" },
   { key: "stablediffusion", name: "Stable Diffusion", icon: Sparkles, color: "#A855F7", category: "hard" },
+
+  // Novas skills
+  { key: "electron", name: "Electron", icon: SiElectron, color: "#47848F", category: "hard" },
+  { key: "gsap", name: "GSAP", icon: SiGreensock, color: "#88CE02", category: "hard" },
+  { key: "playwright", name: "Playwright", icon: createImgIcon("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/playwright/playwright-original.svg", "Playwright"), color: "#2EAD33", category: "hard" },
+  { key: "mapbox", name: "Mapbox", icon: SiMapbox, color: "#000000", category: "hard" },
+  { key: "stripe", name: "Stripe", icon: SiStripe, color: "#635BFF", category: "hard" },
+  { key: "zod", name: "Zod", icon: SiZod, color: "#3068B7", category: "hard" },
+  { key: "livekit", name: "LiveKit", icon: createImgIcon("https://avatars.githubusercontent.com/u/72736994", "LiveKit"), color: "#000000", category: "hard" },
 ];
 
 // Catálogo completo de Soft Skills

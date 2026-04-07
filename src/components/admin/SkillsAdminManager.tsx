@@ -118,6 +118,14 @@ const HARD_CATEGORY_MAP: Record<string, string> = {
   "copilot": "Ferramentas",
   "midjourney": "Ferramentas",
   "stablediffusion": "Ferramentas",
+  // Novas skills
+  "electron": "Frontend",
+  "gsap": "Frontend",
+  "playwright": "Ferramentas",
+  "mapbox": "Cloud & DB",
+  "stripe": "Ferramentas",
+  "zod": "Ferramentas",
+  "livekit": "Backend",
 };
 
 const SOFT_CATEGORY_MAP: Record<string, string> = {
