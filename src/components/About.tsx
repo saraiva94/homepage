@@ -13,6 +13,7 @@ import { useMemo, useEffect, useState, useCallback, useRef, memo } from "react";
 import {
   Clapperboard,
   ChevronDown,
+  ChevronUp,
   Code2,
   FileText,
   Github,
@@ -315,20 +316,38 @@ interface ScrollableColumnProps {
 const ScrollableColumn = memo(({ title, color, skills, category }: ScrollableColumnProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const check = () => {
+    const checkCanScroll = () => {
       setCanScroll(el.scrollHeight > el.clientHeight + 2);
     };
 
-    check();
-    const ro = new ResizeObserver(check);
+    const checkScrollPos = () => {
+      const threshold = 4;
+      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - threshold;
+      const isAtTop = el.scrollTop <= threshold;
+      if (isAtBottom) setAtBottom(true);
+      else if (isAtTop) setAtBottom(false);
+    };
+
+    checkCanScroll();
+    checkScrollPos();
+
+    const ro = new ResizeObserver(checkCanScroll);
     ro.observe(el);
-    return () => ro.disconnect();
+    el.addEventListener('scroll', checkScrollPos, { passive: true });
+
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', checkScrollPos);
+    };
   }, [skills.length]);
+
+  const ArrowIcon = atBottom ? ChevronUp : ChevronDown;
 
   return (
     <div className="flex flex-col min-h-0 skill-column" style={{ position: 'relative' }}>
@@ -344,44 +363,48 @@ const ScrollableColumn = memo(({ title, color, skills, category }: ScrollableCol
         {title}
       </span>
 
-      {/* Coluna com scroll invisível */}
-      <div
-        ref={scrollRef}
-        className="flex flex-col flex-1 min-h-0 hide-scrollbar"
-        style={{
-          gap: "var(--skill-gap)",
-          overflowY: 'auto',
-        }}
-      >
-        {skills.map((skill) => (
-          <SkillCard key={skill.id} skill={skill} category={category} />
-        ))}
-      </div>
-
-      {/* Seta pulsante indicando scroll disponível */}
-      {canScroll && (
+      {/* Wrapper relativo para posicionar a seta dentro da área de scroll */}
+      <div className="flex-1 min-h-0" style={{ position: 'relative' }}>
+        {/* Coluna com scroll invisível */}
         <div
+          ref={scrollRef}
+          className="flex flex-col hide-scrollbar"
           style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            pointerEvents: 'none',
+            gap: "var(--skill-gap)",
+            overflowY: 'auto',
+            height: '100%',
           }}
         >
-          <ChevronDown
-            style={{
-              width: 'var(--icon-size)',
-              height: 'var(--icon-size)',
-              color,
-              opacity: 0.7,
-              animation: 'pulse-slow 1s ease-in-out infinite',
-            }}
-          />
+          {skills.map((skill) => (
+            <SkillCard key={skill.id} skill={skill} category={category} />
+          ))}
         </div>
-      )}
+
+        {/* Seta pulsante indicando direção de scroll disponível */}
+        {canScroll && (
+          <div
+            style={{
+              position: 'absolute',
+              ...(atBottom ? { top: 0 } : { bottom: 0 }),
+              left: 0,
+              right: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowIcon
+              style={{
+                width: 'var(--icon-size)',
+                height: 'var(--icon-size)',
+                color,
+                opacity: 0.7,
+                animation: 'pulse-slow 1s ease-in-out infinite',
+              }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 });
