@@ -119,13 +119,16 @@ export default function Index() {
    * ========================================
    */
   return (
-    <div className="w-full h-[100dvh] overflow-hidden relative bg-black flex flex-col">
+    <div
+      className="w-full h-[100dvh] overflow-hidden relative bg-black grid md:flex md:flex-col"
+      style={{ gridTemplateRows: '1fr auto 1fr' }}
+    >
       {/* Fundo cyberpunk interativo com partículas */}
       <CyberpunkBackground />
 
       {/* Header com Command Lines / Timelines */}
       <header
-        className={`relative w-full py-8 md:py-6 shrink-0 transition-all duration-700 ease-out ${
+        className={`self-center md:self-auto relative w-full py-4 md:py-6 md:shrink-0 transition-all duration-700 ease-out ${
           contentReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         }`}
         style={{ zIndex: 20, position: 'relative' }}
@@ -134,7 +137,7 @@ export default function Index() {
           className="w-full mx-auto grid items-center px-4"
           style={{ gridTemplateColumns: '1fr auto 1fr' }}
         >
-          <div className="flex justify-end font-mono" style={{ paddingRight: '0.6ch' }}>
+          <div className="flex justify-center md:justify-end font-mono md:pr-[0.6ch]">
             <span
               className="glitch text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
               data-text="Command Lines"
@@ -152,7 +155,7 @@ export default function Index() {
             />
           </div>
 
-          <div className="flex justify-start font-mono" style={{ paddingLeft: '1.2ch' }}>
+          <div className="flex justify-center md:justify-start font-mono md:pl-[1.2ch]">
             <span
               className="glitch text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white font-mono whitespace-nowrap"
               data-text="Timelines"
@@ -165,7 +168,7 @@ export default function Index() {
 
       {/* Card principal - centralizado no espaço abaixo do navbar */}
       <main
-        className="flex-1 flex items-center justify-center min-h-0 -mt-4 md:mt-0"
+        className="flex items-center justify-center min-h-0 md:flex-1"
         style={{ zIndex: 10, position: 'relative' }}
       >
         <div
