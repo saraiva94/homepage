@@ -9,7 +9,7 @@
  * - Cores cyberpunk (roxo, azul, ciano, rosa)
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import homepageBg from "@/assets/optimized/homepage-bg.webp";
 
 interface CyberpunkBackgroundProps {
@@ -22,12 +22,27 @@ function seededRandom(seed: number): number {
   return x - Math.floor(x);
 }
 
-export const CyberpunkBackground = memo(function CyberpunkBackground({ 
-  className = '' 
+export const CyberpunkBackground = memo(function CyberpunkBackground({
+  className = ''
 }: CyberpunkBackgroundProps) {
-  
+  // Desabilita partículas no mobile — 400 divs animados inviabilizam 60fps em GPU mobile
+  const [particlesEnabled, setParticlesEnabled] = useState(() =>
+    typeof window !== 'undefined'
+      ? !window.matchMedia('(max-width: 768px)').matches
+      : true
+  );
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setParticlesEnabled(!e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
   // Gera partículas com posições estáveis (não mudam entre re-renders)
   const particles = useMemo(() => {
+    if (!particlesEnabled) return [];
+
     const colors = [
       'rgba(59, 130, 246, 1)',   // Azul
       'rgba(236, 72, 153, 0.9)', // Rosa
@@ -35,7 +50,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
       'rgba(139, 92, 246, 0.9)', // Roxo
       'rgba(34, 197, 94, 0.8)',  // Verde
     ];
-    
+
     return Array.from({ length: 400 }).map((_, i) => {
       const color = colors[i % 5];
       const size = i % 10 === 0 ? 5 : i % 7 === 0 ? 4 : i % 5 === 0 ? 3 : i % 3 === 0 ? 2 : 1;
@@ -62,7 +77,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
         duration,
       };
     });
-  }, []);
+  }, [particlesEnabled]);
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`} style={{ pointerEvents: 'none', zIndex: 0 }}>
@@ -79,7 +94,8 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
         className="absolute inset-0 bg-black/30 pointer-events-none"
       />
 
-      {/* Partículas com animação de flutuação e ciclo de vida */}
+      {/* Partículas com animação de flutuação e ciclo de vida (desktop apenas) */}
+      {particlesEnabled && (
       <div className="absolute inset-0 pointer-events-none">
         {particles.map((p) => (
           <div
@@ -102,6 +118,7 @@ export const CyberpunkBackground = memo(function CyberpunkBackground({
           />
         ))}
       </div>
+      )}
 
       {/* Glow corners - Azul e Rosa */}
       <div 
