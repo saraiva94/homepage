@@ -149,7 +149,7 @@ export function Hero({ onVideosLoaded, isVisible = true }: HeroProps) {
             muted
             playsInline
             loop
-            preload="auto"
+            preload="none"
             poster={VIDEO_POSTER_URL}
             aria-hidden="true"
             onCanPlay={handleVideoCanPlay}

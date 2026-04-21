@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -17,11 +17,21 @@ function MinimalFallback() {
   );
 }
 
+// Evita flash do spinner em conexões rápidas (chunk chega em <200ms)
+function DelayedFallback({ delay = 200 }: { delay?: number }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+  return show ? <MinimalFallback /> : null;
+}
+
 function AppRoutes() {
   const location = useLocation();
 
   return (
-    <Suspense fallback={<MinimalFallback />}>
+    <Suspense fallback={<DelayedFallback />}>
       <Routes>
         {/* Homepage loaded eagerly (critical path) */}
         <Route path="/" element={<Index key={location.key} />} />

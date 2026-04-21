@@ -613,7 +613,8 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             <img
               src={backgroundImg || about2Img}
               alt="Background workspace"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
               decoding="async"
               onError={(e) => {
                 e.currentTarget.style.opacity = "0";
@@ -633,7 +634,7 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
                 <img
                   src={profileImg || about1Img}
                   alt="Foto de Swamiy Saraiva"
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
