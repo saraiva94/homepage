@@ -734,9 +734,9 @@ export const About = memo(({ isVisible = true }: AboutProps) => {
             {/* Skills Container — scroll invisível nas colunas */}
             <div
               className="flex flex-1 min-h-0 hide-scrollbar skills-container"
-              style={{ gap: "var(--section-gap)", overflow: 'hidden' }}
+              style={{ gap: "var(--section-gap)" }}
             >
-              <div className="flex h-full skills-inner" style={{ gap: "var(--section-gap)", minWidth: '100%' }}>
+              <div className="flex h-full skills-inner" style={{ gap: "var(--section-gap)" }}>
                   
                   {/* Hard Skills - Categorizado */}
                   <section className="flex-[2] flex flex-col min-h-0">

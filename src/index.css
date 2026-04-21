@@ -593,8 +593,34 @@ body {
   flex-shrink: 0;
 }
 
-/* Skills grid — scroll horizontal apenas no mobile */
+/* Desktop default — sem scroll horizontal entre Hard/Soft */
+.skills-container {
+  overflow: hidden;
+}
+.skills-inner {
+  min-width: 100%;
+  flex: 1;
+}
+
+/* Mobile — scroll horizontal entre Hard Skills / Soft Skills */
 @media (max-width: 768px) {
+  .skills-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    touch-action: pan-x pan-y;
+  }
+  .skills-inner {
+    min-width: max-content;
+    flex: 0 0 auto;
+  }
+  .skills-inner > section {
+    flex: 0 0 auto;
+    width: 88vw;
+    scroll-snap-align: start;
+  }
+
   .skills-grid {
     grid-template-columns: none !important;
     grid-auto-flow: column;
@@ -605,14 +631,6 @@ body {
   }
   .skills-grid::-webkit-scrollbar {
     display: none;
-  }
-
-  /* Container de skills — scroll horizontal no mobile */
-  .skills-container {
-    overflow-x: auto;
-  }
-  .skills-inner {
-    min-width: max-content;
   }
 }
 
